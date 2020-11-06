@@ -78,7 +78,7 @@ class UserDataController extends Controller
     }
 
     public function userApp(Request $request){
-        $getUserApps = DB::table('users')->select('application.apps_name')
+        $getUserApps = DB::table('users')->select('application.apps_name', 'application.id_apps')
         ->join('application', 'users.id', '=', 'application.id_user')
         ->where('users.email', $request->email)->get();
 
