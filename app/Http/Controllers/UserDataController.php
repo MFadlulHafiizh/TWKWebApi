@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\ReportBug;
+use App\FeatureRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -117,6 +118,48 @@ class UserDataController extends Controller
 
     public function storeFeature(Request $request){
 
+        $input = $request->all();
+
+        $validator = Validator::make($input, [
+            'id_apps'=>'required',
+            'priority'=> 'required|string',
+            'subject'=> 'required|string',
+            'detail'=> 'required|string',
+            'status' => 'required'
+        ]);
+
+        if ($validator->fails()) {
+            //return $this->sendError('Validation Error', $validator->errors());
+            return response()->json([
+                'message' => 'Unkwon Error, please try again later'
+            ]);
+        }
+
+        $bugReport = FeatureRequest::create($input);
+        return response()->json([
+            'message' => 'Your report has sended'
+        ]);
+    }
+
+    public function updateFeatureAdmin(Request $request){
+        $input = $request->all();
+
+        $validator = Validator::make($input, [
+            'price'=> 'required|bigInteger',
+            'time_periodic'=> 'required|date'
+        ]);
+
+        if ($validator->fails()) {
+            //return $this->sendError('Validation Error', $validator->errors());
+            return response()->json([
+                'message' => 'Unkwon Error, please try again later'
+            ]);
+        }
+
+        $bugReport = ReportBug::create($input);
+        return response()->json([
+            'message' => 'Your report has sended'
+        ]);
     }
 
     
