@@ -30,3 +30,4 @@ Route::get('user/data-bug', 'UserDataController@indexBug');
 Route::get('user/data-feature', 'UserDataController@indexFeature');
 Route::get('user/data-done', 'UserDataController@indexDone');
 Route::get('user/getapp', 'UserDataController@userApp');
+Route::post('user/report-bug', 'UserDataController@storeBug');
