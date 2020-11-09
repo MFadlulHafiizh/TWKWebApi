@@ -29,6 +29,23 @@ class UserDataController extends Controller
         ]);
     }
 
+    public function indexBugAdmin(){
+        $userDataBug = DB::table('application')->select('application.apps_name','report_bug.priority','report_bug.subject', 'report_bug.detail', 'report_bug.status', 'report_bug.created_at')
+        ->join('report_bug','application.id_apps','=','report_bug.id_apps')
+        ->whereNOTIn('report_bug.status', function($subquery){
+            $subquery->select('report_bug.status')->where('report_bug.status', "Done");
+        })->get();
+
+        $this ->validate($request, [
+            "email"=>"required"
+        ]);
+
+        return response()->json([
+            "message" => 'success',
+            "bugData" => $userDataBug
+        ]);
+    }
+
     public function indexFeature(Request $request){
         $userDataFeature = DB::table('users')
         ->select('application.apps_name','feature_request.priority','feature_request.subject', 'feature_request.detail', 'feature_request.status', 'feature_request.created_at', 'feature_request.time_periodic', 'feature_request.price')
@@ -142,24 +159,7 @@ class UserDataController extends Controller
     }
 
     public function updateFeatureAdmin(Request $request){
-        $input = $request->all();
-
-        $validator = Validator::make($input, [
-            'price'=> 'required|bigInteger',
-            'time_periodic'=> 'required|date'
-        ]);
-
-        if ($validator->fails()) {
-            //return $this->sendError('Validation Error', $validator->errors());
-            return response()->json([
-                'message' => 'Unkwon Error, please try again later'
-            ]);
-        }
-
-        $bugReport = ReportBug::create($input);
-        return response()->json([
-            'message' => 'Your report has sended'
-        ]);
+        
     }
 
     
