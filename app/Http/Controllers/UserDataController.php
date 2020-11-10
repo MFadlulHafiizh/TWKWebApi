@@ -148,7 +148,7 @@ class UserDataController extends Controller
             ]);
         }
 
-        $bugReport = FeatureRequest::create($input);
+        $featureRequest = FeatureRequest::create($input);
         return response()->json([
             'message' => 'Your report has sended'
         ]);
