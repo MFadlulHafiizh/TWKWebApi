@@ -79,7 +79,7 @@ class UserDataController extends Controller
     }
 
     public function userApp(Request $request){
-        $getUserApps = DB::table('users')->select('application.apps_name')
+        $getUserApps = DB::table('users')->select('application.apps_name', 'application.id_apps')
         ->join('application', 'users.id', '=', 'application.id_user')
         ->where('users.email', $request->email)->get();
 
@@ -139,15 +139,6 @@ class UserDataController extends Controller
         return response()->json([
             'message' => 'Your report has sended'
         ]);
-    }
-
-    public function updateFeatureAdmin(Request $request, $id_request){
-        $feature_request = FeatureRequest::find($id_request);
-        $feature_request->price = $request->input('price');
-        $feature_request->time_periodic = $request->input('time_periodic');
-
-        $feature_request->save();
-        return response()->json($feature_request);
     }
 
 }
