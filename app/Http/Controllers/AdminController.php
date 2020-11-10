@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\FeatureRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -58,9 +59,13 @@ class AdminController extends Controller
     public function makeAgreement(Request $request, $id_request){
         $feature_request = FeatureRequest::find($id_request);
         $feature_request->price = $request->input('price');
-        $feature_request->time_periodic = $request->input('time_periodic');    
+        $feature_request->time_periodic = $request->input('time_periodic');
+        $feature_request->status = 'Need Agreement';
 
         $feature_request->save();
-        return response()->json($feature_request);
+        return response()->json([
+            'message' => 'Successfull make agreement',
+            $feature_request
+            ]);
     }
 }

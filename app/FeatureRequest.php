@@ -12,4 +12,5 @@ class FeatureRequest extends Model
     protected $fillable = [
         'id_request', 'id_apps', 'priority', 'subject', 'detail', 'price', 'time_periodic', 'status'
     ];
+    protected $primaryKey = 'id_request';
 }

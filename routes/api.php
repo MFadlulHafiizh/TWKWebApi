@@ -41,5 +41,5 @@ Route::group(["middleware"=> "api.role:admin"], function(){
     Route::get('admin/data-bug', 'AdminController@indexBugAdmin');
     Route::get('admin/data-feature', 'AdminController@indexFeatureAdmin');
     Route::get('admin/data-done', 'AdminController@indexDoneAdmin');
-    Route::put('admin/make-agreement', 'AdminController@makeAgreement');
+    Route::put('admin/make-agreement/{id_request}', 'AdminController@makeAgreement');
 });
