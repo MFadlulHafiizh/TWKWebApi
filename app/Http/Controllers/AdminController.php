@@ -29,7 +29,7 @@ class AdminController extends Controller
 
         return response()->json([
             "message" => 'success',
-            "bugData" => $adminDataBug
+            "featureData" => $adminDataBug
         ]);
     }
 
@@ -56,6 +56,6 @@ class AdminController extends Controller
     }
 
     public function makeAgreement(){
-        
+
     }
 }

@@ -26,6 +26,8 @@ Route::group(["middleware"=> "jwt.auth"], function(){
     Route::get('user', 'AuthController@getAuthenticatedUser'); 
 });
 
+Route::get('pushnotif', 'UserDataController@pushNotifBug');
+
 Route::group(["middleware"=> "api.role:client"], function() {
     Route::get('user/data-bug', 'UserDataController@indexBug');
     Route::get('user/data-feature', 'UserDataController@indexFeature');

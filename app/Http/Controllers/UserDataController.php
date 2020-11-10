@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\ReportBug;
 use App\FeatureRequest;
 use Illuminate\Http\Request;
+use Kawankoding\Fcm\FcmFacade;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
@@ -92,6 +93,7 @@ class UserDataController extends Controller
     public function storeBug(Request $request){
 
         $input = $request->all();
+        $adminToken = 'faFX4vfiknE:APA91bGwdD6o5RMlOlGLHyIMP_41Y5vws4E7rL0CGzwQ0IqMQ3-s4rUQnmgcR52FZG14iBlBKWaMc_yE8Sa-gcWeCUjRD2ED3_nipz_OOEsGrwFyhAZgdoX3eGbtE2zPkJ5vOPyVbWCA';
 
         $validator = Validator::make($input, [
             'id_apps'=>'required',
@@ -110,10 +112,21 @@ class UserDataController extends Controller
 
         $bugReport = ReportBug::create($input);
         return response()->json([
-            'message' => 'Your report has sended'
+            'message' => 'Your report has sended',
+            'notif' => $this->pushNotifBug($adminToken)
         ]);
+    }
 
-        
+    public function pushNotifBug($adminToken){
+        $recipients = [$adminToken];//, 'frNgDWHH_0A:APA91bGrQ1AJCSUADO0vrlAO6myzd9gq4-mDuvMww_4kOS3O2fy4bw0AjIQjDe9crwHkU4DAOHaYS3tYFygp6IDTqkovt7u1IhSnJsCHoRrSFjpzsOE5d1uyq_wGzfIaVVIFMtEJpVHA'];
+        fcm()
+        ->to($recipients)
+        ->priority('high')
+        ->timeToLive(0)
+        ->notification([
+            'title' => 'New bugs reported',
+            'body' => 'This is a test of FCM',
+        ])->send();
     }
 
     public function storeFeature(Request $request){
