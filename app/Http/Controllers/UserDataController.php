@@ -154,10 +154,4 @@ class UserDataController extends Controller
         ]);
     }
 
-    public function updateFeatureAdmin(Request $request){
-        
-    }
-
-    
-
 }
