@@ -141,27 +141,13 @@ class UserDataController extends Controller
         ]);
     }
 
-    public function updateFeatureAdmin(Request $request){
-        $input = $request->all();
+    public function updateFeatureAdmin(Request $request, $id_request){
+        $feature_request = FeatureRequest::find($id_request);
+        $feature_request->price = $request->input('price');
+        $feature_request->time_periodic = $request->input('time_periodic');
 
-        $validator = Validator::make($input, [
-            'price'=> 'required|bigInteger',
-            'time_periodic'=> 'required|date'
-        ]);
-
-        if ($validator->fails()) {
-            //return $this->sendError('Validation Error', $validator->errors());
-            return response()->json([
-                'message' => 'Unkwon Error, please try again later'
-            ]);
-        }
-
-        $bugReport = ReportBug::create($input);
-        return response()->json([
-            'message' => 'Your report has sended'
-        ]);
+        $feature_request->save();
+        return response()->json($feature_request);
     }
-
-    
 
 }

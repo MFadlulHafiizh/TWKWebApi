@@ -31,4 +31,6 @@ Route::get('user/data-feature', 'UserDataController@indexFeature');
 Route::get('user/data-done', 'UserDataController@indexDone');
 Route::get('user/getapp', 'UserDataController@userApp');
 Route::post('user/report-bug', 'UserDataController@storeBug');
-Route::post('user/feature_request', 'UserDataController@storeFeature');
+Route::post('user/feature-request', 'UserDataController@storeFeature');
+
+Route::put('user/update-feature', 'UserDataController@updateFeatureAdmin');
