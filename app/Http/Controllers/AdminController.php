@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\FeatureRequest;
 
 class AdminController extends Controller
 {
@@ -58,7 +59,7 @@ class AdminController extends Controller
     public function makeAgreement(Request $request, $id_request){
         $feature_request = FeatureRequest::find($id_request);
         $feature_request->price = $request->input('price');
-        $feature_request->time_periodic = $request->input('time_periodic');    
+        $feature_request->time_periodic = $request->input('time_periodic');
 
         $feature_request->save();
         return response()->json($feature_request);

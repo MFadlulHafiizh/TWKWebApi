@@ -140,5 +140,6 @@ class UserDataController extends Controller
             'message' => 'Your report has sended'
         ]);
     }
+    
 
 }
