@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class UpdateReportBugTable extends Migration
+class CreatePerusahaanTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,9 @@ class UpdateReportBugTable extends Migration
      */
     public function up()
     {
-        Schema::table('report_bug', function($table){
-            $table->string('status', 100)->after('detail');
+        Schema::create('perusahaan', function (Blueprint $table) {
+            $table->id('id_perusahaan');
+            $table->string('nama_perusahaan', 60);
         });
     }
 
@@ -25,8 +26,6 @@ class UpdateReportBugTable extends Migration
      */
     public function down()
     {
-        Schema::table('report_bug', function($table){
-            $table->dropColumn('status');
-        });
+        Schema::dropIfExists('perusahaan');
     }
 }
