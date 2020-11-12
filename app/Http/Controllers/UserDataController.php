@@ -14,13 +14,14 @@ class UserDataController extends Controller
     public function indexBug(Request $request){
         $userDataBug = DB::table('perusahaan')->select('application.apps_name','ticket.priority','ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at')
         ->join('application','perusahaan.id_perusahaan','=','application.id_perusahaan')
-        ->join('ticket','application.id_apps','=','ticket.id_apps')->where('users.email', $request->email)
+        ->join('ticket','application.id_apps','=','ticket.id_apps')->where('perusahaan.id_perusahaan', $request->id_perusahaan)
+        ->where('ticket.type', 'Report')
         ->whereNOTIn('ticket.status', function($subquery){
-            $subquery->select('ticket.status')->where('ticket.status', "Report");
+            $subquery->select('ticket.status')->where('ticket.status', "Done");
         })->get();
 
         $this ->validate($request, [
-            "email"=>"required"
+            "id_perusahaan"=>"required"
         ]);
 
         return response()->json([
@@ -33,13 +34,14 @@ class UserDataController extends Controller
         $userDataFeature = DB::table('perusahaan')
         ->select('application.apps_name','ticket.priority','ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at', 'ticket.time_periodic', 'ticket.price')
         ->join('application','perusahaan.id_perusahaan','=','application.id_perusahaan')
-        ->join('ticket','application.id_apps','=','feature_request.id_apps')->where('users.email', $request->email)
+        ->join('ticket','application.id_apps','=','feature_request.id_apps')->where('perusahaan.id_perusahaan', $request->id_perusahaan)
+        ->where('ticket.type', 'Request')
         ->whereNOTIn('ticket.status', function($subquery){
-            $subquery->select('ticket.status')->where('ticket.status', "Request");
+            $subquery->select('ticket.status')->where('ticket.status', "Done");
         })->get();
 
         $this ->validate($request, [
-            "email"=>"required"
+            "id_perusahaan"=>"required"
         ]);
 
         return response()->json([
@@ -50,38 +52,25 @@ class UserDataController extends Controller
 
     
     public function indexDone(Request $request){
-        $params = $request->email;
-        
-        $userDataBug = DB::table('perusahaan')->select('application.apps_name','ticket.priority','ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at')
+        $userDataDone = DB::table('perusahaan')->select('application.apps_name','ticket.priority','ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at')
         ->join('application','perusahaan.id_perusahaan','=','application.id_perusahaan')
-        ->join('ticket','application.id_apps','=','ticket.id_apps')->where('users.email', $params)
-        ->where('ticket.status', function($subquery){
-            $subquery->select('ticket.status')->where('ticket.status', "Report");
-        })->get();
-
-        $userDataFeature = DB::table('perusahaan')
-        ->select('application.apps_name','ticket.priority','ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at', 'ticket.time_periodic', 'ticket.price')
-        ->join('application','perusahaan.id_perusahaan','=','application.id_perusahaan')
-        ->join('ticket','application.id_apps','=','ticket.id_apps')->where('users.email', $params)
-        ->where('ticket.status', function($subquery){
-            $subquery->select('ticket.status')->where('ticket.status', "Request");
-        })->get();
+        ->join('ticket','application.id_apps','=','ticket.id_apps')->where('perusahaan.id_perusahaan', $request->id_perusahaan)
+        ->where('ticket.status', "Done")->get();
 
         $this ->validate($request, [
-            "email"=>"required"
+            "id_perusahaan"=>"required"
         ]);
 
-        $obj_merged = array_merge($userDataBug->toArray(), $userDataFeature->toArray());
         return response()->json([
-            "doneData" => $obj_merged
-            ]);
-        
+            "message" => "success",
+            "dataDone" => $userDataDone
+        ]);
     }
 
     public function userApp(Request $request){
         $getUserApps = DB::table('perusahaan')->select('application.apps_name', 'application.id_apps')
-        ->join('application', 'perusahaan.id_perusahaan', '=', 'application.id_perusahaan')
-        ->where('users.email', $request->email)->get();
+        ->join('application', 'perusahaan.id_perusahaan', '=', 'application.id_peruxsahaan')
+        ->where('perusahaan.id_perusahaan', $request->id_perusahaan)->get();
 
         return response()->json([
             "message" => "Success",
@@ -96,6 +85,7 @@ class UserDataController extends Controller
 
         $validator = Validator::make($input, [
             'id_apps'=>'required',
+            'type' => 'required',
             'priority'=> 'required|string',
             'subject'=> 'required|string',
             'detail'=> 'required|string',
@@ -109,7 +99,7 @@ class UserDataController extends Controller
             ]);
         }
 
-        $bugReport = ReportBug::create($input);
+        $bugReport = Ticket::create($input);
         return response()->json([
             'message' => 'Your report has sended',
             'notif' => $this->pushNotifBug($adminToken)
@@ -134,6 +124,7 @@ class UserDataController extends Controller
 
         $validator = Validator::make($input, [
             'id_apps'=>'required',
+            'type' => 'required',
             'priority'=> 'required|string',
             'subject'=> 'required|string',
             'detail'=> 'required|string',
@@ -147,11 +138,10 @@ class UserDataController extends Controller
             ]);
         }
 
-        $featureRequest = FeatureRequest::create($input);
+        $featureRequest = Ticket::create($input);
         return response()->json([
             'message' => 'Your report has sended'
         ]);
     }
-    
 
 }

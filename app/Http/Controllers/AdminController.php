@@ -11,8 +11,9 @@ class AdminController extends Controller
     public function indexBugAdmin(){
         $adminDataBug = DB::table('application')->select('application.apps_name','ticket.priority','ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at')
         ->join('ticket','application.id_apps','=','ticket.id_apps')
+        ->where('ticket.type', 'Report')
         ->whereNOTIn('ticket.status', function($subquery){
-            $subquery->select('ticket.status')->where('ticket.status', "Report");
+            $subquery->select('ticket.status')->where('ticket.status', "Done");
         })->get();
 
         return response()->json([
@@ -25,7 +26,7 @@ class AdminController extends Controller
         $adminDataBug = DB::table('application')->select('application.apps_name','ticket.priority','ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at')
         ->join('ticket','application.id_apps','=','ticket.id_apps')
         ->whereNOTIn('ticket.status', function($subquery){
-            $subquery->select('ticket.status')->where('ticket.status', "Request");
+            $subquery->select('ticket.status')->where('ticket.status', "Done");
         })->get();
 
         return response()->json([
@@ -39,7 +40,7 @@ class AdminController extends Controller
         ->join('application','perusahaan.id_perusahaan','=','application.id_perusahaan')
         ->join('ticket','application.id_apps','=','ticket.id_apps')
         ->where('ticket.status', function($subquery){
-            $subquery->select('ticket.status')->where('ticket.status', "Report");
+            $subquery->select('ticket.status')->where('ticket.status', "Done");
         })->get();
 
         $userDataFeature = DB::table('perusahaan')
@@ -47,7 +48,7 @@ class AdminController extends Controller
         ->join('application','perusahaan.id_perusahaan','=','application.id_perusahaan')
         ->join('ticket','application.id_apps','=','ticket.id_apps')
         ->where('ticket.status', function($subquery){
-            $subquery->select('ticket.status')->where('ticket.status', "Request");
+            $subquery->select('ticket.status')->where('ticket.status', "Done");
         })->get();
 
         $obj_merged = array_merge($userDataBug->toArray(), $userDataFeature->toArray());
