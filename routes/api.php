@@ -23,9 +23,10 @@ Route::post("register", "AuthController@register");
 
 Route::group(["middleware"=> "jwt.auth"], function(){
     Route::get("logout", "AuthController@logout");
-    Route::get('user', 'AuthController@getAuthenticatedUser'); 
-    Route::get('user', 'AuthController@getImage');
+    Route::get('user', 'AuthController@getAuthenticatedUser');
 });
+
+Route::get('pushnotif', 'UserDataController@pushNotifBug');
 
 Route::group(["middleware"=> "api.role:client"], function() {
     Route::get('user/data-bug', 'UserDataController@indexBug');

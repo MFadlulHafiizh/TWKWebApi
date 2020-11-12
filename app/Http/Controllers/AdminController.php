@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\FeatureRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use App\FeatureRequest;
 
 class AdminController extends Controller
 {
@@ -30,7 +30,7 @@ class AdminController extends Controller
 
         return response()->json([
             "message" => 'success',
-            "bugData" => $adminDataBug
+            "featureData" => $adminDataBug
         ]);
     }
 
@@ -60,8 +60,12 @@ class AdminController extends Controller
         $feature_request = FeatureRequest::find($id_request);
         $feature_request->price = $request->input('price');
         $feature_request->time_periodic = $request->input('time_periodic');
+        $feature_request->status = 'Need Agreement';
 
         $feature_request->save();
-        return response()->json($feature_request);
+        return response()->json([
+            'message' => 'Successfull make agreement',
+            $feature_request
+            ]);
     }
 }
