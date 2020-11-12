@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Ticket;
 use Illuminate\Http\Request;
 use Kawankoding\Fcm\FcmFacade;
+use App\ReportBug;
+use App\FeatureRequest;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
@@ -79,8 +81,8 @@ class UserDataController extends Controller
     }
 
     public function userApp(Request $request){
-        $getUserApps = DB::table('perusahaan')->select('application.apps_name', 'application.id_apps')
-        ->join('application', 'perusahaan.id_perusahaan', '=', 'application.id_perusahaan')
+        $getUserApps = DB::table('users')->select('application.apps_name', 'application.id_apps')
+        ->join('application', 'users.id', '=', 'application.id_user')
         ->where('users.email', $request->email)->get();
 
         return response()->json([
