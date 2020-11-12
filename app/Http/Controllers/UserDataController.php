@@ -2,8 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\ReportBug;
-use App\FeatureRequest;
+use App\Ticket;
 use Illuminate\Http\Request;
 use Kawankoding\Fcm\FcmFacade;
 use Illuminate\Support\Facades\DB;
@@ -13,11 +12,11 @@ use Illuminate\Support\Facades\Validator;
 class UserDataController extends Controller
 {
     public function indexBug(Request $request){
-        $userDataBug = DB::table('users')->select('application.apps_name','report_bug.priority','report_bug.subject', 'report_bug.detail', 'report_bug.status', 'report_bug.created_at')
-        ->join('application','users.id','=','application.id_user')
-        ->join('report_bug','application.id_apps','=','report_bug.id_apps')->where('users.email', $request->email)
-        ->whereNOTIn('report_bug.status', function($subquery){
-            $subquery->select('report_bug.status')->where('report_bug.status', "Done");
+        $userDataBug = DB::table('perusahaan')->select('application.apps_name','ticket.priority','ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at')
+        ->join('application','perusahaan.id_perusahaan','=','application.id_perusahaan')
+        ->join('ticket','application.id_apps','=','ticket.id_apps')->where('users.email', $request->email)
+        ->whereNOTIn('ticket.status', function($subquery){
+            $subquery->select('ticket.status')->where('ticket.status', "Report");
         })->get();
 
         $this ->validate($request, [
@@ -31,12 +30,12 @@ class UserDataController extends Controller
     }
 
     public function indexFeature(Request $request){
-        $userDataFeature = DB::table('users')
-        ->select('application.apps_name','feature_request.priority','feature_request.subject', 'feature_request.detail', 'feature_request.status', 'feature_request.created_at', 'feature_request.time_periodic', 'feature_request.price')
-        ->join('application','users.id','=','application.id_user')
-        ->join('feature_request','application.id_apps','=','feature_request.id_apps')->where('users.email', $request->email)
-        ->whereNOTIn('feature_request.status', function($subquery){
-            $subquery->select('feature_request.status')->where('feature_request.status', "Done");
+        $userDataFeature = DB::table('perusahaan')
+        ->select('application.apps_name','ticket.priority','ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at', 'ticket.time_periodic', 'ticket.price')
+        ->join('application','perusahaan.id_perusahaan','=','application.id_perusahaan')
+        ->join('ticket','application.id_apps','=','feature_request.id_apps')->where('users.email', $request->email)
+        ->whereNOTIn('ticket.status', function($subquery){
+            $subquery->select('ticket.status')->where('ticket.status', "Request");
         })->get();
 
         $this ->validate($request, [
@@ -53,19 +52,19 @@ class UserDataController extends Controller
     public function indexDone(Request $request){
         $params = $request->email;
         
-        $userDataBug = DB::table('users')->select('application.apps_name','report_bug.priority','report_bug.subject', 'report_bug.detail', 'report_bug.status', 'report_bug.created_at')
-        ->join('application','users.id','=','application.id_user')
-        ->join('report_bug','application.id_apps','=','report_bug.id_apps')->where('users.email', $params)
-        ->where('report_bug.status', function($subquery){
-            $subquery->select('report_bug.status')->where('report_bug.status', "Done");
+        $userDataBug = DB::table('perusahaan')->select('application.apps_name','ticket.priority','ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at')
+        ->join('application','perusahaan.id_perusahaan','=','application.id_perusahaan')
+        ->join('ticket','application.id_apps','=','ticket.id_apps')->where('users.email', $params)
+        ->where('ticket.status', function($subquery){
+            $subquery->select('ticket.status')->where('ticket.status', "Report");
         })->get();
 
-        $userDataFeature = DB::table('users')
-        ->select('application.apps_name','feature_request.priority','feature_request.subject', 'feature_request.detail', 'feature_request.status', 'feature_request.created_at', 'feature_request.time_periodic', 'feature_request.price')
-        ->join('application','users.id','=','application.id_user')
-        ->join('feature_request','application.id_apps','=','feature_request.id_apps')->where('users.email', $params)
-        ->where('feature_request.status', function($subquery){
-            $subquery->select('feature_request.status')->where('feature_request.status', "Done");
+        $userDataFeature = DB::table('perusahaan')
+        ->select('application.apps_name','ticket.priority','ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at', 'ticket.time_periodic', 'ticket.price')
+        ->join('application','perusahaan.id_perusahaan','=','application.id_perusahaan')
+        ->join('ticket','application.id_apps','=','ticket.id_apps')->where('users.email', $params)
+        ->where('ticket.status', function($subquery){
+            $subquery->select('ticket.status')->where('ticket.status', "Request");
         })->get();
 
         $this ->validate($request, [
@@ -80,8 +79,8 @@ class UserDataController extends Controller
     }
 
     public function userApp(Request $request){
-        $getUserApps = DB::table('users')->select('application.apps_name', 'application.id_apps')
-        ->join('application', 'users.id', '=', 'application.id_user')
+        $getUserApps = DB::table('perusahaan')->select('application.apps_name', 'application.id_apps')
+        ->join('application', 'perusahaan.id_perusahaan', '=', 'application.id_perusahaan')
         ->where('users.email', $request->email)->get();
 
         return response()->json([
@@ -93,7 +92,7 @@ class UserDataController extends Controller
     public function storeBug(Request $request){
 
         $input = $request->all();
-        $adminToken = 'faFX4vfiknE:APA91bGwdD6o5RMlOlGLHyIMP_41Y5vws4E7rL0CGzwQ0IqMQ3-s4rUQnmgcR52FZG14iBlBKWaMc_yE8Sa-gcWeCUjRD2ED3_nipz_OOEsGrwFyhAZgdoX3eGbtE2zPkJ5vOPyVbWCA';
+        $adminToken = 'frNgDWHH_0A:APA91bGrQ1AJCSUADO0vrlAO6myzd9gq4-mDuvMww_4kOS3O2fy4bw0AjIQjDe9crwHkU4DAOHaYS3tYFygp6IDTqkovt7u1IhSnJsCHoRrSFjpzsOE5d1uyq_wGzfIaVVIFMtEJpVHA';
 
         $validator = Validator::make($input, [
             'id_apps'=>'required',
@@ -153,5 +152,6 @@ class UserDataController extends Controller
             'message' => 'Your report has sended'
         ]);
     }
+    
 
 }
