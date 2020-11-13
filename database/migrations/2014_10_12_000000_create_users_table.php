@@ -21,9 +21,9 @@ class CreateUsersTable extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->string('photo', 225);
+            $table->string('photo', 225)->nullable();
             $table->rememberToken();
-            $table->string('fcm_token', 225);
+            $table->string('fcm_token', 225)->nullable();
             $table->timestamps();
 
             $table->foreign('id_perusahaan')->references('id_perusahaan')->on('perusahaan')->onDelete('cascade');

@@ -6,6 +6,8 @@ use App\Ticket;
 use App\User;
 use Illuminate\Http\Request;
 use Kawankoding\Fcm\FcmFacade;
+use App\ReportBug;
+use App\FeatureRequest;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
@@ -54,7 +56,7 @@ class UserDataController extends Controller
 
     
     public function indexDone(Request $request){
-        $userDataDone = DB::table('perusahaan')->select('application.apps_name' ,'ticket.priority', 'ticket.type', 'ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at')
+        $userDataDone = DB::table('perusahaan')->select('application.apps_name','ticket.priority', 'ticket.type', 'ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at')
         ->join('application','perusahaan.id_perusahaan','=','application.id_perusahaan')
         ->join('ticket','application.id_apps','=','ticket.id_apps')->where('perusahaan.id_perusahaan', $request->id_perusahaan)
         ->where('ticket.status', "Done")->get();
