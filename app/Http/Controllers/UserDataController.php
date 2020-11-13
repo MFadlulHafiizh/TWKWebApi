@@ -14,7 +14,8 @@ use Illuminate\Support\Facades\Validator;
 class UserDataController extends Controller
 {
     public function indexBug(Request $request){
-        $userDataBug = DB::table('perusahaan')->select('application.apps_name','ticket.priority','ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at')
+        $userDataBug = DB::table('perusahaan')
+        ->select('application.apps_name','ticket.priority', 'ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at')
         ->join('application','perusahaan.id_perusahaan','=','application.id_perusahaan')
         ->join('ticket','application.id_apps','=','ticket.id_apps')->where('perusahaan.id_perusahaan', $request->id_perusahaan)
         ->where('ticket.type', 'Report')
