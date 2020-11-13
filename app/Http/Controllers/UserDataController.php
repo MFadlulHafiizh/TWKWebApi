@@ -12,7 +12,8 @@ use Illuminate\Support\Facades\Validator;
 class UserDataController extends Controller
 {
     public function indexBug(Request $request){
-        $userDataBug = DB::table('perusahaan')->select('application.apps_name','ticket.priority','ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at')
+        $userDataBug = DB::table('perusahaan')
+        ->select('application.apps_name','ticket.priority', 'ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at')
         ->join('application','perusahaan.id_perusahaan','=','application.id_perusahaan')
         ->join('ticket','application.id_apps','=','ticket.id_apps')->where('perusahaan.id_perusahaan', $request->id_perusahaan)
         ->where('ticket.type', 'Report')
@@ -34,7 +35,7 @@ class UserDataController extends Controller
         $userDataFeature = DB::table('perusahaan')
         ->select('application.apps_name','ticket.priority','ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at', 'ticket.time_periodic', 'ticket.price')
         ->join('application','perusahaan.id_perusahaan','=','application.id_perusahaan')
-        ->join('ticket','application.id_apps','=','feature_request.id_apps')->where('perusahaan.id_perusahaan', $request->id_perusahaan)
+        ->join('ticket','application.id_apps','=','ticket.id_apps')->where('perusahaan.id_perusahaan', $request->id_perusahaan)
         ->where('ticket.type', 'Request')
         ->whereNOTIn('ticket.status', function($subquery){
             $subquery->select('ticket.status')->where('ticket.status', "Done");
@@ -52,7 +53,7 @@ class UserDataController extends Controller
 
     
     public function indexDone(Request $request){
-        $userDataDone = DB::table('perusahaan')->select('application.apps_name','ticket.priority','ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at')
+        $userDataDone = DB::table('perusahaan')->select('application.apps_name' ,'ticket.priority', 'ticket.type', 'ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at')
         ->join('application','perusahaan.id_perusahaan','=','application.id_perusahaan')
         ->join('ticket','application.id_apps','=','ticket.id_apps')->where('perusahaan.id_perusahaan', $request->id_perusahaan)
         ->where('ticket.status', "Done")->get();
@@ -69,7 +70,7 @@ class UserDataController extends Controller
 
     public function userApp(Request $request){
         $getUserApps = DB::table('perusahaan')->select('application.apps_name', 'application.id_apps')
-        ->join('application', 'perusahaan.id_perusahaan', '=', 'application.id_peruxsahaan')
+        ->join('application', 'perusahaan.id_perusahaan', '=', 'application.id_perusahaan')
         ->where('perusahaan.id_perusahaan', $request->id_perusahaan)->get();
 
         return response()->json([
@@ -140,7 +141,7 @@ class UserDataController extends Controller
 
         $featureRequest = Ticket::create($input);
         return response()->json([
-            'message' => 'Your report has sended'
+            'message' => 'Your request has sended'
         ]);
     }
 

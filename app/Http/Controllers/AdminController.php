@@ -57,16 +57,37 @@ class AdminController extends Controller
         ]);
     }
 
-    public function makeAgreement(Request $request, $id_request){
-        $feature_request = FeatureRequest::find($id_request);
-        $feature_request->price = $request->input('price');
-        $feature_request->time_periodic = $request->input('time_periodic');
-        $feature_request->status = 'Need Agreement';
+    // PUT
+    // public function makeAgreement(Request $request, $id_ticket){
+    //     $ticket = Ticket::find($id_ticket);
+    //     $ticket->price = $request->input('price');
+    //     $ticket->time_periodic = $request->input('time_periodic');
+    //     $ticket->status = 'Need Agreement';
 
-        $feature_request->save();
-        return response()->json([
-            'message' => 'Successfull make agreement',
-            $feature_request
+    //     $ticket->save();
+    //     return response()->json([
+    //         'message' => 'Successfull make agreement',
+    //         $ticket
+    //         ]);
+    // }
+
+    public function makeAgreement(Request $request, $id_ticket){
+
+        $ticket = Ticket::firstWhere('id_ticket', $id_ticket);
+
+        if($ticket){
+            $update = Ticket::find($id_ticket);
+            $update->update([
+                'price' => $request->price,
+                'time_periodic' => $request->time_periodic
             ]);
+            return response()->json($update, 200);
+        }else{
+            return response([
+                'status' => 'ERROR',
+                'message'=> 'Succeesfull update data',
+            ], 404);
+        }
     }
+    
 }
