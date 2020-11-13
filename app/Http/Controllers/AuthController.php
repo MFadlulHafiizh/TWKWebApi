@@ -19,7 +19,6 @@ class AuthController extends Controller
         $credentials = $request->only("email","password");
         $token = null;
         $user = \DB::table('users')
-        ->select('perusahaan.nama_perusahaan', 'users.id', 'users.id_perusahaan', 'users.role', 'users.name', 'users.email', 'users.email_verified_at', 'users.password', 'users.photo', 'users.fcm_token', 'users.create_at', 'users.update_at')
         ->join('perusahaan', 'users.id_perusahaan', '=', 'perusahaan.id_perusahaan')
         ->where('email', $request->email)->first();
         if (!$token = JWTAuth::attempt($credentials)) {

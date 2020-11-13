@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Ticket;
+use App\User;
 use Illuminate\Http\Request;
 use Kawankoding\Fcm\FcmFacade;
 use Illuminate\Support\Facades\DB;
