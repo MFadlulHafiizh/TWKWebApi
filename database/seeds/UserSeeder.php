@@ -13,38 +13,42 @@ class UserSeeder extends Seeder
     {
         DB::table('users')->insert([
             [
-                'name'=>'admin',
-                'email'=>'admin@gmail.com',
+                'id_perusahaan' => 2,
+                'name'=>'twk head',
+                'email'=>'twkhead@gmail.com',
                 'email_verified_at'=> now(),
-                'password'=> bcrypt("admin"),
-                'role'=>'admin',
+                'password'=> bcrypt("twkhead"),
+                'role'=>'twk-head',
                 'remember_token'=>Str::random(10),
                 'created_at'      => \Carbon\Carbon::now('Asia/Jakarta')
             ],
             [
-                'name'=>'client',
-                'email'=>'client@gmail.com',
+                'id_perusahaan' => 1,
+                'name'=>'client staff',
+                'email'=>'clientstaff@gmail.com',
                 'email_verified_at'=> now(),
-                'password'=> bcrypt("client"),
-                'role'=>'client',
+                'password'=> bcrypt("clientstaff"),
+                'role'=>'client-staff',
                 'remember_token'=>Str::random(10),
                 'created_at'      => \Carbon\Carbon::now('Asia/Jakarta')
             ],
             [
-                'name'=>'karyawan',
-                'email'=>'karyawan@gmail.com',
+                'id_perusahaan' => 1,
+                'name'=>'twk staff',
+                'email'=>'twkstaff@gmail.com',
                 'email_verified_at'=> now(),
-                'password'=> bcrypt("karyawan"),
-                'role' => 'karyawan',
+                'password'=> bcrypt("twkstaff"),
+                'role' => 'twk-staff',
                 'remember_token'=>Str::random(10),
                 'created_at'      => \Carbon\Carbon::now('Asia/Jakarta')
             ],
             [
+                'id_perusahaan' => 2,
                 'name'=>'Reza',
                 'email'=>'reza@gmail.com',
                 'email_verified_at'=> now(),
-                'password'=> bcrypt("client"),
-                'role' => 'client',
+                'password'=> bcrypt("clienthead"),
+                'role' => 'client-head',
                 'remember_token'=>Str::random(10),
                 'created_at'      => \Carbon\Carbon::now('Asia/Jakarta')
             ],
