@@ -25,6 +25,7 @@ class AdminController extends Controller
     public function indexFeatureAdmin(){
         $adminDataBug = DB::table('application')->select('application.apps_name','ticket.priority','ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at')
         ->join('ticket','application.id_apps','=','ticket.id_apps')
+        ->where('ticket.type', 'Request')
         ->whereNOTIn('ticket.status', function($subquery){
             $subquery->select('ticket.status')->where('ticket.status', "Done");
         })->get();
@@ -36,40 +37,17 @@ class AdminController extends Controller
     }
 
     public function indexDoneAdmin(){   
-        $userDataBug = DB::table('perusahaan')->select('application.apps_name','ticket.priority','ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at')
+        $adminDataDone = DB::table('perusahaan')
+        ->select('application.apps_name','ticket.priority','ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at')
         ->join('application','perusahaan.id_perusahaan','=','application.id_perusahaan')
         ->join('ticket','application.id_apps','=','ticket.id_apps')
-        ->where('ticket.status', function($subquery){
-            $subquery->select('ticket.status')->where('ticket.status', "Done");
-        })->get();
+        ->where('ticket.status', "Done")->get();
 
-        $userDataFeature = DB::table('perusahaan')
-        ->select('application.apps_name','ticket.priority','ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at', 'ticket.time_periodic', 'ticket.price')
-        ->join('application','perusahaan.id_perusahaan','=','application.id_perusahaan')
-        ->join('ticket','application.id_apps','=','ticket.id_apps')
-        ->where('ticket.status', function($subquery){
-            $subquery->select('ticket.status')->where('ticket.status', "Done");
-        })->get();
-
-        $obj_merged = array_merge($userDataBug->toArray(), $userDataFeature->toArray());
         return response()->json([
-            "doneData" => $obj_merged
+            "message" => "success",
+            "doneData" => $adminDataDone
         ]);
     }
-
-    // PUT
-    // public function makeAgreement(Request $request, $id_ticket){
-    //     $ticket = Ticket::find($id_ticket);
-    //     $ticket->price = $request->input('price');
-    //     $ticket->time_periodic = $request->input('time_periodic');
-    //     $ticket->status = 'Need Agreement';
-
-    //     $ticket->save();
-    //     return response()->json([
-    //         'message' => 'Successfull make agreement',
-    //         $ticket
-    //         ]);
-    // }
 
     public function makeAgreement(Request $request, $id_ticket){
 
@@ -81,11 +59,14 @@ class AdminController extends Controller
                 'price' => $request->price,
                 'time_periodic' => $request->time_periodic
             ]);
-            return response()->json($update, 200);
+            return response()->json([
+                'message' => 'Succeesfull make agreement',
+                $update
+        ], 200);
         }else{
             return response([
                 'status' => 'ERROR',
-                'message'=> 'Succeesfull update data',
+                'message' => 'Failed update data',
             ], 404);
         }
     }

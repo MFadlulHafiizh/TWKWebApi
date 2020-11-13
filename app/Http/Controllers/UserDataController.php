@@ -64,7 +64,7 @@ class UserDataController extends Controller
 
         return response()->json([
             "message" => "success",
-            "dataDone" => $userDataDone
+            "doneData" => $userDataDone
         ]);
     }
 
@@ -143,6 +143,25 @@ class UserDataController extends Controller
         return response()->json([
             'message' => 'Your request has sended'
         ]);
+    }
+
+    public function uploadImage(Request $request){
+        
+        $data = User::create([
+            'photo' => $request->file('photo'),
+        ]);
+
+        if($request->hasFile('photo')){
+            $request->file('photo')->move('uploads/', $request->file('photo')->getUserOriginalName());
+            $data->photo = $request->file('photo')->getUserOriginalName();
+            $data->save();
+        };
+
+        return response()->json([
+            "status" => "Created Image",
+            "message" => "Success Upload Image",
+            "data" => $data
+        ], 201);
     }
 
 }
