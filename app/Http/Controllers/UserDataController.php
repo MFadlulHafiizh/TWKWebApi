@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Ticket;
+use App\User;
 use Illuminate\Http\Request;
 use Kawankoding\Fcm\FcmFacade;
 use App\ReportBug;
@@ -15,7 +16,7 @@ class UserDataController extends Controller
 {
     public function indexBug(Request $request){
         $userDataBug = DB::table('perusahaan')
-        ->select('application.apps_name','ticket.priority', 'ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at')
+        ->select('application.apps_name', 'ticket.type','ticket.priority', 'ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at')
         ->join('application','perusahaan.id_perusahaan','=','application.id_perusahaan')
         ->join('ticket','application.id_apps','=','ticket.id_apps')->where('perusahaan.id_perusahaan', $request->id_perusahaan)
         ->where('ticket.type', 'Report')
@@ -35,7 +36,7 @@ class UserDataController extends Controller
 
     public function indexFeature(Request $request){
         $userDataFeature = DB::table('perusahaan')
-        ->select('application.apps_name','ticket.priority','ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at', 'ticket.time_periodic', 'ticket.price')
+        ->select('application.apps_name','ticket.type','ticket.priority','ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at', 'ticket.time_periodic', 'ticket.price')
         ->join('application','perusahaan.id_perusahaan','=','application.id_perusahaan')
         ->join('ticket','application.id_apps','=','ticket.id_apps')->where('perusahaan.id_perusahaan', $request->id_perusahaan)
         ->where('ticket.type', 'Request')
@@ -145,6 +146,25 @@ class UserDataController extends Controller
         return response()->json([
             'message' => 'Your request has sended'
         ]);
+    }
+
+    public function uploadImage(Request $request){
+        
+        $data = User::create([
+            'photo' => $request->file('photo'),
+        ]);
+
+        if($request->hasFile('photo')){
+            $request->file('photo')->move('uploads/', $request->file('photo')->getUserOriginalName());
+            $data->photo = $request->file('photo')->getUserOriginalName();
+            $data->save();
+        };
+
+        return response()->json([
+            "status" => "Created Image",
+            "message" => "Success Upload Image",
+            "data" => $data
+        ], 201);
     }
 
 }

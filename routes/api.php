@@ -28,6 +28,8 @@ Route::group(["middleware"=> "jwt.auth"], function(){
 
 Route::get('pushnotif', 'UserDataController@pushNotifBug');
 
+Route::post('user/upload-image', 'UserDataController@uploadImage');
+
 Route::group(["middleware"=> "api.role:client-head"], function() {
     Route::get('user/data-bug', 'UserDataController@indexBug');
     Route::get('user/data-feature', 'UserDataController@indexFeature');
@@ -41,5 +43,6 @@ Route::group(["middleware"=> "api.role:twk-head"], function(){
     Route::get('admin/data-bug', 'AdminController@indexBugAdmin');
     Route::get('admin/data-feature', 'AdminController@indexFeatureAdmin');
     Route::get('admin/data-done', 'AdminController@indexDoneAdmin');
+    Route::get('admin/getStaff', 'AdminController@getTwkStaff');
     Route::patch('admin/make-agreement/{id_ticket}', 'AdminController@makeAgreement');
 });
