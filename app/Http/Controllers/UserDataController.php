@@ -6,8 +6,6 @@ use App\Ticket;
 use App\User;
 use Illuminate\Http\Request;
 use Kawankoding\Fcm\FcmFacade;
-use App\ReportBug;
-use App\FeatureRequest;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
@@ -56,7 +54,7 @@ class UserDataController extends Controller
 
     
     public function indexDone(Request $request){
-        $userDataDone = DB::table('perusahaan')->select('application.apps_name','ticket.priority', 'ticket.type', 'ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at')
+        $userDataDone = DB::table('perusahaan')->select('application.apps_name' ,'ticket.priority', 'ticket.type', 'ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at')
         ->join('application','perusahaan.id_perusahaan','=','application.id_perusahaan')
         ->join('ticket','application.id_apps','=','ticket.id_apps')->where('perusahaan.id_perusahaan', $request->id_perusahaan)
         ->where('ticket.status', "Done")->get();
@@ -148,23 +146,26 @@ class UserDataController extends Controller
         ]);
     }
 
-    public function uploadImage(Request $request){
-        
-        $data = User::create([
-            'photo' => $request->file('photo'),
-        ]);
+    public function uploadImage(Request $request, $id){
 
-        if($request->hasFile('photo')){
-            $request->file('photo')->move('uploads/', $request->file('photo')->getUserOriginalName());
-            $data->photo = $request->file('photo')->getUserOriginalName();
+        $users = User::firstWhere('id', $id);
+
+        if($id){
+            $data = User::find($id);
+            $data->update([
+                'photo' => $request->file('photo'),
+            ]);
+        if ($request->hasFile('photo')) {
+            $request->file('photo')->move('uploads/', $request->file('photo')->getClientOriginalName());
+            $data->photo = $request->file('photo')->getClientOriginalName();
             $data->save();
         };
 
         return response()->json([
-            "status" => "Created Image",
-            "message" => "Success Upload Image",
-            "data" => $data
+            'message' => 'Successfull Upload Image.',
+            $data
         ], 201);
+        }
     }
 
 }
