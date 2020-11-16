@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Ticket;
+use App\Assignment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -79,5 +80,18 @@ class AdminController extends Controller
         ]);
     }
 
+    public function assignTask(Request $request, $id_user){
+        $data = Assignment::create([
+            'id_user' => $request->id_user,
+            'id_ticket' => $request->id_ticket,
+            'dead_line' => $request->dead_line,
+        ]);
+
+        return response()->json([
+            "status" => "Created",
+            "message" => "Success",
+            "data" => $data
+        ], 200);
+    }
     
 }
