@@ -162,7 +162,7 @@ class UserDataController extends Controller
         };
 
         return response()->json([
-            'message' => 'Successfull Upload Image.',
+            'message' => 'Successfull Upload Photo.',
             $data
         ], 201);
         }
