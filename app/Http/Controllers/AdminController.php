@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\DB;
 class AdminController extends Controller
 {
     public function indexBugAdmin(){
-        $adminDataBug = DB::table('application')->select('application.apps_name','ticket.type','ticket.priority','ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at')
+        $adminDataBug = DB::table('application')->select('application.apps_name','ticket.id_ticket','ticket.type','ticket.priority','ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at')
         ->join('ticket','application.id_apps','=','ticket.id_apps')
         ->where('ticket.type', 'Report')
         ->whereNOTIn('ticket.status', function($subquery){
@@ -23,7 +23,7 @@ class AdminController extends Controller
     }
 
     public function indexFeatureAdmin(){
-        $adminDataBug = DB::table('application')->select('application.apps_name','ticket.type','ticket.priority','ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at')
+        $adminDataBug = DB::table('application')->select('application.apps_name', 'ticket.id_ticket','ticket.type','ticket.priority','ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at')
         ->join('ticket','application.id_apps','=','ticket.id_apps')
         ->where('ticket.type', 'Request')
         ->whereNOTIn('ticket.status', function($subquery){
@@ -38,7 +38,7 @@ class AdminController extends Controller
 
     public function indexDoneAdmin(){   
         $adminDataDone = DB::table('perusahaan')
-        ->select('application.apps_name','ticket.type','ticket.priority','ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at')
+        ->select('application.apps_name','ticket.type', 'ticket.id_ticket','ticket.priority','ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at')
         ->join('application','perusahaan.id_perusahaan','=','application.id_perusahaan')
         ->join('ticket','application.id_apps','=','ticket.id_apps')
         ->where('ticket.status', "Done")->get();
@@ -78,5 +78,6 @@ class AdminController extends Controller
             'user' => $twkstaff,
         ]);
     }
+
     
 }
