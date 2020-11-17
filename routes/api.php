@@ -30,6 +30,7 @@ Route::get('pushnotif', 'UserDataController@pushNotifBug');
 
 Route::post('user/upload-image/{id}', 'UserDataController@uploadImage');
 
+
 Route::group(["middleware"=> "api.role:client-head"], function() {
     Route::get('user/data-bug', 'UserDataController@indexBug');
     Route::get('user/data-feature', 'UserDataController@indexFeature');
