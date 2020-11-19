@@ -6,6 +6,7 @@ use App\Ticket;
 use App\Assignment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 
 class AdminController extends Controller
 {
@@ -58,7 +59,8 @@ class AdminController extends Controller
             $update = Ticket::find($id_ticket);
             $update->update([
                 'price' => $request->price,
-                'time_periodic' => $request->time_periodic
+                'time_periodic' => $request->time_periodic,
+                'status' => $request->status
             ]);
             return response()->json([
                 'message' => 'Succeesfull make agreement',
@@ -80,18 +82,21 @@ class AdminController extends Controller
         ]);
     }
 
-    public function assignTask(Request $request, $id_user){
-        $data = Assignment::create([
-            'id_user' => $request->id_user,
-            'id_ticket' => $request->id_ticket,
-            'dead_line' => $request->dead_line,
+    public function assignTask(Request $request){
+
+        $input = $request->all();
+
+        $validator = Validator::make($input, [
+            'id_user' => 'required',
+            'id_ticket' => 'required',
+            'dead_line' => 'required'
         ]);
 
+        $assignment = Assignment::create($input);
         return response()->json([
             "status" => "Created",
-            "message" => "Success",
-            "data" => $data
-        ], 200);
+            "message" => "Success"
+        ]);
     }
     
 }
