@@ -20,7 +20,7 @@ class UserDataController extends Controller
         ->where('ticket.type', 'Report')
         ->whereNOTIn('ticket.status', function($subquery){
             $subquery->select('ticket.status')->where('ticket.status', "Done");
-        })->get();
+        })->orderByDesc('ticket.id_ticket')->get();
 
         $this ->validate($request, [
             "id_perusahaan"=>"required"
@@ -40,7 +40,7 @@ class UserDataController extends Controller
         ->where('ticket.type', 'Request')
         ->whereNOTIn('ticket.status', function($subquery){
             $subquery->select('ticket.status')->where('ticket.status', "Done");
-        })->get();
+        })->orderByDesc('ticket.id_ticket')->get();
 
         $this ->validate($request, [
             "id_perusahaan"=>"required"
@@ -57,7 +57,7 @@ class UserDataController extends Controller
         $userDataDone = DB::table('perusahaan')->select('application.apps_name' ,'ticket.priority', 'ticket.type', 'ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at')
         ->join('application','perusahaan.id_perusahaan','=','application.id_perusahaan')
         ->join('ticket','application.id_apps','=','ticket.id_apps')->where('perusahaan.id_perusahaan', $request->id_perusahaan)
-        ->where('ticket.status', "Done")->get();
+        ->where('ticket.status', "Done")->orderByDesc('ticket.id_ticket')->get();
 
         $this ->validate($request, [
             "id_perusahaan"=>"required"
@@ -80,11 +80,20 @@ class UserDataController extends Controller
             ]);
     }
 
+    public function getFcmToken(){
+        $fcmToken = DB::table('users')->select('fcm_token')->where('role', 'twk-head')->get();
+        $staticToken = ['fYjn7afyCbw:APA91bFWxU2xcDl051WUfH_zhrMXyYyhYoJt66PGoNK0QBLhvUtAtEkVmfUzDUzCPNBDKiCvCJLZYmblvPOl8KNhvvul4-s7FDTD-PixTElvH-qfqKBi2VQhFktKdEBaw_f7popE2P4O', 'eKDQICenOZ0:APA91bEs6nWS3MevvEWkbQZXwO0imILg8t6hrtm7gHxWKYDq1iQG5wkWW3fHYXcjbaALx_KTBv3GYZ0Ui8Mor_EB9xcDm7M_tTS7Pn_Wa44VCpa5zwGR8bLc6MWzBeodW9Ypn59MB60Q'];
+
+        return response()->json(
+            $fcmToken
+            //$this->pushNotifBug($fcmToken)
+        );
+    }
+
     public function storeBug(Request $request){
 
         $input = $request->all();
         $adminToken = 'frNgDWHH_0A:APA91bGrQ1AJCSUADO0vrlAO6myzd9gq4-mDuvMww_4kOS3O2fy4bw0AjIQjDe9crwHkU4DAOHaYS3tYFygp6IDTqkovt7u1IhSnJsCHoRrSFjpzsOE5d1uyq_wGzfIaVVIFMtEJpVHA';
-
         $validator = Validator::make($input, [
             'id_apps'=>'required',
             'type' => 'required',
