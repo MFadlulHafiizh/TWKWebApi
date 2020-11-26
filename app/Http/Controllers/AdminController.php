@@ -125,7 +125,6 @@ class AdminController extends Controller
     }
 
     public function assignTask(Request $request){
-        $status = $request->status;
         $validator = Validator::make($request->all(), [
             'id_user'   => 'required',
             'id_ticket' => 'required',

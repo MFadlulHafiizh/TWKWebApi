@@ -46,12 +46,8 @@ Route::group(["middleware"=> "api.role:twk-head"], function(){
     Route::get('admin/data-done', 'AdminController@indexDoneAdmin');
     Route::get('admin/getStaff', 'AdminController@getTwkStaff');
     Route::patch('admin/make-agreement/{id_ticket}', 'AdminController@makeAgreement');
-<<<<<<< HEAD
     Route::post('admin/statusChange', 'AdminController@changeStatus');
     Route::post('admin/assignment', 'AdminController@assignTask');
-=======
-    Route::post('admin/assignment', 'AdminController@assignTaskBackup');
->>>>>>> 74f0c9fbdba1cb248ea56be08759ad6dce7ad693
 });
 
 Route::group(['middleware' => 'api.role:twk-staff'], function () {

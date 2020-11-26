@@ -10,7 +10,13 @@ use Illuminate\Support\Facades\DB;
 class TwkStaffController extends Controller
 {
     public function indexToDo(Request $request){
-        $todoData = DB::table('assignment')->where('id_user', $request->id_user)->get();
+        $todoData = DB::table('assignment')
+        ->join('ticket', 'assignment.id_ticket', '=', 'ticket.id_ticket')
+        ->where('id_user', $request->id_user)->get();
         
+        return response()->json([
+            "message" => 'success',
+            "data" => $todoData
+        ]);
     }
 }
