@@ -20,7 +20,8 @@ class UserDataController extends Controller
         ->where('ticket.type', 'Report')
         ->whereNOTIn('ticket.status', function($subquery){
             $subquery->select('ticket.status')->where('ticket.status', "Done");
-        })->get();
+        })
+        ->paginate(15);
 
         $this ->validate($request, [
             "id_perusahaan"=>"required"
@@ -40,7 +41,8 @@ class UserDataController extends Controller
         ->where('ticket.type', 'Request')
         ->whereNOTIn('ticket.status', function($subquery){
             $subquery->select('ticket.status')->where('ticket.status', "Done");
-        })->get();
+        })
+        ->paginate(15);
 
         $this ->validate($request, [
             "id_perusahaan"=>"required"

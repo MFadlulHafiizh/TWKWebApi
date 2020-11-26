@@ -16,7 +16,8 @@ class AdminController extends Controller
         ->where('ticket.type', 'Report')
         ->whereNOTIn('ticket.status', function($subquery){
             $subquery->select('ticket.status')->where('ticket.status', "Done");
-        })->get();
+        })
+        ->paginate(15);
 
         return response()->json([
             "message" => 'success',
@@ -30,7 +31,8 @@ class AdminController extends Controller
         ->where('ticket.type', 'Request')
         ->whereNOTIn('ticket.status', function($subquery){
             $subquery->select('ticket.status')->where('ticket.status', "Done");
-        })->get();
+        })
+        ->paginate(15);
 
         return response()->json([
             "message" => 'success',
@@ -43,7 +45,8 @@ class AdminController extends Controller
         ->select('application.apps_name','ticket.type', 'ticket.id_ticket','ticket.priority','ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at')
         ->join('application','perusahaan.id_perusahaan','=','application.id_perusahaan')
         ->join('ticket','application.id_apps','=','ticket.id_apps')
-        ->where('ticket.status', "Done")->get();
+        ->where('ticket.status', "Done")
+        ->paginate(15);
 
         return response()->json([
             "message" => "success",
