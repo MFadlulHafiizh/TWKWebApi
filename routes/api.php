@@ -27,6 +27,7 @@ Route::group(["middleware"=> "jwt.auth"], function(){
 });
 
 Route::get('pushnotif', 'UserDataController@pushNotifBug');
+Route::get('getfcm', 'UserDataController@getFcmToken');
 
 Route::post('user/upload-image/{id}', 'UserDataController@uploadImage');
 
@@ -45,6 +46,14 @@ Route::group(["middleware"=> "api.role:twk-head"], function(){
     Route::get('admin/data-done', 'AdminController@indexDoneAdmin');
     Route::get('admin/getStaff', 'AdminController@getTwkStaff');
     Route::patch('admin/make-agreement/{id_ticket}', 'AdminController@makeAgreement');
+<<<<<<< HEAD
     Route::post('admin/statusChange', 'AdminController@changeStatus');
     Route::post('admin/assignment', 'AdminController@assignTask');
+=======
+    Route::post('admin/assignment', 'AdminController@assignTaskBackup');
+>>>>>>> 74f0c9fbdba1cb248ea56be08759ad6dce7ad693
+});
+
+Route::group(['middleware' => 'api.role:twk-staff'], function () {
+    Route::get('twkstaff/todo', 'TwkStaffController@indexToDo');
 });
