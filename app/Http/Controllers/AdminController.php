@@ -108,12 +108,14 @@ class AdminController extends Controller
         $validator = Validator::make($request->all(), [
             'id_user'   => 'required',
             'id_ticket' => 'required',
-            'dead_line' => 'required'
+            'dead_line' => 'required',
+            'status'    => 'required'
         ],
             [
                 'id_user.required'      => 'id_user Kosong !, Silahkan Masukkan id_user !',
                 'id_ticket.required'    => 'id_ticket Kosong !, Silahkan Masukkan id_ticket !',
                 'dead_line.required'    => 'dead_line Kosong !, Silahkan Masukkan dead_line !',
+                'status.required'       => 'status Kosong !, Silahkan Masukkan status !',
             ]
         );
 
@@ -131,16 +133,17 @@ class AdminController extends Controller
                 'id_user'     => $request->input('id_user'),
                 'id_ticket'   => $request->input('id_ticket'),
                 'dead_line'   => $request->input('dead_line'),
+                'status'      => $request->input('status'),
             ]);
 
             if ($post) {
                 return response()->json([
-                    'success' => true,
-                    'message' => 'Post Berhasil Disimpan!',
-                    'update'  => $this->changeStatus($request->id_ticket, $request->status),
-                    'create'  => $post
+                    'success'       => true,
+                    'message'       => 'Post Berhasil Disimpan!',
+                    'updateStatus'  => $this->changeStatus($request->id_ticket, $request->status),
+                    'create'        => $post
                 ], 200);
-            } else {
+            }else {
                 return response()->json([
                     'success' => false,
                     'message' => 'Post Gagal Disimpan!',
@@ -149,4 +152,4 @@ class AdminController extends Controller
         }
     
     }
-}
+} 
