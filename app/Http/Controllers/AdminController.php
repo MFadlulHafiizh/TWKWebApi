@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Validator;
 class AdminController extends Controller
 {
     public function indexBugAdmin(){
-        $adminDataBug = DB::table('application')->select('application.apps_name','ticket.type','ticket.priority','ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at')
+        $adminDataBug = DB::table('application')->select('application.apps_name','ticket.id_ticket','ticket.type','ticket.priority','ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at')
         ->join('ticket','application.id_apps','=','ticket.id_apps')
         ->where('ticket.type', 'Report')
         ->whereNOTIn('ticket.status', function($subquery){
@@ -25,7 +25,7 @@ class AdminController extends Controller
     }
 
     public function indexFeatureAdmin(){
-        $adminDataBug = DB::table('application')->select('application.apps_name','ticket.type','ticket.priority','ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at')
+        $adminDataBug = DB::table('application')->select('application.apps_name', 'ticket.id_ticket','ticket.type','ticket.priority','ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at')
         ->join('ticket','application.id_apps','=','ticket.id_apps')
         ->where('ticket.type', 'Request')
         ->whereNOTIn('ticket.status', function($subquery){
@@ -40,7 +40,7 @@ class AdminController extends Controller
 
     public function indexDoneAdmin(){   
         $adminDataDone = DB::table('perusahaan')
-        ->select('application.apps_name','ticket.type','ticket.priority','ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at')
+        ->select('application.apps_name','ticket.type', 'ticket.id_ticket','ticket.priority','ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at')
         ->join('application','perusahaan.id_perusahaan','=','application.id_perusahaan')
         ->join('ticket','application.id_apps','=','ticket.id_apps')
         ->where('ticket.status', "Done")->get();
@@ -59,7 +59,8 @@ class AdminController extends Controller
             $update = Ticket::find($id_ticket);
             $update->update([
                 'price' => $request->price,
-                'time_periodic' => $request->time_periodic
+                'time_periodic' => $request->time_periodic,
+                'status' => $request->status
             ]);
             return response()->json([
                 'success' => true,
@@ -101,6 +102,23 @@ class AdminController extends Controller
                 'message' => 'Failed.',
             ], 404);
         }
+    }
+
+    public function assignTaskBackup(Request $request){
+
+        $input = $request->all();
+
+        $validator = Validator::make($input, [
+            'id_user' => 'required',
+            'id_ticket' => 'required',
+            'dead_line' => 'required'
+        ]);
+
+        $assignment = Assignment::create($input);
+        return response()->json([
+            "status" => "Created",
+            "message" => "Success"
+        ]);
     }
 
     public function assignTask(Request $request){
