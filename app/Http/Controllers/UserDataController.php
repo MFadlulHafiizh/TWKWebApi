@@ -20,8 +20,7 @@ class UserDataController extends Controller
         ->where('ticket.type', 'Report')
         ->whereNOTIn('ticket.status', function($subquery){
             $subquery->select('ticket.status')->where('ticket.status', "Done");
-        })->orderByDesc('ticket.id_ticket')
-        ->paginate(15);
+        })->orderByDesc('ticket.id_ticket')->get();
 
         $this ->validate($request, [
             "id_perusahaan"=>"required"
@@ -58,8 +57,7 @@ class UserDataController extends Controller
         $userDataDone = DB::table('perusahaan')->select('application.apps_name' ,'ticket.priority', 'ticket.type', 'ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at')
         ->join('application','perusahaan.id_perusahaan','=','application.id_perusahaan')
         ->join('ticket','application.id_apps','=','ticket.id_apps')->where('perusahaan.id_perusahaan', $request->id_perusahaan)
-        ->where('ticket.status', "Done")->orderByDesc('ticket.id_ticket')
-        ->paginate(15);
+        ->where('ticket.status', "Done")->orderByDesc('ticket.id_ticket')->get();
 
         $this ->validate($request, [
             "id_perusahaan"=>"required"
@@ -84,18 +82,13 @@ class UserDataController extends Controller
 
     public function getFcmToken(){
         $fcmToken = DB::table('users')->select('fcm_token')->where('role', 'twk-head')->get();
-        $staticToken = ['fYjn7afyCbw:APA91bFWxU2xcDl051WUfH_zhrMXyYyhYoJt66PGoNK0QBLhvUtAtEkVmfUzDUzCPNBDKiCvCJLZYmblvPOl8KNhvvul4-s7FDTD-PixTElvH-qfqKBi2VQhFktKdEBaw_f7popE2P4O', 'eKDQICenOZ0:APA91bEs6nWS3MevvEWkbQZXwO0imILg8t6hrtm7gHxWKYDq1iQG5wkWW3fHYXcjbaALx_KTBv3GYZ0Ui8Mor_EB9xcDm7M_tTS7Pn_Wa44VCpa5zwGR8bLc6MWzBeodW9Ypn59MB60Q'];
-
-        return response()->json(
-            $fcmToken
-            //$this->pushNotifBug($fcmToken)
-        );
+        $staticToken = ['fTHua0q_Ydk:APA91bFIv2qTJWkfPDMNv4jePVerpo6-50nKaJJxMg1fu-XXcsW6yqMOx1p3G2EPZ5P6J3LGbag7x5btHla_yRe1D_FOgkFl46m78IUxx3JMe_qTzDVDCQjDbbrnzMEA_IxMtYCQSQHH'];
+        return $this->pushNotifBug($fcmToken->pluck('fcm_token'), "New bugs reported", "Test");
     }
 
     public function storeBug(Request $request){
-
+        $fcmToken = DB::table('users')->select('fcm_token')->where('role', 'twk-head')->get();
         $input = $request->all();
-        $adminToken = 'frNgDWHH_0A:APA91bGrQ1AJCSUADO0vrlAO6myzd9gq4-mDuvMww_4kOS3O2fy4bw0AjIQjDe9crwHkU4DAOHaYS3tYFygp6IDTqkovt7u1IhSnJsCHoRrSFjpzsOE5d1uyq_wGzfIaVVIFMtEJpVHA';
         $validator = Validator::make($input, [
             'id_apps'=>'required',
             'type' => 'required',
@@ -115,20 +108,25 @@ class UserDataController extends Controller
         $bugReport = Ticket::create($input);
         return response()->json([
             'message' => 'Your report has sended',
-            'notif' => $this->pushNotifBug($adminToken)
+            'notif' => $this->pushNotifBug($fcmToken->pluck('fcm_token'), "New bugs reported", "Test")
         ]);
     }
 
-    public function pushNotifBug($adminToken){
-        $recipients = [$adminToken];//, 'frNgDWHH_0A:APA91bGrQ1AJCSUADO0vrlAO6myzd9gq4-mDuvMww_4kOS3O2fy4bw0AjIQjDe9crwHkU4DAOHaYS3tYFygp6IDTqkovt7u1IhSnJsCHoRrSFjpzsOE5d1uyq_wGzfIaVVIFMtEJpVHA'];
-        fcm()
+    public function pushNotifBug($adminToken, $title, $message){
+        $recipients = $adminToken->toArray();
+        $sendNotif = fcm()
         ->to($recipients)
         ->priority('high')
         ->timeToLive(0)
         ->notification([
-            'title' => 'New bugs reported',
-            'body' => 'This is a test of FCM',
-        ])->send();
+            'title' => $title,
+            'body' => $message,
+        ]);
+
+        $sendNotif->send();
+        return response()->json(
+            $sendNotif->send()
+            );
     }
 
     public function storeFeature(Request $request){

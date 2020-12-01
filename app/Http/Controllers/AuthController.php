@@ -18,6 +18,7 @@ class AuthController extends Controller
     {
         $credentials = $request->only("email","password");
         $token = null;
+        $inputFcm = \DB::table('users')->where('email', $request->email)->update(['fcm_token' => $request->fcm_token]);
         $user = \DB::table('users')
         ->join('perusahaan', 'users.id_perusahaan', '=', 'perusahaan.id_perusahaan')
         ->where('email', $request->email)->first();
@@ -33,6 +34,7 @@ class AuthController extends Controller
             "message" => 'Login successfully',
             "token"  => $token,
             "user" => $user,
+            "fcm" => $inputFcm
         ]);
     }
 
@@ -62,7 +64,16 @@ class AuthController extends Controller
         ]);
     }
 
-    public  function logout(Request $request)
+    public function deleteFcmToken($id){
+        $findTokenFcm = User::find($id);
+        if($findTokenFcm){
+            $findTokenFcm->fcm_token = null;
+            $findTokenFcm->save();
+        }
+        return response()->json($findTokenFcm);
+    }
+
+    public function logout(Request $request, $id)
     {
         $this ->validate($request, [
             "token"=>"required"
@@ -73,7 +84,8 @@ class AuthController extends Controller
 
             return response()->json([
                 "status"=> true,
-                "message"=> "User logged out successfully"
+                "message"=> "User logged out successfully",
+                "deleteFcm" => $this->deleteFcmToken($id)
             ]);
         } catch (JWTAuth $exception) {
             return response()->json([
