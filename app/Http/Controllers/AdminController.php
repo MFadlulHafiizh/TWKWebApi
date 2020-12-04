@@ -16,11 +16,14 @@ class AdminController extends Controller
         ->where('ticket.type', 'Report')
         ->whereNOTIn('ticket.status', function($subquery){
             $subquery->select('ticket.status')->where('ticket.status', "Done");
-        })->orderByDesc('ticket.id_ticket')->get();
+        })->orderByDesc('ticket.id_ticket')->paginate(2);
+
+        $totalPage = $adminDataBug->lastPage();
+        $data = $adminDataBug->flatten(1);
 
         return response()->json([
-            "message" => 'success',
-            "bugData" => $adminDataBug
+            'bug_page_total'=>$totalPage,
+            'dataBug'=> $data
         ]);
     }
 
@@ -30,11 +33,14 @@ class AdminController extends Controller
         ->where('ticket.type', 'Request')
         ->whereNOTIn('ticket.status', function($subquery){
             $subquery->select('ticket.status')->where('ticket.status', "Done");
-        })->orderByDesc('ticket.id_ticket')->get();
+        })->orderByDesc('ticket.id_ticket')->paginate(2);
+
+        $totalPage = $adminDataBug->lastPage();
+        $data = $adminDataBug->flatten(1);
 
         return response()->json([
-            "message" => 'success',
-            "featureData" => $adminDataBug
+            'fitur_page_total'=>$totalPage,
+            'featureData'=> $data
         ]);
     }
 

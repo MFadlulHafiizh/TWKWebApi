@@ -14,41 +14,47 @@ class UserDataController extends Controller
 {
     public function indexBug(Request $request){
         $userDataBug = DB::table('perusahaan')
-        ->select('application.apps_name', 'ticket.type','ticket.priority', 'ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at')
+        ->select('ticket.id_ticket', 'application.apps_name', 'ticket.type','ticket.priority', 'ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at')
         ->join('application','perusahaan.id_perusahaan','=','application.id_perusahaan')
         ->join('ticket','application.id_apps','=','ticket.id_apps')->where('perusahaan.id_perusahaan', $request->id_perusahaan)
         ->where('ticket.type', 'Report')
         ->whereNOTIn('ticket.status', function($subquery){
             $subquery->select('ticket.status')->where('ticket.status', "Done");
-        })->orderByDesc('ticket.id_ticket')->get();
+        })->orderByDesc('ticket.id_ticket')->paginate(2);
+
+        $totalPage = $userDataBug->total();
+        $data = $userDataBug->flatten(1);
 
         $this ->validate($request, [
             "id_perusahaan"=>"required"
         ]);
 
         return response()->json([
-            "message" => 'success',
-            "bugData" => $userDataBug
+            'bug_page_total' => $totalPage,
+            'dataBug' => $data
         ]);
     }
 
     public function indexFeature(Request $request){
         $userDataFeature = DB::table('perusahaan')
-        ->select('application.apps_name','ticket.type','ticket.priority','ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at', 'ticket.time_periodic', 'ticket.price')
+        ->select('ticket.id_ticket','application.apps_name','ticket.type','ticket.priority','ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at', 'ticket.time_periodic', 'ticket.price')
         ->join('application','perusahaan.id_perusahaan','=','application.id_perusahaan')
         ->join('ticket','application.id_apps','=','ticket.id_apps')->where('perusahaan.id_perusahaan', $request->id_perusahaan)
         ->where('ticket.type', 'Request')
         ->whereNOTIn('ticket.status', function($subquery){
             $subquery->select('ticket.status')->where('ticket.status', "Done");
-        })->orderByDesc('ticket.id_ticket')->get();
+        })->orderByDesc('ticket.id_ticket')->paginate(1);
 
+        
+        $totalPage = $userDataFeature->total();
+        $data = $userDataFeature->flatten(1);
         $this ->validate($request, [
             "id_perusahaan"=>"required"
         ]);
 
         return response()->json([
-            "message" => "success",
-            "featureData" => $userDataFeature
+            'fitur_page_total'=>$totalPage,
+            'featureData'=> $data
         ]);
     }
 
@@ -108,29 +114,12 @@ class UserDataController extends Controller
         $bugReport = Ticket::create($input);
         return response()->json([
             'message' => 'Your report has sended',
-            'notif' => $this->pushNotifBug($fcmToken->pluck('fcm_token'), "New bugs reported", "Test")
+            'notif' => $this->pushNotif($fcmToken->pluck('fcm_token'), "New bugs reported", "Test")
         ]);
-    }
-
-    public function pushNotifBug($adminToken, $title, $message){
-        $recipients = $adminToken->toArray();
-        $sendNotif = fcm()
-        ->to($recipients)
-        ->priority('high')
-        ->timeToLive(0)
-        ->notification([
-            'title' => $title,
-            'body' => $message,
-        ]);
-
-        $sendNotif->send();
-        return response()->json(
-            $sendNotif->send()
-            );
     }
 
     public function storeFeature(Request $request){
-
+        $fcmToken = DB::table('users')->select('fcm_token')->where('role', 'twk-head')->get();
         $input = $request->all();
 
         $validator = Validator::make($input, [
@@ -151,7 +140,8 @@ class UserDataController extends Controller
 
         $featureRequest = Ticket::create($input);
         return response()->json([
-            'message' => 'Your request has sended'
+            'message' => 'Your request has sended',
+            'notif' => $this->pushNotif($fcmToken->pluck('fcm_token'), "New feature requested", "test")
         ]);
     }
 
@@ -176,5 +166,24 @@ class UserDataController extends Controller
         ], 201);
         }
     }
+
+    
+    public function pushNotif($adminToken, $title, $message){
+        $recipients = $adminToken->toArray();
+        $sendNotif = fcm()
+        ->to($recipients)
+        ->priority('high')
+        ->timeToLive(0)
+        ->notification([
+            'title' => $title,
+            'body' => $message,
+        ]);
+
+        $sendNotif->send();
+        return response()->json(
+            $sendNotif->send()
+            );
+    }
+
 
 }
