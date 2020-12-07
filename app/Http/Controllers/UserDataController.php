@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Ticket;
 use App\User;
+use App\NotificationTable;
 use Illuminate\Http\Request;
 use Kawankoding\Fcm\FcmFacade;
 use Illuminate\Support\Facades\DB;
@@ -22,7 +23,7 @@ class UserDataController extends Controller
             $subquery->select('ticket.status')->where('ticket.status', "Done");
         })->orderByDesc('ticket.id_ticket')->paginate(2);
 
-        $totalPage = $userDataBug->total();
+        $totalPage = $userDataBug->lastPage();
         $data = $userDataBug->flatten(1);
 
         $this ->validate($request, [
@@ -46,7 +47,7 @@ class UserDataController extends Controller
         })->orderByDesc('ticket.id_ticket')->paginate(1);
 
         
-        $totalPage = $userDataFeature->total();
+        $totalPage = $userDataFeature->lastPage();
         $data = $userDataFeature->flatten(1);
         $this ->validate($request, [
             "id_perusahaan"=>"required"
@@ -63,15 +64,18 @@ class UserDataController extends Controller
         $userDataDone = DB::table('perusahaan')->select('application.apps_name' ,'ticket.priority', 'ticket.type', 'ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at')
         ->join('application','perusahaan.id_perusahaan','=','application.id_perusahaan')
         ->join('ticket','application.id_apps','=','ticket.id_apps')->where('perusahaan.id_perusahaan', $request->id_perusahaan)
-        ->where('ticket.status', "Done")->orderByDesc('ticket.id_ticket')->get();
+        ->where('ticket.status', "Done")->orderByDesc('ticket.id_ticket')->paginate(2);
+
+        $totalPage = $userDataDone->lastPage();
+        $data = $userDataDone->flatten(1);
 
         $this ->validate($request, [
             "id_perusahaan"=>"required"
         ]);
 
         return response()->json([
-            "message" => "success",
-            "doneData" => $userDataDone
+            'done_page_total'=>$totalPage,
+            'doneData'=> $data
         ]);
     }
 
@@ -86,14 +90,29 @@ class UserDataController extends Controller
             ]);
     }
 
-    public function getFcmToken(){
+    public function getFcmToken(Request $request){
         $fcmToken = DB::table('users')->select('fcm_token')->where('role', 'twk-head')->get();
-        $staticToken = ['fTHua0q_Ydk:APA91bFIv2qTJWkfPDMNv4jePVerpo6-50nKaJJxMg1fu-XXcsW6yqMOx1p3G2EPZ5P6J3LGbag7x5btHla_yRe1D_FOgkFl46m78IUxx3JMe_qTzDVDCQjDbbrnzMEA_IxMtYCQSQHH'];
-        return $this->pushNotifBug($fcmToken->pluck('fcm_token'), "New bugs reported", "Test");
+        $notifData = DB::table('perusahaan')->select('perusahaan.nama_perusahaan', 'application.apps_name')
+        ->join('application', 'perusahaan.id_perusahaan', '=', 'application.id_perusahaan')
+        ->where('application.id_apps', $request->id_apps)->get();
+
+        $getCompany = $notifData->pluck('nama_perusahaan');
+        $getApps = $notifData->pluck('apps_name');
+        $nama_perusahaan = $getCompany[0];
+        $apps_name = $getApps[0];
+
+        return $this->pushNotif($fcmToken->pluck('fcm_token'), $nama_perusahaan . " Reported some bugs", $apps_name . " - " . $request->subject);
     }
 
     public function storeBug(Request $request){
         $fcmToken = DB::table('users')->select('fcm_token')->where('role', 'twk-head')->get();
+        $notifData = DB::table('perusahaan')->select('perusahaan.nama_perusahaan', 'application.apps_name')
+        ->join('application', 'perusahaan.id_perusahaan', '=', 'application.id_perusahaan')
+        ->where('application.id_apps', $request->id_apps)->get();
+        $getCompany = $notifData->pluck('nama_perusahaan');
+        $getApps = $notifData->pluck('apps_name');
+        $nama_perusahaan = $getCompany[0];
+        $apps_name = $getApps[0];
         $input = $request->all();
         $validator = Validator::make($input, [
             'id_apps'=>'required',
@@ -114,12 +133,19 @@ class UserDataController extends Controller
         $bugReport = Ticket::create($input);
         return response()->json([
             'message' => 'Your report has sended',
-            'notif' => $this->pushNotif($fcmToken->pluck('fcm_token'), "New bugs reported", "Test")
+            'notif' => $this->pushNotif($fcmToken->pluck('fcm_token'), $nama_perusahaan . " Reported some bugs", $apps_name . " - " . $request->subject)
         ]);
     }
 
     public function storeFeature(Request $request){
         $fcmToken = DB::table('users')->select('fcm_token')->where('role', 'twk-head')->get();
+        $notifData = DB::table('perusahaan')->select('perusahaan.nama_perusahaan', 'application.apps_name')
+        ->join('application', 'perusahaan.id_perusahaan', '=', 'application.id_perusahaan')
+        ->where('application.id_apps', $request->id_apps)->get();
+        $getCompany = $notifData->pluck('nama_perusahaan');
+        $getApps = $notifData->pluck('apps_name');
+        $nama_perusahaan = $getCompany[0];
+        $apps_name = $getApps[0];
         $input = $request->all();
 
         $validator = Validator::make($input, [
@@ -141,7 +167,7 @@ class UserDataController extends Controller
         $featureRequest = Ticket::create($input);
         return response()->json([
             'message' => 'Your request has sended',
-            'notif' => $this->pushNotif($fcmToken->pluck('fcm_token'), "New feature requested", "test")
+            'notif' => $this->pushNotif($fcmToken->pluck('fcm_token'), $nama_perusahaan . " Request some feature", $apps_name . " - " . $request->subject)
         ]);
     }
 
@@ -167,6 +193,22 @@ class UserDataController extends Controller
         }
     }
 
+    public function getListNotif(Request $request){
+        $getList = DB::table('ticket')
+        ->join('notification', 'notification.id_ticket', '=', 'ticket.id_ticket')
+        ->where('notification.id_user', $request->id_user)->paginate(1);
+        $notifCount = $getList->total();
+        $totalPage = $getList->lastPage();
+        $data = $getList->flatten(1);
+
+
+        return response()->json([
+            'notifCount' => $notifCount,
+            'last_page_notif' => $totalPage,
+            'notifData' => $data
+        ]);
+
+    }
     
     public function pushNotif($adminToken, $title, $message){
         $recipients = $adminToken->toArray();
@@ -180,9 +222,7 @@ class UserDataController extends Controller
         ]);
 
         $sendNotif->send();
-        return response()->json(
-            $sendNotif->send()
-            );
+        
     }
 
 

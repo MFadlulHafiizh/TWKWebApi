@@ -11,7 +11,8 @@ use Illuminate\Support\Facades\Validator;
 class AdminController extends Controller
 {
     public function indexBugAdmin(){
-        $adminDataBug = DB::table('application')->select('application.apps_name','ticket.id_ticket','ticket.type','ticket.priority','ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at')
+        $adminDataBug = DB::table('application')->select('perusahaan.nama_perusahaan','application.apps_name','ticket.id_ticket','ticket.type','ticket.priority','ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at')
+        ->join('perusahaan', 'application.id_perusahaan', '=', 'perusahaan.id_perusahaan')
         ->join('ticket','application.id_apps','=','ticket.id_apps')
         ->where('ticket.type', 'Report')
         ->whereNOTIn('ticket.status', function($subquery){
@@ -28,7 +29,8 @@ class AdminController extends Controller
     }
 
     public function indexFeatureAdmin(){
-        $adminDataBug = DB::table('application')->select('application.apps_name', 'ticket.id_ticket','ticket.type','ticket.priority','ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at')
+        $adminDataBug = DB::table('application')->select('perusahaan.nama_perusahaan', 'application.apps_name', 'ticket.id_ticket','ticket.type','ticket.priority','ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.aproval_stat','ticket.created_at')
+        ->join('perusahaan', 'application.id_perusahaan', '=', 'perusahaan.id_perusahaan')
         ->join('ticket','application.id_apps','=','ticket.id_apps')
         ->where('ticket.type', 'Request')
         ->whereNOTIn('ticket.status', function($subquery){
@@ -49,11 +51,14 @@ class AdminController extends Controller
         ->select('application.apps_name','ticket.type', 'ticket.id_ticket','ticket.priority','ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at')
         ->join('application','perusahaan.id_perusahaan','=','application.id_perusahaan')
         ->join('ticket','application.id_apps','=','ticket.id_apps')
-        ->where('ticket.status', "Done")->orderByDesc('ticket.id_ticket')->get();
+        ->where('ticket.status', "Done")->orderByDesc('ticket.id_ticket')->paginate(2);
+
+        $totalPage = $adminDataDone->lastPage();
+        $data = $adminDataDone->flatten(1);
 
         return response()->json([
-            "message" => "success",
-            "doneData" => $adminDataDone
+            'done_page_total'=>$totalPage,
+            'doneData'=> $data
         ]);
     }
 

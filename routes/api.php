@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::post("login", "AuthController@login");
 Route::post("register", "AuthController@register");
+Route::get("notification", "UserDataController@getListNotif");
 
 Route::group(["middleware"=> "jwt.auth"], function(){
     Route::get("logout/{id}", "AuthController@logout");
@@ -40,7 +41,7 @@ Route::group(["middleware"=> "api.role:client-head, client-staff"], function() {
     Route::post('user/request-feature', 'UserDataController@storeFeature');
 });
 
-Route::get('fcmtoken', 'UserDataController@getFcmToken');
+Route::get('testurl', 'UserDataController@getFcmToken');
 
 Route::group(["middleware"=> "api.role:twk-head"], function(){
     Route::get('admin/data-bug', 'AdminController@indexBugAdmin');
