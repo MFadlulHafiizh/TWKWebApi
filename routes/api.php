@@ -21,6 +21,7 @@ use Illuminate\Support\Facades\Route;
 Route::post("login", "AuthController@login");
 Route::post("register", "AuthController@register");
 Route::get("notification", "UserDataController@getListNotif");
+Route::patch("notification/readat/{id_notif}", 'UserDataController@updateNotifReadAt');
 
 Route::group(["middleware"=> "jwt.auth"], function(){
     Route::get("logout/{id}", "AuthController@logout");
@@ -28,9 +29,11 @@ Route::group(["middleware"=> "jwt.auth"], function(){
 });
 
 Route::get('pushnotif', 'UserDataController@pushNotifBug');
-Route::get('getfcm', 'UserDataController@getFcmToken');
+Route::get('getfcm/{id_ticket}', 'UserDataController@getFcmToken');
 
 Route::post('user/upload-image/{id}', 'UserDataController@uploadImage');
+
+Route::patch('user/agreement-act', ['middleware' => 'api.role:client-head'], 'UserDataController@agreementAct');
 
 Route::group(['middleware'=> 'api.role:client-head,client-staff'], function() {
     Route::get('user/data-bug', 'UserDataController@indexBug');
