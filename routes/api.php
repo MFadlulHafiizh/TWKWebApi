@@ -32,7 +32,7 @@ Route::get('getfcm', 'UserDataController@getFcmToken');
 
 Route::post('user/upload-image/{id}', 'UserDataController@uploadImage');
 
-Route::group(["middleware"=> "api.role:client-head, client-staff"], function() {
+Route::group(['middleware'=> 'api.role:client-head,client-staff'], function() {
     Route::get('user/data-bug', 'UserDataController@indexBug');
     Route::get('user/data-feature', 'UserDataController@indexFeature');
     Route::get('user/data-done', 'UserDataController@indexDone');

@@ -90,25 +90,13 @@ class UserDataController extends Controller
             ]);
     }
 
-    public function getFcmToken(Request $request){
-        $fcmToken = DB::table('users')->select('fcm_token')->where('role', 'twk-head')->get();
-        $notifData = DB::table('perusahaan')->select('perusahaan.nama_perusahaan', 'application.apps_name')
-        ->join('application', 'perusahaan.id_perusahaan', '=', 'application.id_perusahaan')
-        ->where('application.id_apps', $request->id_apps)->get();
-
-        $getCompany = $notifData->pluck('nama_perusahaan');
-        $getApps = $notifData->pluck('apps_name');
-        $nama_perusahaan = $getCompany[0];
-        $apps_name = $getApps[0];
-
-        return $this->pushNotif($fcmToken->pluck('fcm_token'), $nama_perusahaan . " Reported some bugs", $apps_name . " - " . $request->subject);
-    }
-
     public function storeBug(Request $request){
-        $fcmToken = DB::table('users')->select('fcm_token')->where('role', 'twk-head')->get();
+        $fcmToken = DB::table('users')->select('id','fcm_token')->where('role', 'twk-head')->get();
         $notifData = DB::table('perusahaan')->select('perusahaan.nama_perusahaan', 'application.apps_name')
         ->join('application', 'perusahaan.id_perusahaan', '=', 'application.id_perusahaan')
         ->where('application.id_apps', $request->id_apps)->get();
+
+        $id_admin = $fcmToken->pluck('id');
         $getCompany = $notifData->pluck('nama_perusahaan');
         $getApps = $notifData->pluck('apps_name');
         $nama_perusahaan = $getCompany[0];
@@ -133,7 +121,7 @@ class UserDataController extends Controller
         $bugReport = Ticket::create($input);
         return response()->json([
             'message' => 'Your report has sended',
-            'notif' => $this->pushNotif($fcmToken->pluck('fcm_token'), $nama_perusahaan . " Reported some bugs", $apps_name . " - " . $request->subject)
+            'notif' => $this->pushNotif($id_admin, $bugReport->id_ticket, $nama_perusahaan, $fcmToken->pluck('fcm_token'), $nama_perusahaan . " Reported some bugs", $apps_name . " - " . $request->subject)
         ]);
     }
 
@@ -196,21 +184,30 @@ class UserDataController extends Controller
     public function getListNotif(Request $request){
         $getList = DB::table('ticket')
         ->join('notification', 'notification.id_ticket', '=', 'ticket.id_ticket')
-        ->where('notification.id_user', $request->id_user)->paginate(1);
+        ->where('notification.id_user', $request->id_user)->orderByDesc('id_notif')->paginate(1);
         $notifCount = $getList->total();
         $totalPage = $getList->lastPage();
         $data = $getList->flatten(1);
-
 
         return response()->json([
             'notifCount' => $notifCount,
             'last_page_notif' => $totalPage,
             'notifData' => $data
         ]);
-
     }
     
-    public function pushNotif($adminToken, $title, $message){
+    public function pushNotif($id_user, $id_ticket, $from,$adminToken, $title, $message){
+        foreach($id_user as $targetNotif){
+            $post = NotificationTable::create([
+                'id_user' => $targetNotif,
+                'id_ticket' => $id_ticket,
+                'from' => $from,
+                'title' => $title,
+                'message' => $message,
+                'read_at' => 0
+            ]);
+        }
+
         $recipients = $adminToken->toArray();
         $sendNotif = fcm()
         ->to($recipients)
@@ -223,6 +220,34 @@ class UserDataController extends Controller
 
         $sendNotif->send();
         
+    }
+
+    public function getFcmToken(Request $request){
+        // $fcmToken = DB::table('users')->select('id','fcm_token')->where('role', 'twk-head')->get();
+        // $notifData = DB::table('perusahaan')->select('perusahaan.nama_perusahaan', 'application.apps_name')
+        // ->join('application', 'perusahaan.id_perusahaan', '=', 'application.id_perusahaan')
+        // ->where('application.id_apps', $request->id_apps)->get();
+
+        $sendNotif = DB::table('ticket')->select('users.id', 'users.fcm_token')
+            ->join('application', 'ticket.id_apps', '=', 'application.id_apps')
+            ->join('perusahaan', 'application.id_perusahaan', '=', 'perusahaan.id_perusahaan')
+            ->join('users', 'perusahaan.id_perusahaan', '=', 'users.id_perusahaan')
+            ->where('ticket.id_ticket', $request->id_ticket)->get();
+
+        $object = $sendNotif->pluck('id');
+        $fcm_token = $sendNotif->pluck('fcm_token');
+        return response()->json([
+            $object,
+            $fcm_token
+        ]);
+
+        // $id_admin = $fcmToken->pluck('id');
+        // $getCompany = $notifData->pluck('nama_perusahaan');
+        // $getApps = $notifData->pluck('apps_name');
+        // $nama_perusahaan = $getCompany[0];
+        // $apps_name = $getApps[0];
+
+        //return $this->pushNotif($id_admin,$request->id_ticket,$nama_perusahaan,$fcmToken->pluck('fcm_token'), $nama_perusahaan . " Reported some bugs", $apps_name . " - " . $request->subject);
     }
 
 
