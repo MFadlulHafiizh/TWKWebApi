@@ -16,8 +16,7 @@ class AdminController extends Controller
         ->where('ticket.type', 'Report')
         ->whereNOTIn('ticket.status', function($subquery){
             $subquery->select('ticket.status')->where('ticket.status', "Done");
-        })->orderByDesc('ticket.id_ticket')
-        ->paginate(15);
+        })->orderByDesc('ticket.id_ticket')->paginate(2);
 
         return response()->json([
             "message" => 'success',
@@ -31,8 +30,7 @@ class AdminController extends Controller
         ->where('ticket.type', 'Request')
         ->whereNOTIn('ticket.status', function($subquery){
             $subquery->select('ticket.status')->where('ticket.status', "Done");
-        })->orderByDesc('ticket.id_ticket')
-        ->paginate(15);
+        })->orderByDesc('ticket.id_ticket')->paginate(2);
 
         return response()->json([
             "message" => 'success',
@@ -45,8 +43,7 @@ class AdminController extends Controller
         ->select('application.apps_name','ticket.type', 'ticket.id_ticket','ticket.priority','ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at')
         ->join('application','perusahaan.id_perusahaan','=','application.id_perusahaan')
         ->join('ticket','application.id_apps','=','ticket.id_apps')
-        ->where('ticket.status', "Done")->orderByDesc('ticket.id_ticket')
-        ->paginate(15);
+        ->where('ticket.status', "Done")->orderByDesc('ticket.id_ticket')->paginate(2);
 
         return response()->json([
             "message" => "success",
@@ -125,47 +122,63 @@ class AdminController extends Controller
     }
 
     public function assignTask(Request $request){
-        $validator = Validator::make($request->all(), [
-            'id_user'   => 'required',
-            'id_ticket' => 'required',
-            'dead_line' => 'required'
-        ],
-            [
-                'id_user.required'      => 'id_user Kosong !, Silahkan Masukkan id_user !',
-                'id_ticket.required'    => 'id_ticket Kosong !, Silahkan Masukkan id_ticket !',
-                'dead_line.required'    => 'dead_line Kosong !, Silahkan Masukkan dead_line !',
-            ]
-        );
 
-        if($validator->fails()) {
+        $post = DB::table('assignment')
+        ->select('assignment.id_assignment', 'assignment.id_user', 'assignment.id_ticket', 'assignment.dead_line', 'ticket.status')
+        ->join('ticket', 'assignment.id_ticket', '=', 'ticket.id_ticket')
+        ->get();
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Silahkan Isi Bidang Yang Kosong',
-                'data'    => $validator->errors()
-            ], 401);
+        $this ->validate($request, [
+            "id_user"=>"required",
+            "id_ticket"=>"required",
+            "dead_line"=>"required",
+            "status"=>"required"
+        ]);
 
-        } else {
+        
 
-            $post = Assignment::create([
-                'id_user'     => $request->input('id_user'),
-                'id_ticket'   => $request->input('id_ticket'),
-                'dead_line'   => $request->input('dead_line'),
-            ]);
 
-            if ($post) {
-                return response()->json([
-                    'success'       => true,
-                    'message'       => 'Post Berhasil Disimpan!',
-                    'create'        => $post
-                ], 200);
-            }else {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Post Gagal Disimpan!',
-                ], 401);
-            }
-        }
+        // $validator = Validator::make($request->all(), [
+        //     'id_user'   => 'required',
+        //     'id_ticket' => 'required',
+        //     'dead_line' => 'required'
+        // ],
+        //     [
+        //         'id_user.required'      => 'id_user Kosong !, Silahkan Masukkan id_user !',
+        //         'id_ticket.required'    => 'id_ticket Kosong !, Silahkan Masukkan id_ticket !',
+        //         'dead_line.required'    => 'dead_line Kosong !, Silahkan Masukkan dead_line !',
+        //     ]
+        // );
+
+        // if($validator->fails()) {
+
+        //     return response()->json([
+        //         'success' => false,
+        //         'message' => 'Silahkan Isi Bidang Yang Kosong',
+        //         'data'    => $validator->errors()
+        //     ], 401);
+
+        // } else {
+
+        //     $post = Assignment::create([
+        //         'id_user'     => $request->input('id_user'),
+        //         'id_ticket'   => $request->input('id_ticket'),
+        //         'dead_line'   => $request->input('dead_line'),
+        //     ]);
+
+        //     if ($post) {
+        //         return response()->json([
+        //             'success'       => true,
+        //             'message'       => 'Post Berhasil Disimpan!',
+        //             'create'        => $post
+        //         ], 200);
+        //     }else {
+        //         return response()->json([
+        //             'success' => false,
+        //             'message' => 'Post Gagal Disimpan!',
+        //         ], 401);
+        //     }
+        // }
     
     }
 } 

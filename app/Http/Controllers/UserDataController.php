@@ -20,8 +20,7 @@ class UserDataController extends Controller
         ->where('ticket.type', 'Report')
         ->whereNOTIn('ticket.status', function($subquery){
             $subquery->select('ticket.status')->where('ticket.status', "Done");
-        })->orderByDesc('ticket.id_ticket')
-        ->paginate(15);
+        })->orderByDesc('ticket.id_ticket')->paginate(2);
 
         $this ->validate($request, [
             "id_perusahaan"=>"required"
@@ -41,7 +40,7 @@ class UserDataController extends Controller
         ->where('ticket.type', 'Request')
         ->whereNOTIn('ticket.status', function($subquery){
             $subquery->select('ticket.status')->where('ticket.status', "Done");
-        })->orderByDesc('ticket.id_ticket')->get();
+        })->orderByDesc('ticket.id_ticket')->paginate(2);
 
         $this ->validate($request, [
             "id_perusahaan"=>"required"
@@ -58,8 +57,7 @@ class UserDataController extends Controller
         $userDataDone = DB::table('perusahaan')->select('application.apps_name' ,'ticket.priority', 'ticket.type', 'ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at')
         ->join('application','perusahaan.id_perusahaan','=','application.id_perusahaan')
         ->join('ticket','application.id_apps','=','ticket.id_apps')->where('perusahaan.id_perusahaan', $request->id_perusahaan)
-        ->where('ticket.status', "Done")->orderByDesc('ticket.id_ticket')
-        ->paginate(15);
+        ->where('ticket.status', "Done")->orderByDesc('ticket.id_ticket')->paginate(2);
 
         $this ->validate($request, [
             "id_perusahaan"=>"required"
