@@ -33,7 +33,7 @@ Route::get('getfcm/{id_ticket}', 'UserDataController@getFcmToken');
 
 Route::post('user/upload-image/{id}', 'UserDataController@uploadImage');
 
-Route::patch('user/agreement-act/{id_ticket}', ['middleware' => 'api.role:client-head'], 'UserDataController@agreementAct');
+Route::patch('user/agreement-act/{id_ticket}', ['middleware' => 'api.role:client-head', 'uses' => 'UserDataController@agreementAct']);
 
 Route::group(['middleware'=> 'api.role:client-head,client-staff'], function() {
     Route::get('user/data-bug', 'UserDataController@indexBug');

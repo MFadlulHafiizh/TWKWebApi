@@ -38,7 +38,7 @@ class UserDataController extends Controller
 
     public function indexFeature(Request $request){
         $userDataFeature = DB::table('perusahaan')
-        ->select('ticket.id_ticket','application.apps_name','ticket.type','ticket.priority','ticket.subject', 'ticket.detail', 'ticket.aproval_stat','ticket.status', 'ticket.created_at', 'ticket.time_periodic', 'ticket.price')
+        ->select('perusahaan.nama_perusahaan','ticket.id_ticket','application.apps_name','ticket.type','ticket.priority','ticket.subject', 'ticket.detail', 'ticket.aproval_stat','ticket.status', 'ticket.created_at', 'ticket.time_periodic', 'ticket.price')
         ->join('application','perusahaan.id_perusahaan','=','application.id_perusahaan')
         ->join('ticket','application.id_apps','=','ticket.id_apps')->where('perusahaan.id_perusahaan', $request->id_perusahaan)
         ->where('ticket.type', 'Request')
@@ -166,7 +166,7 @@ class UserDataController extends Controller
         $fcmToken = DB::table('users')->select('id','fcm_token')->where('role', 'twk-head')->get();
 
         $id_admin = $fcmToken->pluck('id');
-        $token = $fcm_token->pluck('fcm_token');
+        $token = $fcmToken->pluck('fcm_token');
         $nama_perusahaan = $request->nama_perusahaan;
         $apps_name = $request->apps_name;
         $title = $nama_perusahaan." ".$request->aproval_stat." Agreement";
@@ -179,7 +179,7 @@ class UserDataController extends Controller
                 'status'       => $request->status
             ]);
             return response()->json([
-                'message'       => 'Succees.',
+                'message'       => 'Agreement was '.$update->aproval_stat,
                 'statusUpdate'  => $update,
                 'notif'         => $this->pushNotif($id_admin, $id_ticket, $nama_perusahaan, $token, $title, $message)
         ], 200);
@@ -278,17 +278,28 @@ class UserDataController extends Controller
     }
 
     public function getFcmToken(Request $request, $id_ticket){
-        $notifData = DB::table('perusahaan')->select('perusahaan.nama_perusahaan', 'application.apps_name')
-        ->join('application', 'perusahaan.id_perusahaan', '=', 'application.id_perusahaan')
-        ->where('application.id_apps', $request->id_apps)->get();
+        // $notifData = DB::table('perusahaan')->select('perusahaan.nama_perusahaan', 'application.apps_name')
+        // ->join('application', 'perusahaan.id_perusahaan', '=', 'application.id_perusahaan')
+        // ->where('application.id_apps', $request->id_apps)->get();
 
-        $getApps = $notifData->pluck('apps_name');
-        $apps_name = $getApps[0];
+        // $getApps = $notifData->pluck('apps_name');
+        // $apps_name = $getApps[0];
 
-        $update = Ticket::find($id_ticket);
-        $message = $apps_name." - ".$update->subject;
+        // $update = Ticket::find($id_ticket);
+        // $message = $apps_name." - ".$update->subject;
 
-        return $message;
+        // return $message;
+
+        $notif = NotificationTable::firstWhere('id_ticket', $id_ticket);
+        if($notif){
+            $update = Ticket::find($id_ticket);
+            $update->update([
+                'from' => '',
+                'title' => '',
+                'message' => '',
+                'read_at' => 0
+            ]);
+        }
 
         // $fcmToken = DB::table('users')->select('id','fcm_token')->where('role', 'twk-head')->get();
         // $notifData = DB::table('perusahaan')->select('perusahaan.nama_perusahaan', 'application.apps_name')

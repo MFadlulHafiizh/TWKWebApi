@@ -31,7 +31,7 @@ class AdminController extends Controller
     }
 
     public function indexFeatureAdmin(){
-        $adminDataBug = DB::table('application')->select('perusahaan.nama_perusahaan', 'application.apps_name', 'ticket.id_ticket','ticket.type','ticket.priority','ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.aproval_stat','ticket.created_at')
+        $adminDataBug = DB::table('application')->select('perusahaan.nama_perusahaan', 'application.apps_name', 'ticket.time_periodic', 'ticket.price','ticket.id_ticket','ticket.type','ticket.priority','ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.aproval_stat','ticket.created_at')
         ->join('perusahaan', 'application.id_perusahaan', '=', 'perusahaan.id_perusahaan')
         ->join('ticket','application.id_apps','=','ticket.id_apps')
         ->where('ticket.type', 'Request')
