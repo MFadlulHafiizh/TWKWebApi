@@ -20,6 +20,8 @@ use Illuminate\Support\Facades\Route;
 
 Route::post("login", "AuthController@login");
 Route::post("register", "AuthController@register");
+Route::get("notification", "UserDataController@getListNotif");
+Route::patch("notification/readat/{id_notif}", 'UserDataController@updateNotifReadAt');
 
 Route::group(["middleware"=> "jwt.auth"], function(){
     Route::get("logout/{id}", "AuthController@logout");
@@ -27,12 +29,14 @@ Route::group(["middleware"=> "jwt.auth"], function(){
 });
 
 Route::get('pushnotif', 'UserDataController@pushNotifBug');
-Route::get('getfcm', 'UserDataController@getFcmToken');
+Route::get('getfcm/{id_ticket}', 'UserDataController@getFcmToken');
 
 Route::post('user/upload-image/{id}', 'UserDataController@uploadImage');
 Route::get('user/get-image', 'UserDataController@getImage');
 
-Route::group(["middleware"=> "api.role:client-head, client-staff"], function() {
+Route::patch('user/agreement-act/{id_ticket}', ['middleware' => 'api.role:client-head', 'uses' => 'UserDataController@agreementAct']);
+
+Route::group(['middleware'=> 'api.role:client-head,client-staff'], function() {
     Route::get('user/data-bug', 'UserDataController@indexBug');
     Route::get('user/data-feature', 'UserDataController@indexFeature');
     Route::get('user/data-done', 'UserDataController@indexDone');
@@ -41,7 +45,7 @@ Route::group(["middleware"=> "api.role:client-head, client-staff"], function() {
     Route::post('user/request-feature', 'UserDataController@storeFeature');
 });
 
-Route::get('fcmtoken', 'UserDataController@getFcmToken');
+Route::get('testurl', 'UserDataController@getFcmToken');
 
 Route::group(["middleware"=> "api.role:twk-head"], function(){
     Route::get('admin/data-bug', 'AdminController@indexBugAdmin');

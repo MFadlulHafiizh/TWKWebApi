@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Ticket;
 use App\Assignment;
+use App\NotificationTable;
 use Illuminate\Http\Request;
+use Kawankoding\Fcm\FcmFacade;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
@@ -63,11 +65,24 @@ class AdminController extends Controller
     }
 
     public function makeAgreement(Request $request, $id_ticket){
-
         $ticket = Ticket::firstWhere('id_ticket', $id_ticket);
 
         if($ticket){
             $update = Ticket::find($id_ticket);
+            $sendNotif = DB::table('ticket')->select('users.id', 'users.fcm_token')
+            ->join('application', 'ticket.id_apps', '=', 'application.id_apps')
+            ->join('perusahaan', 'application.id_perusahaan', '=', 'perusahaan.id_perusahaan')
+            ->join('users', 'perusahaan.id_perusahaan', '=', 'users.id_perusahaan')
+            ->where('ticket.id_ticket', $id_ticket)->get();
+            $getTicketInfo = DB::table('application')->select('ticket.subject', 'application.apps_name')
+            ->join('ticket', 'application.id_apps', '=', 'ticket.id_apps')
+            ->where('ticket.id_ticket', $id_ticket)->get();
+
+            $target_notif = $sendNotif->pluck('id');
+            $fcm_token = $sendNotif->pluck('fcm_token');
+            $appsName = $getTicketInfo->pluck('apps_name')[0];
+            $subjectTicket = $getTicketInfo->pluck('subject')[0];
+
             $update->update([
                 'price' => $request->price,
                 'time_periodic' => $request->time_periodic,
@@ -76,7 +91,8 @@ class AdminController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Succeesfull make agreement',
-                'data'    => $update
+                'data'    => $update,
+                'notif'   => $this->pushNotif($target_notif, $fcm_token, $id_ticket, "PT.TRIWIKRAMA", "Your Request need agreement", $appsName."-".$subjectTicket)
         ], 200);
         }else{
             return response([
@@ -95,7 +111,6 @@ class AdminController extends Controller
     }
 
     public function changeStatus(Request $request, $id_ticket){
-
         $ticket = Ticket::firstWhere('id_ticket', $id_ticket);
 
         if($ticket){
@@ -127,22 +142,6 @@ class AdminController extends Controller
         return response()->json([
             "message" => "Success Input Data"
         ]);
-        // $keys = ["id_user", "id_ticket", "date"];
-        // $input = $request->assign;
-        // $validator = Validator::make($input, [
-        //     'assign' => 'required|array',
-        // ]);
-
-
-        // foreach($input as $staff){
-        //     return response()->json($input);
-        // }
-
-        // $assignment = Assignment::create($input);
-        // return response()->json([
-        //     "status" => "Created",
-        //     "message" => "Success"
-        // ]);
     }
 
     public function assignTask(Request $request){
@@ -190,4 +189,30 @@ class AdminController extends Controller
         }
     
     }
+    public function pushNotif($target_user, $fcm_token, $id_ticket, $from, $title, $message){
+        foreach($target_user as $targetNotif){
+            $post = NotificationTable::create([
+                'id_user' => $targetNotif,
+                'id_ticket' => $id_ticket,
+                'from' => $from,
+                'title' => $title,
+                'message' => $message,
+                'read_at' => 0
+            ]);
+        }
+
+        $recipients = $fcm_token->toArray();
+        $sendNotif = fcm()
+        ->to($recipients)
+        ->priority('high')
+        ->timeToLive(0)
+        ->notification([
+            'title' => $title,
+            'body' => $message,
+        ]);
+
+        $sendNotif->send();
+        
+    }
+    
 } 
