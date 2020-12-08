@@ -29,7 +29,7 @@ Route::group(["middleware"=> "jwt.auth"], function(){
 });
 
 Route::get('pushnotif', 'UserDataController@pushNotifBug');
-Route::get('getfcm/{id_ticket}', 'UserDataController@getFcmToken');
+Route::post('getfcm/', 'UserDataController@getFcmToken');
 
 Route::post('user/upload-image/{id}', 'UserDataController@uploadImage');
 Route::get('user/get-image', 'UserDataController@getImage');

@@ -219,7 +219,7 @@ class UserDataController extends Controller
         $users = User::firstWhere('id', $id);
 
         $validator = Validator::make($request->all(), [
-            'photo' => 'required|image:jpeg,png,jpg,gif,svg|max:2048'
+            'photo' => 'required|image:jpeg,png,jpg,svg|max:2048'
         ],
             [
                 'photo.required'   => 'photo Kosong !, Silahkan Masukkan photo !',
@@ -233,21 +233,24 @@ class UserDataController extends Controller
                 'data'    => $validator->errors()
             ], 401);
         }
-        if($id){
-            $photo = User::find($id);
-            $photo->update([
-                'photo' => $request->file('photo'),
-            ]);
-        }
-         $uploadFolder = 'users';
+         $uploadFolder = 'usersImage';
          $photo = $request->file('photo');
          $image_uploaded_path = $photo->store($uploadFolder, 'public');
          $uploadedImageResponse = array(
             "id_user" => $id,
             "image_name" => basename($image_uploaded_path),
-            "image_url" => "http://localhost:8000/storage/".($image_uploaded_path),
+            "image_url" => Storage::disk('public')->url($image_uploaded_path),
             "mime" => $photo->getClientMimeType()
          );
+
+         $photo_url = $uploadedImageResponse['image_url'];
+
+         if($users){
+            $photo = User::find($id);
+            $photo->update([
+                'photo' => $photo_url,
+            ]);
+        }
         return response()->json([
             'message' => 'Successfull Uploaded Photo.',
             'data'    => $uploadedImageResponse
@@ -373,7 +376,7 @@ class UserDataController extends Controller
         }
     }
 
-    public function getFcmToken(Request $request, $id_ticket){
+    public function getFcmToken(Request $request){
         // $notifData = DB::table('perusahaan')->select('perusahaan.nama_perusahaan', 'application.apps_name')
         // ->join('application', 'perusahaan.id_perusahaan', '=', 'application.id_perusahaan')
         // ->where('application.id_apps', $request->id_apps)->get();
@@ -386,10 +389,37 @@ class UserDataController extends Controller
 
         // return $message;
 
-        if(NotificationTable::where('id_ticket', '=', $id_ticket)->exists()){
-            return "id_ditemukan";
+        $validator = Validator::make($request->all(), [
+            'photo' => 'required|image:jpeg,png,jpg,svg|max:2048'
+        ],
+            [
+                'photo.required'   => 'photo Kosong !, Silahkan Masukkan photo !',
+            ]
+        );
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Silahkan Isi Bidang Yang Kosong',
+                'data'    => $validator->errors()
+            ], 401);
         }
-        return "tidak ada";
+
+         $uploadFolder = 'usersImage';
+         $photo = $request->file('photo');
+         $image_uploaded_path = $photo->store($uploadFolder, 'public');
+         $uploadedImageResponse = array(
+            "image_name" => basename($image_uploaded_path),
+            "image_url" => Storage::disk('public')->url($image_uploaded_path),
+            "mime" => $photo->getClientMimeType()
+         );
+
+        $photo_url = $uploadedImageResponse['image_url'];
+        return $photo_url;
+        // return response()->json([
+        //     'message' => 'Successfull Uploaded Photo.',
+        //     'data'    => $uploadedImageResponse
+        // ], 201);
         // if($notif){
         //     $update = Ticket::find($id_ticket);
         //     $update->update([
