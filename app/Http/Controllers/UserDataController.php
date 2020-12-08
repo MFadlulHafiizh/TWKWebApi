@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Ticket;
 use App\User;
 use App\NotificationTable;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
 use Kawankoding\Fcm\FcmFacade;
 use Illuminate\Support\Facades\DB;
@@ -217,22 +218,71 @@ class UserDataController extends Controller
 
         $users = User::firstWhere('id', $id);
 
+        $validator = Validator::make($request->all(), [
+            'photo' => 'required|image:jpeg,png,jpg,gif,svg|max:2048'
+        ],
+            [
+                'photo.required'   => 'photo Kosong !, Silahkan Masukkan photo !',
+            ]
+        );
+        
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Silahkan Isi Bidang Yang Kosong',
+                'data'    => $validator->errors()
+            ], 401);
+        }
         if($id){
-            $data = User::find($id);
-            $data->update([
+            $photo = User::find($id);
+            $photo->update([
                 'photo' => $request->file('photo'),
             ]);
-        if ($request->hasFile('photo')) {
-            $request->file('photo')->move('uploads/', $request->file('photo')->getClientOriginalName());
-            $data->photo = $request->file('photo')->getClientOriginalName();
-            $data->save();
-        };
-
-        return response()->json([
-            'message' => 'Successfull Upload Photo.',
-            'data'    => $data
-        ], 201);
         }
+         $uploadFolder = 'users';
+         $photo = $request->file('photo');
+         $image_uploaded_path = $photo->store($uploadFolder, 'public');
+         $uploadedImageResponse = array(
+            "id_user" => $id,
+            "image_name" => basename($image_uploaded_path),
+            "image_url" => "http://localhost:8000/storage/".($image_uploaded_path),
+            "mime" => $photo->getClientMimeType()
+         );
+        return response()->json([
+            'message' => 'Successfull Uploaded Photo.',
+            'data'    => $uploadedImageResponse
+        ], 201);
+
+    //     $validator = Validator::make($request->all(), [
+    //         'photo' => 'required|image:jpeg,png,jpg,gif,svg|max:2048'
+    //     ],
+    //         [
+    //             'photo.required'   => 'photo Kosong !, Silahkan Masukkan photo !',
+    //         ]
+    //     );
+
+    //     if ($validator->fails()) {
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'Silahkan Isi Bidang Yang Kosong',
+    //             'data'    => $validator->errors()
+    //         ], 401);
+    //     }else if($id){
+    //         $data = User::find($id);
+    //         $data->update([
+    //             'photo' => $request->file('photo'),
+    //         ]);
+    //     if ($request->hasFile('photo')) {
+    //         $request->file('photo')->move('uploads/', $request->file('photo')->getClientOriginalName());
+    //         $data->photo = $request->file('photo')->getClientOriginalName();
+    //         $data->save();
+    //     };
+
+    //     return response()->json([
+    //         'message' => 'Successfull Uploaded Photo.',
+    //         'data'    => $data
+    //     ], 201);
+    //     }
     }
 
     public function getImage(Request $request){
