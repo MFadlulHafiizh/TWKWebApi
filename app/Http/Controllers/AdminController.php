@@ -190,16 +190,6 @@ class AdminController extends Controller
     
     }
     public function pushNotif($target_user, $fcm_token, $id_ticket, $from, $title, $message){
-        foreach($target_user as $targetNotif){
-            $post = NotificationTable::create([
-                'id_user' => $targetNotif,
-                'id_ticket' => $id_ticket,
-                'from' => $from,
-                'title' => $title,
-                'message' => $message,
-                'read_at' => 0
-            ]);
-        }
 
         $recipients = $fcm_token->toArray();
         $sendNotif = fcm()
@@ -213,6 +203,30 @@ class AdminController extends Controller
 
         $sendNotif->send();
         
+        foreach($target_user as $target_notif){
+            if(NotificationTable::where('id_user', '=', $target_notif)->where('id_ticket', '=', $id_ticket)->exists()){
+                $update = DB::table('notification')->where('id_ticket', $id_ticket)->where('id_user', $target_notif)
+                ->update([
+                'from'  => $from,
+                'title' => $title,
+                'message' => $message,
+                'read_at' => 1
+                ]);
+
+                return response()->json([
+                    'message' => 'Success push notif',
+                    'update'  => $update
+                ], 200);
+            }
+            $post = NotificationTable::create([
+                'id_user' => $target_notif,
+                'id_ticket' => $id_ticket,
+                'from' => $from,
+                'title' => $title,
+                'message' => $message,
+                'read_at' => 0
+            ]);
+        }
     }
     
 } 
