@@ -164,19 +164,14 @@ class UserDataController extends Controller
     public function agreementAct(Request $request, $id_ticket){
         $ticket = Ticket::firstWhere('id_ticket', $id_ticket);
         $fcmToken = DB::table('users')->select('id','fcm_token')->where('role', 'twk-head')->get();
-        $notifData = DB::table('perusahaan')->select('perusahaan.nama_perusahaan', 'application.apps_name')
-        ->join('application', 'perusahaan.id_perusahaan', '=', 'application.id_perusahaan')
-        ->where('application.id_apps', $request->id_apps)->get();
 
         $id_admin = $fcmToken->pluck('id');
         $token = $fcm_token->pluck('fcm_token');
-        $getCompany = $notifData->pluck('nama_perusahaan');
-        $getApps = $notifData->pluck('apps_name');
-        $nama_perusahaan = $getCompany[0];
-        $apps_name = $getApps[0];
+        $nama_perusahaan = $request->nama_perusahaan;
+        $apps_name = $request->apps_name;
         $title = $nama_perusahaan." ".$request->aproval_stat." Agreement";
 
-        if($ticket && $request->id_apps != null){
+        if($ticket){
             $update = Ticket::find($id_ticket);
             $message = $apps_name." - ".$update->subject;
             $update->update([
@@ -222,6 +217,7 @@ class UserDataController extends Controller
         $getList = DB::table('ticket')
         ->join('notification', 'notification.id_ticket', '=', 'ticket.id_ticket')
         ->join('application', 'ticket.id_apps', 'application.id_apps')
+        ->join('perusahaan', 'application.id_perusahaan', 'perusahaan.id_perusahaan')
         ->where('notification.id_user', $request->id_user)->orderByDesc('id_notif')->paginate(1);
         $notifCount = $getList->total();
         $totalPage = $getList->lastPage();
