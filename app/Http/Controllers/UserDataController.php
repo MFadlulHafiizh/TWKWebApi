@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Ticket;
 use App\User;
 use App\NotificationTable;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
 use Kawankoding\Fcm\FcmFacade;
 use Illuminate\Support\Facades\DB;
@@ -171,7 +172,29 @@ class UserDataController extends Controller
         $apps_name = $request->apps_name;
         $title = $nama_perusahaan." ".$request->aproval_stat." Agreement";
 
-        if($ticket){
+        $validator = Validator::make($request->all(), [
+            'nama_perusahaan'   => 'required',
+            'apps_name'         => 'required',
+            'aproval_stat'      => 'required',
+            'status'            => 'required'
+        ],
+            [
+                'nama_perusahaan.required'  => 'nama_perusahaan Kosong !, Silahkan Masukkan nama_perusahaan !',
+                'apps_name.required'        => 'apps_name Kosong !, Silahkan Masukkan apps_name !',
+                'aproval_stat.required'     => 'aproval_stat Kosong, Silahkan Masukkan aproval_stat !',
+                'status.required'           => 'status Kosong, Silahkan Masukkan status !',
+            ]
+        );
+
+        if($validator->fails()) {
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Silahkan Isi Bidang Yang Kosong',
+                'data'    => $validator->errors()
+            ], 401);
+
+        }else if($ticket){
             $update = Ticket::find($id_ticket);
             $message = $apps_name." - ".$update->subject;
             $update->update([
@@ -195,22 +218,82 @@ class UserDataController extends Controller
 
         $users = User::firstWhere('id', $id);
 
+        $validator = Validator::make($request->all(), [
+            'photo' => 'required|image:jpeg,png,jpg,gif,svg|max:2048'
+        ],
+            [
+                'photo.required'   => 'photo Kosong !, Silahkan Masukkan photo !',
+            ]
+        );
+        
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Silahkan Isi Bidang Yang Kosong',
+                'data'    => $validator->errors()
+            ], 401);
+        }
         if($id){
-            $data = User::find($id);
-            $data->update([
+            $photo = User::find($id);
+            $photo->update([
                 'photo' => $request->file('photo'),
             ]);
-        if ($request->hasFile('photo')) {
-            $request->file('photo')->move('uploads/', $request->file('photo')->getClientOriginalName());
-            $data->photo = $request->file('photo')->getClientOriginalName();
-            $data->save();
-        };
+        }
+         $uploadFolder = 'users';
+         $photo = $request->file('photo');
+         $image_uploaded_path = $photo->store($uploadFolder, 'public');
+         $uploadedImageResponse = array(
+            "id_user" => $id,
+            "image_name" => basename($image_uploaded_path),
+            "image_url" => "http://localhost:8000/storage/".($image_uploaded_path),
+            "mime" => $photo->getClientMimeType()
+         );
+        return response()->json([
+            'message' => 'Successfull Uploaded Photo.',
+            'data'    => $uploadedImageResponse
+        ], 201);
+
+    //     $validator = Validator::make($request->all(), [
+    //         'photo' => 'required|image:jpeg,png,jpg,gif,svg|max:2048'
+    //     ],
+    //         [
+    //             'photo.required'   => 'photo Kosong !, Silahkan Masukkan photo !',
+    //         ]
+    //     );
+
+    //     if ($validator->fails()) {
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'Silahkan Isi Bidang Yang Kosong',
+    //             'data'    => $validator->errors()
+    //         ], 401);
+    //     }else if($id){
+    //         $data = User::find($id);
+    //         $data->update([
+    //             'photo' => $request->file('photo'),
+    //         ]);
+    //     if ($request->hasFile('photo')) {
+    //         $request->file('photo')->move('uploads/', $request->file('photo')->getClientOriginalName());
+    //         $data->photo = $request->file('photo')->getClientOriginalName();
+    //         $data->save();
+    //     };
+
+    //     return response()->json([
+    //         'message' => 'Successfull Uploaded Photo.',
+    //         'data'    => $data
+    //     ], 201);
+    //     }
+    }
+
+    public function getImage(Request $request){
+        $getImage = DB::table('users')
+        ->select('users.id', 'users.photo')
+        ->where('users.id', $request->id)->get();
 
         return response()->json([
-            'message' => 'Successfull Upload Photo.',
-            'data'    => $data
-        ], 201);
-        }
+            'message' => 'User Image.',
+            'result'  => $getImage
+        ]);
     }
 
     public function getListNotif(Request $request){
@@ -328,5 +411,6 @@ class UserDataController extends Controller
         //return $this->pushNotif($id_admin,$request->id_ticket,$nama_perusahaan,$fcmToken->pluck('fcm_token'), $nama_perusahaan . " Reported some bugs", $apps_name . " - " . $request->subject);
     }
 
+    
 
 }

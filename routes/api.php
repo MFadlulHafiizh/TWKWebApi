@@ -32,6 +32,7 @@ Route::get('pushnotif', 'UserDataController@pushNotifBug');
 Route::get('getfcm/{id_ticket}', 'UserDataController@getFcmToken');
 
 Route::post('user/upload-image/{id}', 'UserDataController@uploadImage');
+Route::get('user/get-image', 'UserDataController@getImage');
 
 Route::patch('user/agreement-act/{id_ticket}', ['middleware' => 'api.role:client-head', 'uses' => 'UserDataController@agreementAct']);
 

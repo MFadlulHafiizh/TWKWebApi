@@ -152,8 +152,8 @@ class AdminController extends Controller
         ],
             [
                 'id_user.required.array'      => 'id_user Kosong !, Silahkan Masukkan id_user !',
-                'id_ticket.required'    => 'id_ticket Kosong !, Silahkan Masukkan id_ticket !',
-                'dead_line.required'    => 'dead_line Kosong !, Silahkan Masukkan dead_line !',
+                'id_ticket.required'          => 'id_ticket Kosong !, Silahkan Masukkan id_ticket !',
+                'dead_line.required'          => 'dead_line Kosong !, Silahkan Masukkan dead_line !',
             ]
         );
 
