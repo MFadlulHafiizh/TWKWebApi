@@ -11,30 +11,38 @@ use Illuminate\Support\Facades\Validator;
 class AdminController extends Controller
 {
     public function indexBugAdmin(){
-        $adminDataBug = DB::table('application')->select('application.apps_name','ticket.id_ticket','ticket.type','ticket.priority','ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at')
+        $adminDataBug = DB::table('application')->select('perusahaan.nama_perusahaan','application.apps_name','ticket.id_ticket','ticket.type','ticket.priority','ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at')
+        ->join('perusahaan', 'application.id_perusahaan', '=', 'perusahaan.id_perusahaan')
         ->join('ticket','application.id_apps','=','ticket.id_apps')
         ->where('ticket.type', 'Report')
         ->whereNOTIn('ticket.status', function($subquery){
             $subquery->select('ticket.status')->where('ticket.status', "Done");
         })->orderByDesc('ticket.id_ticket')->paginate(2);
 
+        $totalPage = $adminDataBug->lastPage();
+        $data = $adminDataBug->flatten(1);
+
         return response()->json([
-            "message" => 'success',
-            "bugData" => $adminDataBug
+            'bug_page_total'=>$totalPage,
+            'dataBug'=> $data
         ]);
     }
 
     public function indexFeatureAdmin(){
-        $adminDataBug = DB::table('application')->select('application.apps_name', 'ticket.id_ticket','ticket.type','ticket.priority','ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at')
+        $adminDataBug = DB::table('application')->select('perusahaan.nama_perusahaan', 'application.apps_name', 'ticket.id_ticket','ticket.type','ticket.priority','ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.aproval_stat','ticket.created_at')
+        ->join('perusahaan', 'application.id_perusahaan', '=', 'perusahaan.id_perusahaan')
         ->join('ticket','application.id_apps','=','ticket.id_apps')
         ->where('ticket.type', 'Request')
         ->whereNOTIn('ticket.status', function($subquery){
             $subquery->select('ticket.status')->where('ticket.status', "Done");
         })->orderByDesc('ticket.id_ticket')->paginate(2);
 
+        $totalPage = $adminDataBug->lastPage();
+        $data = $adminDataBug->flatten(1);
+
         return response()->json([
-            "message" => 'success',
-            "featureData" => $adminDataBug
+            'fitur_page_total'=>$totalPage,
+            'featureData'=> $data
         ]);
     }
 
@@ -45,9 +53,12 @@ class AdminController extends Controller
         ->join('ticket','application.id_apps','=','ticket.id_apps')
         ->where('ticket.status', "Done")->orderByDesc('ticket.id_ticket')->paginate(2);
 
+        $totalPage = $adminDataDone->lastPage();
+        $data = $adminDataDone->flatten(1);
+
         return response()->json([
-            "message" => "success",
-            "doneData" => $adminDataDone
+            'done_page_total'=>$totalPage,
+            'doneData'=> $data
         ]);
     }
 
@@ -105,80 +116,78 @@ class AdminController extends Controller
     }
 
     public function assignTaskBackup(Request $request){
+        foreach($request->id_user as $staff){
+            Assignment::create([
+                'id_user'     => $staff,
+                'id_ticket'   => $request->input('id_ticket'),
+                'dead_line'   => $request->input('dead_line')
+            ]);
+        }
 
-        $input = $request->all();
-
-        $validator = Validator::make($input, [
-            'id_user' => 'required',
-            'id_ticket' => 'required',
-            'dead_line' => 'required'
-        ]);
-
-        $assignment = Assignment::create($input);
         return response()->json([
-            "status" => "Created",
-            "message" => "Success"
+            "message" => "Success Input Data"
         ]);
+        // $keys = ["id_user", "id_ticket", "date"];
+        // $input = $request->assign;
+        // $validator = Validator::make($input, [
+        //     'assign' => 'required|array',
+        // ]);
+
+
+        // foreach($input as $staff){
+        //     return response()->json($input);
+        // }
+
+        // $assignment = Assignment::create($input);
+        // return response()->json([
+        //     "status" => "Created",
+        //     "message" => "Success"
+        // ]);
     }
 
     public function assignTask(Request $request){
+        $validator = Validator::make($request->all(), [
+            'id_user'   => 'required|array',
+            'id_ticket' => 'required',
+            'dead_line' => 'required'
+        ],
+            [
+                'id_user.required.array'      => 'id_user Kosong !, Silahkan Masukkan id_user !',
+                'id_ticket.required'          => 'id_ticket Kosong !, Silahkan Masukkan id_ticket !',
+                'dead_line.required'          => 'dead_line Kosong !, Silahkan Masukkan dead_line !',
+            ]
+        );
 
-        $post = DB::table('assignment')
-        ->select('assignment.id_assignment', 'assignment.id_user', 'assignment.id_ticket', 'assignment.dead_line', 'ticket.status')
-        ->join('ticket', 'assignment.id_ticket', '=', 'ticket.id_ticket')
-        ->get();
+        if($validator->fails()) {
 
-        $this ->validate($request, [
-            "id_user"=>"required",
-            "id_ticket"=>"required",
-            "dead_line"=>"required",
-            "status"=>"required"
-        ]);
+            return response()->json([
+                'success' => false,
+                'message' => 'Silahkan Isi Bidang Yang Kosong',
+                'data'    => $validator->errors()
+            ], 401);
 
-        
+        } else {
 
+            foreach ($request->id_user as $idStaffSelected) {
+                $post = Assignment::create([
+                    'id_user'     => $idStaffSelected,
+                    'id_ticket'   => $request->input('id_ticket'),
+                    'dead_line'   => $request->input('dead_line'),
+                ]);
+            }
 
-        // $validator = Validator::make($request->all(), [
-        //     'id_user'   => 'required',
-        //     'id_ticket' => 'required',
-        //     'dead_line' => 'required'
-        // ],
-        //     [
-        //         'id_user.required'      => 'id_user Kosong !, Silahkan Masukkan id_user !',
-        //         'id_ticket.required'    => 'id_ticket Kosong !, Silahkan Masukkan id_ticket !',
-        //         'dead_line.required'    => 'dead_line Kosong !, Silahkan Masukkan dead_line !',
-        //     ]
-        // );
-
-        // if($validator->fails()) {
-
-        //     return response()->json([
-        //         'success' => false,
-        //         'message' => 'Silahkan Isi Bidang Yang Kosong',
-        //         'data'    => $validator->errors()
-        //     ], 401);
-
-        // } else {
-
-        //     $post = Assignment::create([
-        //         'id_user'     => $request->input('id_user'),
-        //         'id_ticket'   => $request->input('id_ticket'),
-        //         'dead_line'   => $request->input('dead_line'),
-        //     ]);
-
-        //     if ($post) {
-        //         return response()->json([
-        //             'success'       => true,
-        //             'message'       => 'Post Berhasil Disimpan!',
-        //             'create'        => $post
-        //         ], 200);
-        //     }else {
-        //         return response()->json([
-        //             'success' => false,
-        //             'message' => 'Post Gagal Disimpan!',
-        //         ], 401);
-        //     }
-        // }
+            if ($post) {
+                return response()->json([
+                    'success'       => true,
+                    'message'       => 'Post Berhasil Disimpan!',
+                ], 200);
+            }else {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Post Gagal Disimpan!',
+                ], 401);
+            }
+        }
     
     }
 } 

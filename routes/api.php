@@ -22,7 +22,7 @@ Route::post("login", "AuthController@login");
 Route::post("register", "AuthController@register");
 
 Route::group(["middleware"=> "jwt.auth"], function(){
-    Route::get("logout", "AuthController@logout");
+    Route::get("logout/{id}", "AuthController@logout");
     Route::get('user', 'AuthController@getAuthenticatedUser');
 });
 
@@ -30,8 +30,9 @@ Route::get('pushnotif', 'UserDataController@pushNotifBug');
 Route::get('getfcm', 'UserDataController@getFcmToken');
 
 Route::post('user/upload-image/{id}', 'UserDataController@uploadImage');
+Route::get('user/get-image', 'UserDataController@getImage');
 
-Route::group(["middleware"=> "api.role:client-head"], function() {
+Route::group(["middleware"=> "api.role:client-head, client-staff"], function() {
     Route::get('user/data-bug', 'UserDataController@indexBug');
     Route::get('user/data-feature', 'UserDataController@indexFeature');
     Route::get('user/data-done', 'UserDataController@indexDone');
@@ -39,6 +40,8 @@ Route::group(["middleware"=> "api.role:client-head"], function() {
     Route::post('user/report-bug', 'UserDataController@storeBug');
     Route::post('user/request-feature', 'UserDataController@storeFeature');
 });
+
+Route::get('fcmtoken', 'UserDataController@getFcmToken');
 
 Route::group(["middleware"=> "api.role:twk-head"], function(){
     Route::get('admin/data-bug', 'AdminController@indexBugAdmin');
@@ -52,4 +55,5 @@ Route::group(["middleware"=> "api.role:twk-head"], function(){
 
 Route::group(['middleware' => 'api.role:twk-staff'], function () {
     Route::get('twkstaff/todo', 'TwkStaffController@indexToDo');
+    Route::get('twkstaff/hasdone', 'TwkStaffController@indexHasDone');
 });
