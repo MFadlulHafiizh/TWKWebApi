@@ -255,37 +255,6 @@ class UserDataController extends Controller
             'message' => 'Successfull Uploaded Photo.',
             'data'    => $uploadedImageResponse
         ], 201);
-
-    //     $validator = Validator::make($request->all(), [
-    //         'photo' => 'required|image:jpeg,png,jpg,gif,svg|max:2048'
-    //     ],
-    //         [
-    //             'photo.required'   => 'photo Kosong !, Silahkan Masukkan photo !',
-    //         ]
-    //     );
-
-    //     if ($validator->fails()) {
-    //         return response()->json([
-    //             'success' => false,
-    //             'message' => 'Silahkan Isi Bidang Yang Kosong',
-    //             'data'    => $validator->errors()
-    //         ], 401);
-    //     }else if($id){
-    //         $data = User::find($id);
-    //         $data->update([
-    //             'photo' => $request->file('photo'),
-    //         ]);
-    //     if ($request->hasFile('photo')) {
-    //         $request->file('photo')->move('uploads/', $request->file('photo')->getClientOriginalName());
-    //         $data->photo = $request->file('photo')->getClientOriginalName();
-    //         $data->save();
-    //     };
-
-    //     return response()->json([
-    //         'message' => 'Successfull Uploaded Photo.',
-    //         'data'    => $data
-    //     ], 201);
-    //     }
     }
 
     public function getImage(Request $request){
@@ -457,6 +426,18 @@ class UserDataController extends Controller
         //return $this->pushNotif($id_admin,$request->id_ticket,$nama_perusahaan,$fcmToken->pluck('fcm_token'), $nama_perusahaan . " Reported some bugs", $apps_name . " - " . $request->subject);
     }
 
-    
+    public function filter(Request $request){
+        
+        if(request()->has('priority')){
+            $filter = Ticket::where('priority', request('priority'))
+                ->paginate(5)
+                ->appends('priority', request('priority'));
+        }else{
+            $filter = Ticket::paginate(5);
+        }
+        return response()->json([
+            "Filter Type" => $filter
+        ]);
+    }
 
 }
