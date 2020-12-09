@@ -426,6 +426,18 @@ class UserDataController extends Controller
         //return $this->pushNotif($id_admin,$request->id_ticket,$nama_perusahaan,$fcmToken->pluck('fcm_token'), $nama_perusahaan . " Reported some bugs", $apps_name . " - " . $request->subject);
     }
 
-    
+    public function filter(Request $request){
+        
+        if(request()->has('priority')){
+            $filter = Ticket::where('priority', request('priority'))
+                ->paginate(5)
+                ->appends('priority', request('priority'));
+        }else{
+            $filter = Ticket::paginate(5);
+        }
+        return response()->json([
+            "Filter Type" => $filter
+        ]);
+    }
 
 }

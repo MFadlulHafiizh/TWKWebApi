@@ -34,6 +34,8 @@ Route::post('getfcm/', 'UserDataController@getFcmToken');
 Route::post('user/upload-image/{id}', 'UserDataController@uploadImage');
 Route::get('user/get-image', 'UserDataController@getImage');
 
+Route::get('user/filter', 'UserDataController@filter');
+
 Route::patch('user/agreement-act/{id_ticket}', ['middleware' => 'api.role:client-head', 'uses' => 'UserDataController@agreementAct']);
 
 Route::group(['middleware'=> 'api.role:client-head,client-staff'], function() {
