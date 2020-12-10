@@ -30,6 +30,9 @@ class UserDataController extends Controller
                 ->join('application', 'ticket.id_apps', '=', 'application.id_apps')
                 ->where('ticket.type', 'Report')
                 ->where('priority', request('priority'))
+                ->whereNOTIn('ticket.status', function($subquery){
+                    $subquery->select('ticket.status')->where('ticket.status', "Done");
+                })
                 ->paginate(2)
                 ->appends('priority', request('priority'));
         }
@@ -63,6 +66,9 @@ class UserDataController extends Controller
                 ->join('application', 'ticket.id_apps', '=', 'application.id_apps')
                 ->where('ticket.type', 'Request')
                 ->where('priority', request('priority'))
+                ->whereNOTIn('ticket.status', function($subquery){
+                    $subquery->select('ticket.status')->where('ticket.status', "Done");
+                })
                 ->paginate(2)
                 ->appends('priority', request('priority'));
         }
