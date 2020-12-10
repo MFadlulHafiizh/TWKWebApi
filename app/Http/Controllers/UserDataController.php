@@ -65,6 +65,9 @@ class UserDataController extends Controller
                 ->join('application', 'ticket.id_apps', '=', 'application.id_apps')
                 ->where('ticket.type', 'Request')
                 ->where('priority', request('priority'))
+                ->whereNOTIn('ticket.status', function($subquery){
+                    $subquery->select('ticket.status')->where('ticket.status', "Done");
+                })
                 ->paginate(2)
                 ->appends('priority', request('priority'));
         }
@@ -90,6 +93,15 @@ class UserDataController extends Controller
         ->where('perusahaan.id_perusahaan', $request->id_perusahaan)
         ->where('ticket.status', "Done")
         ->orderByDesc('ticket.id_ticket')->paginate(2);
+
+        if(request()->has('priority')){
+            $userDataBug = DB::table('ticket')
+                ->join('application', 'ticket.id_apps', '=', 'application.id_apps')
+                ->where('ticket.status', "Done")
+                ->where('priority', request('priority'))
+                ->paginate(2)
+                ->appends('priority', request('priority'));
+        }
 
         $totalPage = $userDataDone->lastPage();
         $data = $userDataDone->flatten(1);

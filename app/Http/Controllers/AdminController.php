@@ -13,13 +13,25 @@ use Illuminate\Support\Facades\Validator;
 class AdminController extends Controller
 {
     public function indexBugAdmin(){
-        $adminDataBug = DB::table('application')->select('perusahaan.nama_perusahaan','application.apps_name','ticket.id_ticket','ticket.type','ticket.priority','ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at')
+        $adminDataBug = DB::table('application')
         ->join('perusahaan', 'application.id_perusahaan', '=', 'perusahaan.id_perusahaan')
         ->join('ticket','application.id_apps','=','ticket.id_apps')
         ->where('ticket.type', 'Report')
         ->whereNOTIn('ticket.status', function($subquery){
             $subquery->select('ticket.status')->where('ticket.status', "Done");
         })->orderByDesc('ticket.id_ticket')->paginate(2);
+
+        if(request()->has('priority')){
+            $adminDataBug = DB::table('ticket')
+                ->join('application', 'ticket.id_apps', '=', 'application.id_apps')
+                ->where('ticket.type', 'Report')
+                ->where('priority', request('priority'))
+                ->whereNOTIn('ticket.status', function($subquery){
+                    $subquery->select('ticket.status')->where('ticket.status', "Done");
+                })
+                ->paginate(2)
+                ->appends('priority', request('priority'));
+        }
 
         $totalPage = $adminDataBug->lastPage();
         $data = $adminDataBug->flatten(1);
@@ -31,13 +43,25 @@ class AdminController extends Controller
     }
 
     public function indexFeatureAdmin(){
-        $adminDataBug = DB::table('application')->select('perusahaan.nama_perusahaan', 'application.apps_name', 'ticket.time_periodic', 'ticket.price','ticket.id_ticket','ticket.type','ticket.priority','ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.aproval_stat','ticket.created_at')
+        $adminDataBug = DB::table('application')
         ->join('perusahaan', 'application.id_perusahaan', '=', 'perusahaan.id_perusahaan')
         ->join('ticket','application.id_apps','=','ticket.id_apps')
         ->where('ticket.type', 'Request')
         ->whereNOTIn('ticket.status', function($subquery){
             $subquery->select('ticket.status')->where('ticket.status', "Done");
         })->orderByDesc('ticket.id_ticket')->paginate(2);
+
+        if(request()->has('priority')){
+            $adminDataBug = DB::table('ticket')
+                ->join('application', 'ticket.id_apps', '=', 'application.id_apps')
+                ->where('ticket.type', 'Request')
+                ->where('priority', request('priority'))
+                ->whereNOTIn('ticket.status', function($subquery){
+                    $subquery->select('ticket.status')->where('ticket.status', "Done");
+                })
+                ->paginate(2)
+                ->appends('priority', request('priority'));
+        }
 
         $totalPage = $adminDataBug->lastPage();
         $data = $adminDataBug->flatten(1);
@@ -50,10 +74,19 @@ class AdminController extends Controller
 
     public function indexDoneAdmin(){   
         $adminDataDone = DB::table('perusahaan')
-        ->select('application.apps_name','ticket.type', 'ticket.id_ticket','ticket.priority','ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at')
         ->join('application','perusahaan.id_perusahaan','=','application.id_perusahaan')
         ->join('ticket','application.id_apps','=','ticket.id_apps')
-        ->where('ticket.status', "Done")->orderByDesc('ticket.id_ticket')->paginate(2);
+        ->where('ticket.status', "Done")
+        ->orderByDesc('ticket.id_ticket')->paginate(2);
+
+        if(request()->has('priority')){
+            $userDataBug = DB::table('ticket')
+                ->join('application', 'ticket.id_apps', '=', 'application.id_apps')
+                ->where('ticket.type', "Done")
+                ->where('priority', request('priority'))
+                ->paginate(2)
+                ->appends('priority', request('priority'));
+        }
 
         $totalPage = $adminDataDone->lastPage();
         $data = $adminDataDone->flatten(1);
