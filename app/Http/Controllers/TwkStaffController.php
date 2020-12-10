@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Assignment;
+use App\Ticket;
 use Illuminate\Http\Request;
 use Kawankoding\Fcm\FcmFacade;
 use Illuminate\Support\Facades\DB;
@@ -44,6 +45,25 @@ class TwkStaffController extends Controller
             'staff_done_page_total'=>$totalPage,
             'hasDone'=> $data
         ]);
+    }
+
+    public function markAsComplete(Request $request, $id_ticket){
+        $ticket = Ticket::firstWhere('id_ticket', $id_ticket);
+        if($ticket){
+            $update = Ticket::find($id_ticket);
+            $update->update([
+                'status' => 'Done'
+            ]);
+            return response()->json([
+                'message' => 'Succees.',
+                'statusUpdate'  => $update
+        ], 200);
+        }else{
+            return response([
+                'success' => false,
+                'message' => 'Failed.',
+            ], 404);
+        }
     }
 
     public function listNotif(Request $request){
