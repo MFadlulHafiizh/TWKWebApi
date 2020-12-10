@@ -74,10 +74,19 @@ class AdminController extends Controller
 
     public function indexDoneAdmin(){   
         $adminDataDone = DB::table('perusahaan')
-        ->select('application.apps_name','ticket.type', 'ticket.id_ticket','ticket.priority','ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at')
         ->join('application','perusahaan.id_perusahaan','=','application.id_perusahaan')
         ->join('ticket','application.id_apps','=','ticket.id_apps')
-        ->where('ticket.status', "Done")->orderByDesc('ticket.id_ticket')->paginate(2);
+        ->where('ticket.status', "Done")
+        ->orderByDesc('ticket.id_ticket')->paginate(2);
+
+        if(request()->has('priority')){
+            $userDataBug = DB::table('ticket')
+                ->join('application', 'ticket.id_apps', '=', 'application.id_apps')
+                ->where('ticket.type', "Done")
+                ->where('priority', request('priority'))
+                ->paginate(2)
+                ->appends('priority', request('priority'));
+        }
 
         $totalPage = $adminDataDone->lastPage();
         $data = $adminDataDone->flatten(1);

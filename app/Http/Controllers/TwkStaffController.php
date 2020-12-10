@@ -19,6 +19,18 @@ class TwkStaffController extends Controller
             $subquery->select('ticket.status')->where('ticket.status', "Done");
         })->orderByDesc('assignment.id_assignment')->paginate(1);
 
+        if(request()->has('priority')){
+            $userDataBug = DB::table('ticket')
+                ->join('application', 'ticket.id_apps', '=', 'application.id_apps')
+                ->where('priority', request('priority'))
+                ->whereNOTIn('ticket.status', function($subquery){
+                    $subquery->select('ticket.status')->where('ticket.status', "Done");
+                })
+                ->paginate(2)
+                ->appends('priority', request('priority'));
+        }
+        
+
         $totalPage = $todoData->lastPage();
         $data = $todoData->flatten(1);
         
@@ -36,6 +48,15 @@ class TwkStaffController extends Controller
         ->where('id_user', $request->id_user)
         ->where('ticket.status', "Done")
         ->orderByDesc('assignment.id_assignment')->paginate(1);
+
+        if(request()->has('priority')){
+            $userDataBug = DB::table('ticket')
+                ->join('application', 'ticket.id_apps', '=', 'application.id_apps')
+                ->where('priority', request('priority'))
+                ->where('ticket.status', "Done")
+                ->paginate(2)
+                ->appends('priority', request('priority'));
+        }
 
         $totalPage = $hasDoneData->lastPage();
         $data = $hasDoneData->flatten(1);
