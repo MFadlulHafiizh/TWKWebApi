@@ -19,19 +19,27 @@ class UserDataController extends Controller
         $userDataBug = DB::table('perusahaan')
         ->join('application','perusahaan.id_perusahaan','=','application.id_perusahaan')
         ->join('ticket','application.id_apps','=','ticket.id_apps')
+        ->where('perusahaan.id_perusahaan', $request->id_perusahaan)
         ->where('ticket.type', 'Report')
         ->whereNOTIn('ticket.status', function($subquery){
             $subquery->select('ticket.status')->where('ticket.status', "Done");
         })->orderByDesc('ticket.id_ticket')->paginate(2);
 
         if(request()->has('priority')){
-            $userDataBug = Ticket::where('priority', request('priority'))
+            $userDataBug = DB::table('ticket')
+                ->join('application', 'ticket.id_apps', '=', 'application.id_apps')
+                ->where('ticket.type', 'Report')
+                ->where('priority', request('priority'))
                 ->paginate(2)
                 ->appends('priority', request('priority'));
         }
 
         $totalPage = $userDataBug->lastPage();
         $data = $userDataBug->flatten(1);
+
+        $this ->validate($request, [
+            "id_perusahaan"=>"required"
+        ]);
 
         return response()->json([
             'bug_page_total' => $totalPage,
