@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Ticket;
 use App\User;
+use Illuminate\Support\Str;
 use App\NotificationTable;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
@@ -215,12 +216,35 @@ class UserDataController extends Controller
         }
     }
 
-    public function uploadImage(Request $request, $id){
+    public function uploadImageDecoded(Request $request, $id){
+        $users = User::firstWhere('id', $id);
+        $uploadFoler = 'userImage';
+        $image = $request->photo;
+        $image = str_replace('data:image/jpeg;base64,', '', $image);
+        $image = str_replace(' ', '+', $image);
+        $imageName = str_random(10).'.'.'jpeg';
+        Storage::disk('public')->put($imageName, base64_decode($image));
+        $uploadedImageResponse = array(
+            "image_name" => basename($imageName),
+            "image_url" => url("storage/".$imageName),
+         );
+        $photo_url = $uploadedImageResponse['image_url'];
+        if($users){
+            $photo = User::find($id);
+            $photo->update([
+                'photo' => $photo_url,
+            ]);
+        }
+        return response()->json($uploadedImageResponse, 201);
+        
+    }
+
+    public function uploadImageFile(Request $request, $id){
 
         $users = User::firstWhere('id', $id);
 
         $validator = Validator::make($request->all(), [
-            'photo' => 'required|image:jpeg,png,jpg,svg|max:2048'
+            'photo' => 'required|image:jpeg,png,jpg|max:2048'
         ],
             [
                 'photo.required'   => 'photo Kosong !, Silahkan Masukkan photo !',
@@ -240,33 +264,19 @@ class UserDataController extends Controller
          $uploadedImageResponse = array(
             "id_user" => $id,
             "image_name" => basename($image_uploaded_path),
-            "image_url" => Storage::disk('public')->url($image_uploaded_path),
+            "image_url" => url("storage/".$image_uploaded_path),
             "mime" => $photo->getClientMimeType()
          );
 
          $photo_url = $uploadedImageResponse['image_url'];
 
          if($users){
-            $photo = User::find($id);
-            $photo->update([
+            $images = User::find($id);
+            $images->update([
                 'photo' => $photo_url,
             ]);
         }
-        return response()->json([
-            'message' => 'Successfull Uploaded Photo.',
-            'data'    => $uploadedImageResponse
-        ], 201);
-    }
-
-    public function getImage(Request $request){
-        $getImage = DB::table('users')
-        ->select('users.id', 'users.photo')
-        ->where('users.id', $request->id)->get();
-
-        return response()->json([
-            'message' => 'User Image.',
-            'result'  => $getImage
-        ]);
+        return response()->json($uploadedImageResponse, 201);
     }
 
     public function getListNotif(Request $request){
@@ -347,6 +357,22 @@ class UserDataController extends Controller
     }
 
     public function getFcmToken(Request $request){
+        $getIdStaff = DB::table('assignment')->select('users.fcm_token')
+        ->join('users', 'assignment.id_user', '=', 'users.id')
+        ->where('assignment.id_ticket', $request->id_ticket)->get();
+    
+        $getdataTicket = DB::table('ticket')->select('perusahaan.nama_perusahaan', 'application.apps_name', 'ticket.subject')
+        ->join('application', 'ticket.id_apps', '=', 'application.id_apps')
+        ->join('perusahaan', 'application.id_perusahaan', '=', 'perusahaan.id_perusahaan')
+        ->where('ticket.id_ticket', $request->id_ticket)->get();
+        
+        $fcm_token = $getIdStaff->pluck("fcm_token");
+        $from = $getdataTicket->pluck('nama_perusahaan')[0];
+        $appsname = $getdataTicket->pluck('apps_name')[0];
+        $subject = $getdataTicket->pluck('subject')[0];
+        $message = $appsname ." - ". $subject;
+
+        return $subject;
         // $notifData = DB::table('perusahaan')->select('perusahaan.nama_perusahaan', 'application.apps_name')
         // ->join('application', 'perusahaan.id_perusahaan', '=', 'application.id_perusahaan')
         // ->where('application.id_apps', $request->id_apps)->get();
@@ -359,33 +385,33 @@ class UserDataController extends Controller
 
         // return $message;
 
-        $validator = Validator::make($request->all(), [
-            'photo' => 'required|image:jpeg,png,jpg,svg|max:2048'
-        ],
-            [
-                'photo.required'   => 'photo Kosong !, Silahkan Masukkan photo !',
-            ]
-        );
+        // $validator = Validator::make($request->all(), [
+        //     'photo' => 'required|image:jpeg,png,jpg,svg|max:2048'
+        // ],
+        //     [
+        //         'photo.required'   => 'photo Kosong !, Silahkan Masukkan photo !',
+        //     ]
+        // );
 
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Silahkan Isi Bidang Yang Kosong',
-                'data'    => $validator->errors()
-            ], 401);
-        }
+        // if ($validator->fails()) {
+        //     return response()->json([
+        //         'success' => false,
+        //         'message' => 'Silahkan Isi Bidang Yang Kosong',
+        //         'data'    => $validator->errors()
+        //     ], 401);
+        // }
 
-         $uploadFolder = 'usersImage';
-         $photo = $request->file('photo');
-         $image_uploaded_path = $photo->store($uploadFolder, 'public');
-         $uploadedImageResponse = array(
-            "image_name" => basename($image_uploaded_path),
-            "image_url" => Storage::disk('public')->url($image_uploaded_path),
-            "mime" => $photo->getClientMimeType()
-         );
+        //  $uploadFolder = 'usersImage';
+        //  $photo = $request->file('photo');
+        //  $image_uploaded_path = $photo->store($uploadFolder, 'public');
+        //  $uploadedImageResponse = array(
+        //     "image_name" => basename($image_uploaded_path),
+        //     "image_url" => Storage::disk('public')->url($image_uploaded_path),
+        //     "mime" => $photo->getClientMimeType()
+        //  );
 
-        $photo_url = $uploadedImageResponse['image_url'];
-        return $photo_url;
+        // $photo_url = $uploadedImageResponse['image_url'];
+        // return $photo_url;
         // return response()->json([
         //     'message' => 'Successfull Uploaded Photo.',
         //     'data'    => $uploadedImageResponse
