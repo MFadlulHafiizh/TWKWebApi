@@ -63,4 +63,5 @@ Route::group(["middleware"=> "api.role:twk-head"], function(){
 Route::group(['middleware' => 'api.role:twk-staff'], function () {
     Route::get('twkstaff/todo', 'TwkStaffController@indexToDo');
     Route::get('twkstaff/hasdone', 'TwkStaffController@indexHasDone');
+    Route::get('twkstaff/listnotif', 'TwkStaffController@listNotif');
 });

@@ -45,4 +45,24 @@ class TwkStaffController extends Controller
             'hasDone'=> $data
         ]);
     }
+
+    public function listNotif(Request $request){
+        $getList = DB::table('ticket')
+        ->join('assignment', 'ticket.id_ticket', '=', 'assignment.id_ticket')
+        ->join('notification', 'notification.id_ticket', '=', 'ticket.id_ticket')
+        ->join('application', 'ticket.id_apps', 'application.id_apps')
+        ->join('perusahaan', 'application.id_perusahaan', 'perusahaan.id_perusahaan')
+        ->where('notification.id_user', $request->id_user)
+        ->where('assignment.id_user', $request->id_user)
+        ->orderByDesc('id_notif')->paginate(1);
+        $notifCount = $getList->total();
+        $totalPage = $getList->lastPage();
+        $data = $getList->flatten(1);
+
+        return response()->json([
+            'notifCount' => $notifCount,
+            'last_page_notif' => $totalPage,
+            'notifData' => $data
+        ]);
+    }
 }
