@@ -36,7 +36,7 @@ class TwkStaffController extends Controller
         ->join('perusahaan', 'application.id_perusahaan', '=', 'perusahaan.id_perusahaan')
         ->where('id_user', $request->id_user)
         ->where('ticket.status', "Done")
-        ->orderByDesc('assignment.id_assignment')->paginate(1);
+        ->orderByDesc('assignment.id_assignment')->paginate(2);
 
         $totalPage = $hasDoneData->lastPage();
         $data = $hasDoneData->flatten(1);
