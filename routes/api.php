@@ -22,6 +22,7 @@ Route::post("login", "AuthController@login");
 Route::post("register", "AuthController@register");
 Route::get("notification", "UserDataController@getListNotif");
 Route::patch("notification/readat/{id_notif}", 'UserDataController@updateNotifReadAt');
+Route::post('testBase64Image/{id}', 'UserDataController@testBase64Image');
 
 Route::group(["middleware"=> "jwt.auth"], function(){
     Route::get("logout/{id}", "AuthController@logout");
@@ -31,7 +32,8 @@ Route::group(["middleware"=> "jwt.auth"], function(){
 Route::get('pushnotif', 'UserDataController@pushNotifBug');
 Route::post('getfcm/', 'UserDataController@getFcmToken');
 
-Route::post('user/upload-image/{id}', 'UserDataController@uploadImage');
+Route::post('user/upload-image-base64/{id}', 'UserDataController@uploadImageDecoded');
+Route::post('user/upload-image/{id}', 'UserDataController@uploadImageFile');
 Route::get('user/get-image', 'UserDataController@getImage');
 
 Route::get('user/filter', 'UserDataController@filter');
