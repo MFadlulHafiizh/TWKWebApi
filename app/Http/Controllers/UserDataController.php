@@ -50,14 +50,22 @@ class UserDataController extends Controller
 
     public function indexFeature(Request $request){
         $userDataFeature = DB::table('perusahaan')
-        ->select('perusahaan.nama_perusahaan','ticket.id_ticket','application.apps_name','ticket.type','ticket.priority','ticket.subject', 'ticket.detail', 'ticket.aproval_stat','ticket.status', 'ticket.created_at', 'ticket.time_periodic', 'ticket.price')
         ->join('application','perusahaan.id_perusahaan','=','application.id_perusahaan')
-        ->join('ticket','application.id_apps','=','ticket.id_apps')->where('perusahaan.id_perusahaan', $request->id_perusahaan)
+        ->join('ticket','application.id_apps','=','ticket.id_apps')
+        ->where('perusahaan.id_perusahaan', $request->id_perusahaan)
         ->where('ticket.type', 'Request')
         ->whereNOTIn('ticket.status', function($subquery){
             $subquery->select('ticket.status')->where('ticket.status', "Done");
         })->orderByDesc('ticket.id_ticket')->paginate(1);
 
+        if(request()->has('priority')){
+            $userDataBug = DB::table('ticket')
+                ->join('application', 'ticket.id_apps', '=', 'application.id_apps')
+                ->where('ticket.type', 'Request')
+                ->where('priority', request('priority'))
+                ->paginate(2)
+                ->appends('priority', request('priority'));
+        }
         
         $totalPage = $userDataFeature->lastPage();
         $data = $userDataFeature->flatten(1);
@@ -72,10 +80,13 @@ class UserDataController extends Controller
     }
 
     public function indexDone(Request $request){
-        $userDataDone = DB::table('perusahaan')->select('application.apps_name' ,'ticket.priority', 'ticket.type', 'ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at')
+        $userDataDone = DB::table('perusahaan')
+        ->select('application.apps_name' ,'ticket.priority', 'ticket.type', 'ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at')
         ->join('application','perusahaan.id_perusahaan','=','application.id_perusahaan')
-        ->join('ticket','application.id_apps','=','ticket.id_apps')->where('perusahaan.id_perusahaan', $request->id_perusahaan)
-        ->where('ticket.status', "Done")->orderByDesc('ticket.id_ticket')->paginate(2);
+        ->join('ticket','application.id_apps','=','ticket.id_apps')
+        ->where('perusahaan.id_perusahaan', $request->id_perusahaan)
+        ->where('ticket.status', "Done")
+        ->orderByDesc('ticket.id_ticket')->paginate(2);
 
         $totalPage = $userDataDone->lastPage();
         $data = $userDataDone->flatten(1);
