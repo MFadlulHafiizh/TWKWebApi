@@ -110,13 +110,13 @@ class AdminController extends Controller
         ]);
     }
 
-    public function changeStatus(Request $request, $id_ticket){
+    public function changeStatus($id_ticket){
         $ticket = Ticket::firstWhere('id_ticket', $id_ticket);
 
         if($ticket){
             $update = Ticket::find($id_ticket);
             $update->update([
-                'status' => $request->status
+                'status' => 'On Proccess'
             ]);
             return response()->json([
                 'message' => 'Succees.',
@@ -145,6 +145,7 @@ class AdminController extends Controller
     }
 
     public function assignTask(Request $request){
+
         $validator = Validator::make($request->all(), [
             'id_user'   => 'required|array',
             'id_ticket' => 'required',
@@ -178,7 +179,9 @@ class AdminController extends Controller
             if ($post) {
                 return response()->json([
                     'success'       => true,
+                    'status'        => $this->changeStatus($request->id_ticket),
                     'message'       => 'Post Berhasil Disimpan!',
+                    'notif'         => $this->assignSendNotif($request->id_user, $request->id_ticket, "You have something to do")
                 ], 200);
             }else {
                 return response()->json([
@@ -189,6 +192,27 @@ class AdminController extends Controller
         }
     
     }
+
+    public function assignSendNotif($target_user, $id_ticket, $title){
+    $getIdStaff = DB::table('assignment')->select('users.fcm_token')
+    ->join('users', 'assignment.id_user', '=', 'users.id')
+    ->where('assignment.id_ticket', $id_ticket)->get();
+
+    $getdataTicket = DB::table('ticket')->select('perusahaan.nama_perusahaan', 'application.apps_name', 'ticket.subject')
+    ->join('application', 'ticket.id_apps', '=', 'application.id_apps')
+    ->join('perusahaan', 'application.id_perusahaan', '=', 'perusahaan.id_perusahaan')
+    ->where('ticket.id_ticket', $id_ticket)->get();
+    
+    $fcm_token = $getIdStaff->pluck("fcm_token");
+    $from = $getdataTicket->pluck('nama_perusahaan')[0];
+    $appsname = $getdataTicket->pluck('apps_name')[0];
+    $subject = $getdataTicket->pluck('subject')[0];
+    $message = $appsname ." - ". $subject;
+    return $this->pushNotif($target_user, $fcm_token, $id_ticket, $from, $title, $message);
+
+        
+    }
+
     public function pushNotif($target_user, $fcm_token, $id_ticket, $from, $title, $message){
 
         $recipients = $fcm_token->toArray();
