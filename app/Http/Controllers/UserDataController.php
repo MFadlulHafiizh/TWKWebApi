@@ -17,25 +17,27 @@ class UserDataController extends Controller
 {
     public function indexBug(Request $request){
         $userDataBug = DB::table('perusahaan')
-        ->select('ticket.id_ticket', 'application.apps_name', 'ticket.type','ticket.priority', 'ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at')
         ->join('application','perusahaan.id_perusahaan','=','application.id_perusahaan')
-        ->join('ticket','application.id_apps','=','ticket.id_apps')->where('perusahaan.id_perusahaan', $request->id_perusahaan)
+        ->join('ticket','application.id_apps','=','ticket.id_apps')
         ->where('ticket.type', 'Report')
         ->whereNOTIn('ticket.status', function($subquery){
             $subquery->select('ticket.status')->where('ticket.status', "Done");
         })->orderByDesc('ticket.id_ticket')->paginate(2);
 
+        if(request()->has('priority')){
+            $userDataBug = Ticket::where('priority', request('priority'))
+                ->paginate(2)
+                ->appends('priority', request('priority'));
+        }
+
         $totalPage = $userDataBug->lastPage();
         $data = $userDataBug->flatten(1);
-
-        $this ->validate($request, [
-            "id_perusahaan"=>"required"
-        ]);
 
         return response()->json([
             'bug_page_total' => $totalPage,
             'dataBug' => $data
         ]);
+
     }
 
     public function indexFeature(Request $request){
@@ -61,7 +63,6 @@ class UserDataController extends Controller
         ]);
     }
 
-    
     public function indexDone(Request $request){
         $userDataDone = DB::table('perusahaan')->select('application.apps_name' ,'ticket.priority', 'ticket.type', 'ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at')
         ->join('application','perusahaan.id_perusahaan','=','application.id_perusahaan')
@@ -453,13 +454,21 @@ class UserDataController extends Controller
     }
 
     public function filter(Request $request){
-        
+        $userDataBug = DB::table('ticket')
+        ->join('application', 'ticket.id_apps', '=', 'application.id_apps')
+        ->whereNOTIn('ticket.status', function($subquery){
+            $subquery->select('ticket.status')->where('ticket.status', "Done");
+        })->orderByDesc('ticket.id_ticket');
+
+        if(request()->has('type')){
+            $filter = Ticket::where('type', request('type'))
+                ->paginate(5)
+                ->appends('type', request('type'));
+        }
         if(request()->has('priority')){
             $filter = Ticket::where('priority', request('priority'))
                 ->paginate(5)
                 ->appends('priority', request('priority'));
-        }else{
-            $filter = Ticket::paginate(5);
         }
         return response()->json([
             "Filter Type" => $filter
