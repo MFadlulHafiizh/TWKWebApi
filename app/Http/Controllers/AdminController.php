@@ -13,163 +13,175 @@ use Illuminate\Support\Facades\Validator;
 class AdminController extends Controller
 {
     public function indexBugAdmin(){
-        $adminDataBug = DB::table('application')
-        ->join('perusahaan', 'application.id_perusahaan', '=', 'perusahaan.id_perusahaan')
-        ->join('ticket','application.id_apps','=','ticket.id_apps')
-        ->join('assignment', 'ticket.id_ticket', '=', 'assignment.id_ticket')
-        ->where('ticket.type', 'Report')
-        ->whereNOTIn('ticket.status', function($subquery){
-            $subquery->select('ticket.status')->where('ticket.status', "Done");
-        })->orderByDesc('ticket.id_ticket')->paginate(2);
-
-        if(request()->has('priority')){
-            $adminDataBug = DB::table('ticket')
-                ->join('application', 'ticket.id_apps', '=', 'application.id_apps')
-                ->where('ticket.type', 'Report')
-                ->where('priority', request('priority'))
-                ->whereNOTIn('ticket.status', function($subquery){
-                    $subquery->select('ticket.status')->where('ticket.status', "Done");
-                })
-                ->paginate(2)
-                ->appends('priority', request('priority'));
+        if(empty($request['apps_name']) && empty($request['priority'])) {
+            $adminDataBug = DB::table('perusahaan')
+            ->join('application', 'perusahaan.id_perusahaan', '=', 'application.id_perusahaan')
+            ->join('ticket','application.id_apps','=','ticket.id_apps')
+            ->where('ticket.type', 'Report')        
+            ->whereNOTIn('ticket.status', function($subquery){
+                $subquery->select('ticket.status')->where('ticket.status', "Done");
+            })->orderByDesc('ticket.id_ticket')->paginate(2);
+        }
+        
+        elseif(@$request['apps_name'] && @$request['priority']) {
+            $adminDataBug = DB::table('perusahaan')
+            ->join('application', 'perusahaan.id_perusahaan', '=', 'application.id_perusahaan')
+            ->join('ticket','application.id_apps','=','ticket.id_apps')
+            ->where('ticket.type', 'Report')        
+            ->where('application.apps_name', $request->apps_name)
+            ->where('ticket.priority', $request->priority)
+            ->whereNOTIn('ticket.status', function($subquery){
+                $subquery->select('ticket.status')->where('ticket.status', "Done");
+            })->orderByDesc('ticket.id_ticket')->paginate(2);
         }
 
-        if(request()->has('apps_name')){
-            $userDataBug = DB::table('application')
-                ->join('ticket', 'application.id_apps', '=', 'ticket.id_apps')
-                ->where('ticket.type', 'Report')
-                ->where('apps_name', request('apps_name'))
-                ->whereNOTIn('ticket.status', function($subquery){
-                    $subquery->select('ticket.status')->where('ticket.status', "Done");
-                })
-                ->paginate(2)
-                ->appends('apps_name', request('apps_name'));
+        elseif (@$request['apps_name'] && empty($request['priority'])) {
+            $adminDataBug = DB::table('perusahaan')
+            ->join('application', 'perusahaan.id_perusahaan', '=', 'application.id_perusahaan')
+            ->join('ticket','application.id_apps','=','ticket.id_apps')
+            ->where('ticket.type', 'Report')        
+            ->where('application.apps_name', $request->apps_name)
+            ->whereNOTIn('ticket.status', function($subquery){
+                $subquery->select('ticket.status')->where('ticket.status', "Done");
+            })->orderByDesc('ticket.id_ticket')->paginate(2);
         }
 
-        if(request()->has('priority')){
-            if(request()->has('apps_name')){
-            $userDataBug = DB::table('ticket')
-                ->join('application', 'ticket.id_apps', '=', 'application.id_apps')
-                ->where('ticket.type', 'Report')
-                ->where('apps_name', request('apps_name'))
-                ->where('priority', request('priority'))
-                ->whereNOTIn('ticket.status', function($subquery){
-                    $subquery->select('ticket.status')->where('ticket.status', "Done");
-                })
-                ->paginate(2);
-            }
+        elseif(empty($request['apps_name']) && @$request['priority']) {
+            $adminDataBug = DB::table('perusahaan')
+            ->join('application', 'perusahaan.id_perusahaan', '=', 'application.id_perusahaan')
+            ->join('ticket','application.id_apps','=','ticket.id_apps')
+            ->where('ticket.type', 'Report')        
+            ->where('ticket.priority', $request->priority)
+            ->whereNOTIn('ticket.status', function($subquery){
+                $subquery->select('ticket.status')->where('ticket.status', "Done");
+            })->orderByDesc('ticket.id_ticket')->paginate(2);         
         }
 
         $totalPage = $adminDataBug->lastPage();
         $data = $adminDataBug->flatten(1);
 
-        return response()->json([
-            'bug_page_total'=>$totalPage,
-            'dataBug'=> $data
-        ]);
+        if(isset($data[0])) {
+            return response()->json([
+                'bug_page_total' => $totalPage,
+                'dataBug' => $data
+            ]);            
+        } else {
+            return response()->json([
+                'message' => 'No Data Available'
+            ]);
+        }
     }
 
     public function indexFeatureAdmin(){
-        $adminDataBug = DB::table('application')
-        ->join('perusahaan', 'application.id_perusahaan', '=', 'perusahaan.id_perusahaan')
-        ->join('ticket','application.id_apps','=','ticket.id_apps')
-        ->join('assignment', 'ticket.id_ticket', '=', 'assignment.id_ticket')
-        ->where('ticket.type', 'Request')
-        ->whereNOTIn('ticket.status', function($subquery){
-            $subquery->select('ticket.status')->where('ticket.status', "Done");
-        })->orderByDesc('ticket.id_ticket')->paginate(2);
-
-        if(request()->has('priority')){
-            $adminDataBug = DB::table('ticket')
-                ->join('application', 'ticket.id_apps', '=', 'application.id_apps')
-                ->where('ticket.type', 'Request')
-                ->where('priority', request('priority'))
-                ->whereNOTIn('ticket.status', function($subquery){
-                    $subquery->select('ticket.status')->where('ticket.status', "Done");
-                })
-                ->paginate(2)
-                ->appends('priority', request('priority'));
+        if(empty($request['apps_name']) && empty($request['priority'])) {
+            $adminDataFeature = DB::table('perusahaan')
+            ->join('application', 'perusahaan.id_perusahaan', '=', 'application.id_perusahaan')
+            ->join('ticket','application.id_apps','=','ticket.id_apps')
+            ->where('ticket.type', 'Request')        
+            ->whereNOTIn('ticket.status', function($subquery){
+                $subquery->select('ticket.status')->where('ticket.status', "Done");
+            })->orderByDesc('ticket.id_ticket')->paginate(2);
+        }
+        
+        elseif(@$request['apps_name'] && @$request['priority']) {
+            $adminDataFeature = DB::table('perusahaan')
+            ->join('application', 'perusahaan.id_perusahaan', '=', 'application.id_perusahaan')
+            ->join('ticket','application.id_apps','=','ticket.id_apps')
+            ->where('ticket.type', 'Request')        
+            ->where('application.apps_name', $request->apps_name)
+            ->where('ticket.priority', $request->priority)
+            ->whereNOTIn('ticket.status', function($subquery){
+                $subquery->select('ticket.status')->where('ticket.status', "Done");
+            })->orderByDesc('ticket.id_ticket')->paginate(2);
         }
 
-        if(request()->has('apps_name')){
-            $userDataBug = DB::table('application')
-                ->join('ticket', 'application.id_apps', '=', 'ticket.id_apps')
-                ->where('ticket.type', 'Request')
-                ->where('apps_name', request('apps_name'))
-                ->whereNOTIn('ticket.status', function($subquery){
-                    $subquery->select('ticket.status')->where('ticket.status', "Done");
-                })
-                ->paginate(2)
-                ->appends('apps_name', request('apps_name'));
+        elseif (@$request['apps_name'] && empty($request['priority'])) {
+            $adminDataFeature = DB::table('perusahaan')
+            ->join('application', 'perusahaan.id_perusahaan', '=', 'application.id_perusahaan')
+            ->join('ticket','application.id_apps','=','ticket.id_apps')
+            ->where('ticket.type', 'Request')        
+            ->where('application.apps_name', $request->apps_name)
+            ->whereNOTIn('ticket.status', function($subquery){
+                $subquery->select('ticket.status')->where('ticket.status', "Done");
+            })->orderByDesc('ticket.id_ticket')->paginate(2);
         }
 
-        if(request()->has('priority')){
-            if(request()->has('apps_name')){
-            $userDataBug = DB::table('ticket')
-                ->join('application', 'ticket.id_apps', '=', 'application.id_apps')
-                ->where('ticket.type', 'Request')
-                ->where('apps_name', request('apps_name'))
-                ->where('priority', request('priority'))
-                ->whereNOTIn('ticket.status', function($subquery){
-                    $subquery->select('ticket.status')->where('ticket.status', "Done");
-                })
-                ->paginate(2);
-            }
+        elseif(empty($request['apps_name']) && @$request['priority']) {
+            $adminDataFeature = DB::table('perusahaan')
+            ->join('application', 'perusahaan.id_perusahaan', '=', 'application.id_perusahaan')
+            ->join('ticket','application.id_apps','=','ticket.id_apps')
+            ->where('ticket.type', 'Request')        
+            ->where('ticket.priority', $request->priority)
+            ->whereNOTIn('ticket.status', function($subquery){
+                $subquery->select('ticket.status')->where('ticket.status', "Done");
+            })->orderByDesc('ticket.id_ticket')->paginate(2);         
         }
 
-        $totalPage = $adminDataBug->lastPage();
-        $data = $adminDataBug->flatten(1);
+        $totalPage = $adminDataFeature->lastPage();
+        $data = $adminDataFeature->flatten(1);
 
-        return response()->json([
-            'fitur_page_total'=>$totalPage,
-            'featureData'=> $data
-        ]);
+        if(isset($data[0])) {
+            return response()->json([
+                'feature_page_total' => $totalPage,
+                'featureData' => $data
+            ]);            
+        } else {
+            return response()->json([
+                'message' => 'No Data Available'
+            ]);
+        }
     }
 
     public function indexDoneAdmin(){   
-        $adminDataDone = DB::table('perusahaan')
-        ->join('application','perusahaan.id_perusahaan','=','application.id_perusahaan')
-        ->join('ticket','application.id_apps','=','ticket.id_apps')
-        ->join('assignment', 'ticket.id_ticket', '=', 'assignment.id_ticket')
-        ->where('ticket.status', "Done")
-        ->orderByDesc('ticket.id_ticket')->paginate(2);
-
-        if(request()->has('priority')){
-            $userDataBug = DB::table('ticket')
-                ->join('application', 'ticket.id_apps', '=', 'application.id_apps')
-                ->where('ticket.type', "Done")
-                ->where('priority', request('priority'))
-                ->paginate(2)
-                ->appends('priority', request('priority'));
+        if(empty($request['apps_name']) && empty($request['priority'])) {
+            $adminDataDone = DB::table('perusahaan')
+            ->join('application', 'perusahaan.id_perusahaan', '=', 'application.id_perusahaan')
+            ->join('ticket','application.id_apps','=','ticket.id_apps')
+            ->where('ticket.status', "Done")        
+            ->orderByDesc('ticket.id_ticket')->paginate(2);
+        }
+        
+        elseif(@$request['apps_name'] && @$request['priority']) {
+            $adminDataDone = DB::table('perusahaan')
+            ->join('application', 'perusahaan.id_perusahaan', '=', 'application.id_perusahaan')
+            ->join('ticket','application.id_apps','=','ticket.id_apps')
+            ->where('ticket.status', "Done")        
+            ->where('application.apps_name', $request->apps_name)
+            ->where('ticket.priority', $request->priority)
+            ->orderByDesc('ticket.id_ticket')->paginate(2);
         }
 
-        if(request()->has('apps_name')){
-            $userDataBug = DB::table('application')
-                ->join('ticket', 'application.id_apps', '=', 'ticket.id_apps')
-                ->where('ticket.status', "Done")
-                ->where('apps_name', request('apps_name'))
-                ->paginate(2)
-                ->appends('apps_name', request('apps_name'));
+        elseif (@$request['apps_name'] && empty($request['priority'])) {
+            $adminDataDone = DB::table('perusahaan')
+            ->join('application', 'perusahaan.id_perusahaan', '=', 'application.id_perusahaan')
+            ->join('ticket','application.id_apps','=','ticket.id_apps')
+            ->where('ticket.status', "Done")        
+            ->where('application.apps_name', $request->apps_name)
+            ->orderByDesc('ticket.id_ticket')->paginate(2);
         }
 
-        if(request()->has('priority')){
-            if(request()->has('apps_name')){
-            $userDataBug = DB::table('ticket')
-                ->join('application', 'ticket.id_apps', '=', 'application.id_apps')
-                ->where('ticket.status', "Done")
-                ->where('apps_name', request('apps_name'))
-                ->where('priority', request('priority'))
-                ->paginate(2);
-            }
+        elseif(empty($request['apps_name']) && @$request['priority']) {
+            $adminDataDone = DB::table('perusahaan')
+            ->join('application', 'perusahaan.id_perusahaan', '=', 'application.id_perusahaan')
+            ->join('ticket','application.id_apps','=','ticket.id_apps')
+            ->where('ticket.status', "Done")        
+            ->where('ticket.priority', $request->priority)
+            ->orderByDesc('ticket.id_ticket')->paginate(2);         
         }
 
         $totalPage = $adminDataDone->lastPage();
         $data = $adminDataDone->flatten(1);
 
-        return response()->json([
-            'done_page_total'=>$totalPage,
-            'doneData'=> $data
-        ]);
+        if(isset($data[0])) {
+            return response()->json([
+                'done_page_total' => $totalPage,
+                'doneData' => $data
+            ]);            
+        } else {
+            return response()->json([
+                'message' => 'No Data Available'
+            ]);
+        }
     }
 
     public function makeAgreement(Request $request, $id_ticket){
