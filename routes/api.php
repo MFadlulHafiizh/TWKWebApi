@@ -35,7 +35,7 @@ Route::get('getfcm/', 'UserDataController@getFcmToken');
 Route::post('user/upload-image-base64/{id}', 'UserDataController@uploadImageDecoded');
 Route::post('user/upload-image/{id}', 'UserDataController@uploadImageFile');
 
-Route::get('user/filter', 'UserDataController@filter');
+Route::get('user/assign-at', 'UserDataController@assignAt');
 
 Route::patch('user/agreement-act/{id_ticket}', ['middleware' => 'api.role:client-head', 'uses' => 'UserDataController@agreementAct']);
 

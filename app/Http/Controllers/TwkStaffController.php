@@ -29,7 +29,30 @@ class TwkStaffController extends Controller
                 ->paginate(2)
                 ->appends('priority', request('priority'));
         }
-        
+
+        if(request()->has('apps_name')){
+            $userDataFeature = DB::table('application')
+                ->join('ticket', 'application.id_apps', '=', 'ticket.id_apps')
+                ->where('apps_name', request('apps_name'))
+                ->whereNOTIn('ticket.status', function($subquery){
+                    $subquery->select('ticket.status')->where('ticket.status', "Done");
+                })
+                ->paginate(2)
+                ->appends('apps_name', request('apps_name'));
+        }
+
+        if(request()->has('priority')){
+            if(request()->has('apps_name')){
+            $userDataFeature = DB::table('ticket')
+                ->join('application', 'ticket.id_apps', '=', 'application.id_apps')
+                ->where('apps_name', request('apps_name'))
+                ->where('priority', request('priority'))
+                ->whereNOTIn('ticket.status', function($subquery){
+                    $subquery->select('ticket.status')->where('ticket.status', "Done");
+                })
+                ->paginate(2);
+            }
+        }
 
         $totalPage = $todoData->lastPage();
         $data = $todoData->flatten(1);
@@ -52,10 +75,30 @@ class TwkStaffController extends Controller
         if(request()->has('priority')){
             $userDataBug = DB::table('ticket')
                 ->join('application', 'ticket.id_apps', '=', 'application.id_apps')
-                ->where('priority', request('priority'))
                 ->where('ticket.status', "Done")
+                ->where('priority', request('priority'))
                 ->paginate(2)
                 ->appends('priority', request('priority'));
+        }
+
+        if(request()->has('apps_name')){
+            $userDataFeature = DB::table('application')
+                ->join('ticket', 'application.id_apps', '=', 'ticket.id_apps')
+                ->where('ticket.status', "Done")
+                ->where('apps_name', request('apps_name'))
+                ->paginate(2)
+                ->appends('apps_name', request('apps_name'));
+        }
+
+        if(request()->has('priority')){
+            if(request()->has('apps_name')){
+            $userDataFeature = DB::table('ticket')
+                ->join('application', 'ticket.id_apps', '=', 'application.id_apps')
+                ->where('ticket.status', "Done")
+                ->where('apps_name', request('apps_name'))
+                ->where('priority', request('priority'))
+                ->paginate(2);
+            }
         }
 
         $totalPage = $hasDoneData->lastPage();

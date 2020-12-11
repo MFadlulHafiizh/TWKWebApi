@@ -19,6 +19,7 @@ class UserDataController extends Controller
         $userDataBug = DB::table('perusahaan')
         ->join('application','perusahaan.id_perusahaan','=','application.id_perusahaan')
         ->join('ticket','application.id_apps','=','ticket.id_apps')
+        ->join('assignment', 'ticket.id_ticket', '=', 'assignment.id_ticket')
         ->where('perusahaan.id_perusahaan', $request->id_perusahaan)
         ->where('ticket.type', 'Report')
         ->whereNOTIn('ticket.status', function($subquery){
@@ -35,6 +36,32 @@ class UserDataController extends Controller
                 })
                 ->paginate(2)
                 ->appends('priority', request('priority'));
+        }
+
+        if(request()->has('apps_name')){
+            $userDataBug = DB::table('application')
+                ->join('ticket', 'application.id_apps', '=', 'ticket.id_apps')
+                ->where('ticket.type', 'Report')
+                ->where('apps_name', request('apps_name'))
+                ->whereNOTIn('ticket.status', function($subquery){
+                    $subquery->select('ticket.status')->where('ticket.status', "Done");
+                })
+                ->paginate(2)
+                ->appends('apps_name', request('apps_name'));
+        }
+
+        if(request()->has('priority')){
+            if(request()->has('apps_name')){
+            $userDataBug = DB::table('ticket')
+                ->join('application', 'ticket.id_apps', '=', 'application.id_apps')
+                ->where('ticket.type', 'Report')
+                ->where('apps_name', request('apps_name'))
+                ->where('priority', request('priority'))
+                ->whereNOTIn('ticket.status', function($subquery){
+                    $subquery->select('ticket.status')->where('ticket.status', "Done");
+                })
+                ->paginate(2);
+            }
         }
 
         $totalPage = $userDataBug->lastPage();
@@ -55,14 +82,15 @@ class UserDataController extends Controller
         $userDataFeature = DB::table('perusahaan')
         ->join('application','perusahaan.id_perusahaan','=','application.id_perusahaan')
         ->join('ticket','application.id_apps','=','ticket.id_apps')
+        ->join('assignment', 'ticket.id_ticket', '=', 'assignment.id_ticket')
         ->where('perusahaan.id_perusahaan', $request->id_perusahaan)
         ->where('ticket.type', 'Request')
         ->whereNOTIn('ticket.status', function($subquery){
             $subquery->select('ticket.status')->where('ticket.status', "Done");
-        })->orderByDesc('ticket.id_ticket')->paginate(1);
+        })->orderByDesc('ticket.id_ticket')->paginate(2);
 
         if(request()->has('priority')){
-            $userDataBug = DB::table('ticket')
+            $userDataFeature = DB::table('ticket')
                 ->join('application', 'ticket.id_apps', '=', 'application.id_apps')
                 ->where('ticket.type', 'Request')
                 ->where('priority', request('priority'))
@@ -72,9 +100,36 @@ class UserDataController extends Controller
                 ->paginate(2)
                 ->appends('priority', request('priority'));
         }
+
+        if(request()->has('apps_name')){
+            $userDataFeature = DB::table('application')
+                ->join('ticket', 'application.id_apps', '=', 'ticket.id_apps')
+                ->where('ticket.type', 'Request')
+                ->where('apps_name', request('apps_name'))
+                ->whereNOTIn('ticket.status', function($subquery){
+                    $subquery->select('ticket.status')->where('ticket.status', "Done");
+                })
+                ->paginate(2)
+                ->appends('apps_name', request('apps_name'));
+        }
+
+        if(request()->has('priority')){
+            if(request()->has('apps_name')){
+            $userDataFeature = DB::table('ticket')
+                ->join('application', 'ticket.id_apps', '=', 'application.id_apps')
+                ->where('ticket.type', 'Request')
+                ->where('apps_name', request('apps_name'))
+                ->where('priority', request('priority'))
+                ->whereNOTIn('ticket.status', function($subquery){
+                    $subquery->select('ticket.status')->where('ticket.status', "Done");
+                })
+                ->paginate(2);
+            }
+        }
         
         $totalPage = $userDataFeature->lastPage();
         $data = $userDataFeature->flatten(1);
+
         $this ->validate($request, [
             "id_perusahaan"=>"required"
         ]);
@@ -87,20 +142,40 @@ class UserDataController extends Controller
 
     public function indexDone(Request $request){
         $userDataDone = DB::table('perusahaan')
-        ->select('application.apps_name' ,'ticket.priority', 'ticket.type', 'ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at')
         ->join('application','perusahaan.id_perusahaan','=','application.id_perusahaan')
         ->join('ticket','application.id_apps','=','ticket.id_apps')
+        ->join('assignment', 'ticket.id_ticket', '=', 'assignment.id_ticket')
         ->where('perusahaan.id_perusahaan', $request->id_perusahaan)
         ->where('ticket.status', "Done")
         ->orderByDesc('ticket.id_ticket')->paginate(2);
 
         if(request()->has('priority')){
-            $userDataBug = DB::table('ticket')
+            $userDataDone = DB::table('ticket')
                 ->join('application', 'ticket.id_apps', '=', 'application.id_apps')
                 ->where('ticket.status', "Done")
                 ->where('priority', request('priority'))
                 ->paginate(2)
                 ->appends('priority', request('priority'));
+        }
+
+        if(request()->has('apps_name')){
+            $userDataDone = DB::table('application')
+                ->join('ticket', 'application.id_apps', '=', 'ticket.id_apps')
+                ->where('ticket.status', "Done")
+                ->where('apps_name', request('apps_name'))
+                ->paginate(2)
+                ->appends('apps_name', request('apps_name'));
+        }
+
+        if(request()->has('priority')){
+            if(request()->has('apps_name')){
+            $userDataDone = DB::table('ticket')
+                ->join('application', 'ticket.id_apps', '=', 'application.id_apps')
+                ->where('ticket.type', "Done")
+                ->where('apps_name', request('apps_name'))
+                ->where('priority', request('priority'))
+                ->paginate(2);
+            }
         }
 
         $totalPage = $userDataDone->lastPage();
@@ -487,25 +562,14 @@ class UserDataController extends Controller
         //return $this->pushNotif($id_admin,$request->id_ticket,$nama_perusahaan,$fcmToken->pluck('fcm_token'), $nama_perusahaan . " Reported some bugs", $apps_name . " - " . $request->subject);
     }
 
-    public function filter(Request $request){
-        $userDataBug = DB::table('ticket')
-        ->join('application', 'ticket.id_apps', '=', 'application.id_apps')
-        ->whereNOTIn('ticket.status', function($subquery){
-            $subquery->select('ticket.status')->where('ticket.status', "Done");
-        })->orderByDesc('ticket.id_ticket');
+    public function assignAt(Request $request){
 
-        if(request()->has('type')){
-            $filter = Ticket::where('type', request('type'))
-                ->paginate(5)
-                ->appends('type', request('type'));
-        }
-        if(request()->has('priority')){
-            $filter = Ticket::where('priority', request('priority'))
-                ->paginate(5)
-                ->appends('priority', request('priority'));
-        }
+        $assignAt = DB::table('assignment')
+        ->join('ticket', 'assignment.id_ticket', '=', 'ticket.id_ticket')
+        ->where('ticket.type', 'Report')->get();
+
         return response()->json([
-            "Filter Type" => $filter
+            $assignAt
         ]);
     }
 
