@@ -15,6 +15,74 @@ use Illuminate\Support\Facades\Validator;
 
 class UserDataController extends Controller
 {
+    public function filterData(Request $request) {
+        
+        if(empty($request['apps_name']) && empty($request['priority'])) {
+            $getData = DB::table('perusahaan')
+            
+            ->join('application','perusahaan.id_perusahaan','=','application.id_perusahaan')
+            ->join('ticket','application.id_apps','=','ticket.id_apps')        
+            ->where('perusahaan.id_perusahaan', $request->id_perusahaan)->where('ticket.type', 'Report')        
+            ->whereNOTIn('ticket.status', function($subquery){
+                $subquery->select('ticket.status')->where('ticket.status', "Done");
+            })->orderByDesc('ticket.id_ticket')->paginate(5);
+        }
+        
+        elseif(@$request['apps_name'] && @$request['priority']) {
+            $getData = DB::table('perusahaan')
+            
+            ->join('application','perusahaan.id_perusahaan','=','application.id_perusahaan')
+            ->join('ticket','application.id_apps','=','ticket.id_apps')        
+            ->where('perusahaan.id_perusahaan', $request->id_perusahaan)->where('ticket.type', 'Report')        
+            ->where('application.apps_name', $request->apps_name)->where('ticket.priority', $request->priority)
+            ->whereNOTIn('ticket.status', function($subquery){
+                $subquery->select('ticket.status')->where('ticket.status', "Done");
+            })->orderByDesc('ticket.id_ticket')->paginate(5);
+        }
+
+        elseif (@$request['apps_name'] && empty($request['priority'])) {
+            $getData = DB::table('perusahaan')
+            
+            ->join('application','perusahaan.id_perusahaan','=','application.id_perusahaan')
+            ->join('ticket','application.id_apps','=','ticket.id_apps')        
+            ->where('perusahaan.id_perusahaan', $request->id_perusahaan)->where('ticket.type', 'Report')        
+            ->where('application.apps_name', $request->apps_name)
+            ->whereNOTIn('ticket.status', function($subquery){
+                $subquery->select('ticket.status')->where('ticket.status', "Done");
+            })->orderByDesc('ticket.id_ticket')->paginate(5);
+        }
+
+        elseif(empty($request['apps_name']) && @$request['priority']) {
+            $getData = DB::table('perusahaan')
+            
+            ->join('application','perusahaan.id_perusahaan','=','application.id_perusahaan')
+            ->join('ticket','application.id_apps','=','ticket.id_apps')        
+            ->where('perusahaan.id_perusahaan', $request->id_perusahaan)->where('ticket.type', 'Report')        
+            ->where('ticket.priority', $request->priority)
+            ->whereNOTIn('ticket.status', function($subquery){
+                $subquery->select('ticket.status')->where('ticket.status', "Done");
+            })->orderByDesc('ticket.id_ticket')->paginate(5);         
+        }        
+
+        $totalPage = $getData->lastPage();
+        $data = $getData->flatten(1);
+
+        $this ->validate($request, [
+            "id_perusahaan"=>"required"
+        ]);
+
+        if(isset($data[0])) {
+            return response()->json([
+                'message' => "success",
+                'bug_page_total' => $totalPage,
+                'dataBug' => $data
+            ]);            
+        } else {
+            return response()->json([
+                'message' => 'No Data Available'
+            ]);
+        }            
+    }
     public function indexBug(Request $request){
         $userDataBug = DB::table('perusahaan')
         ->join('application','perusahaan.id_perusahaan','=','application.id_perusahaan')
