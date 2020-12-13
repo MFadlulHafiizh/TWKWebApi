@@ -468,29 +468,108 @@ class AdminController extends Controller
         }       
     }
 
-    public function indexDoneAdmin(){   
-        $adminDataDone = DB::table('perusahaan')
-        ->join('application','perusahaan.id_perusahaan','=','application.id_perusahaan')
-        ->join('ticket','application.id_apps','=','ticket.id_apps')
-        ->where('ticket.status', "Done")
-        ->orderByDesc('ticket.id_ticket')->paginate(2);
-
-        if(request()->has('priority')){
-            $userDataBug = DB::table('ticket')
-                ->join('application', 'ticket.id_apps', '=', 'application.id_apps')
-                ->where('ticket.type', "Done")
-                ->where('priority', request('priority'))
-                ->paginate(2)
-                ->appends('priority', request('priority'));
+    public function indexDoneAdmin(Request $request){
+        if(empty($request['apps_name']) && empty($request['priority']) && empty($request['dari']) && empty($request['sampai'])){
+            $adminDataDone = DB::table('perusahaan')
+            ->join('application','perusahaan.id_perusahaan','=','application.id_perusahaan')
+            ->join('ticket','application.id_apps','=','ticket.id_apps')
+            ->where('ticket.status', "Done")
+            ->orderByDesc('ticket.id_ticket')->paginate(2);
         }
+
+        //1 kondisi
+        elseif(@$request['apps_name'] && empty($request['priority']) && empty($request['dari']) && empty($request['sampai'])){
+            $adminDataDone = DB::table('perusahaan')
+            ->join('application','perusahaan.id_perusahaan','=','application.id_perusahaan')
+            ->join('ticket','application.id_apps','=','ticket.id_apps')
+            ->where('application.apps_name', $request->apps_name)
+            ->where('ticket.status', "Done")
+            ->orderByDesc('ticket.id_ticket')->paginate(2);
+        }
+        elseif(empty($request['apps_name']) && @$request['priority'] && empty($request['dari']) && empty($request['sampai'])){
+            $adminDataDone = DB::table('perusahaan')
+            ->join('application','perusahaan.id_perusahaan','=','application.id_perusahaan')
+            ->join('ticket','application.id_apps','=','ticket.id_apps')
+            ->where('ticket.priority', $request->priority)
+            ->where('ticket.status', "Done")
+            ->orderByDesc('ticket.id_ticket')->paginate(2);
+        }
+        elseif(empty($request['apps_name']) && empty($request['priority']) && @$request['dari'] && @$request['sampai']){
+            $dari = $request->dari;
+            $sampai = $request->sampai;
+            $adminDataDone = DB::table('perusahaan')
+            ->join('application','perusahaan.id_perusahaan','=','application.id_perusahaan')
+            ->join('ticket','application.id_apps','=','ticket.id_apps')
+            ->whereDate('updated_at', '>=', $dari)
+            ->whereDate('updated_at', '<=', $sampai)
+            ->where('ticket.status', "Done")
+            ->orderByDesc('ticket.id_ticket')->paginate(2);
+        }
+
+        //2 kondisi
+        elseif(@$request['apps_name'] && @$request['priority'] && empty($request['dari']) && empty($request['sampai'])){
+            $adminDataDone = DB::table('perusahaan')
+            ->join('application','perusahaan.id_perusahaan','=','application.id_perusahaan')
+            ->join('ticket','application.id_apps','=','ticket.id_apps')
+            ->where('ticket.priority', $request->priority)
+            ->where('application.apps_name', $request->apps_name)
+            ->where('ticket.status', "Done")
+            ->orderByDesc('ticket.id_ticket')->paginate(2);
+        }
+        elseif(@$request['apps_name'] && empty($request['priority']) && @$request['dari'] && @$request['sampai']){
+            $dari = $request->dari;
+            $sampai = $request->sampai;
+            $adminDataDone = DB::table('perusahaan')
+            ->join('application','perusahaan.id_perusahaan','=','application.id_perusahaan')
+            ->join('ticket','application.id_apps','=','ticket.id_apps')
+            ->where('application.apps_name', $request->apps_name)
+            ->whereDate('updated_at', '>=', $dari)
+            ->whereDate('updated_at', '<=', $sampai)
+            ->where('ticket.status', "Done")
+            ->orderByDesc('ticket.id_ticket')->paginate(2);
+        }
+        elseif(empty($request['apps_name']) && @$request['priority'] && @$request['dari'] && @$request['sampai']){
+            $dari = $request->dari;
+            $sampai = $request->sampai;
+            $adminDataDone = DB::table('perusahaan')
+            ->join('application','perusahaan.id_perusahaan','=','application.id_perusahaan')
+            ->join('ticket','application.id_apps','=','ticket.id_apps')
+            ->where('ticket.priority', $request->priority)
+            ->whereDate('updated_at', '>=', $dari)
+            ->whereDate('updated_at', '<=', $sampai)
+            ->where('ticket.status', "Done")
+            ->orderByDesc('ticket.id_ticket')->paginate(2);
+        }
+
+        elseif(@$request['apps_name'] && @$request['priority'] && @$request['dari'] && @$request['sampai']){
+            $dari = $request->dari;
+            $sampai = $request->sampai;
+            $adminDataDone = DB::table('perusahaan')
+            ->join('application','perusahaan.id_perusahaan','=','application.id_perusahaan')
+            ->join('ticket','application.id_apps','=','ticket.id_apps')
+            ->where('ticket.priority', $request->priority)
+            ->where('application.apps_name', $request->apps_name)
+            ->whereDate('updated_at', '>=', $dari)
+            ->whereDate('updated_at', '<=', $sampai)
+            ->where('ticket.status', "Done")
+            ->orderByDesc('ticket.id_ticket')->paginate(2);
+        }
+
 
         $totalPage = $adminDataDone->lastPage();
         $data = $adminDataDone->flatten(1);
 
-        return response()->json([
-            'done_page_total'=>$totalPage,
-            'doneData'=> $data
-        ]);
+        if(isset($data[0])) {
+            return response()->json([
+                'message' => "success",
+                'done_page_total' => $totalPage,
+                'doneData' => $data
+            ]);            
+        } else {
+            return response()->json([
+                'message' => 'No Data Available'
+            ]);
+        }       
     }
 
     public function getTicketApps(){
