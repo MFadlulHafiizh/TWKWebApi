@@ -406,11 +406,163 @@ class UserDataController extends Controller
     }
 
     public function getListNotif(Request $request){
-        $getList = DB::table('ticket')
-        ->join('notification', 'notification.id_ticket', '=', 'ticket.id_ticket')
-        ->join('application', 'ticket.id_apps', 'application.id_apps')
-        ->join('perusahaan', 'application.id_perusahaan', 'perusahaan.id_perusahaan')
-        ->where('notification.id_user', $request->id_user)->orderByDesc('id_notif')->paginate(1);
+        if(empty($request['apps_name']) && empty($request['priority']) && empty($request['dari']) && empty($request['sampai'])){
+
+            $getList = DB::table('ticket')
+                ->join('notification', 'notification.id_ticket', '=', 'ticket.id_ticket')
+                ->join('application', 'ticket.id_apps', 'application.id_apps')
+                ->join('perusahaan', 'application.id_perusahaan', 'perusahaan.id_perusahaan')
+                
+                //Request Only
+                ->where('notification.id_user', $request->id_user)
+                //Request Only
+
+                ->orderByDesc('id_notif')
+                ->paginate(10);
+        }
+
+
+        elseif (@$request['apps_name'] && empty($request['priority']) && empty($request['dari']) && empty($request['sampai'])) {
+
+            $getList = DB::table('ticket')
+            ->join('notification', 'notification.id_ticket', '=', 'ticket.id_ticket')
+            ->join('application', 'ticket.id_apps', 'application.id_apps')
+            ->join('perusahaan', 'application.id_perusahaan', 'perusahaan.id_perusahaan')
+
+            //Request Only
+            ->where('application.apps_name', $request->apps_name)
+            ->where('notification.id_user', $request->id_user)
+            //Request Only
+
+            ->orderByDesc('id_notif')
+            ->paginate(10);
+            
+        }
+        elseif (empty($request['apps_name']) && @$request['priority'] && empty($request['dari']) && empty($request['sampai'])) {
+            
+            $getList = DB::table('ticket')
+            ->join('notification', 'notification.id_ticket', '=', 'ticket.id_ticket')
+            ->join('application', 'ticket.id_apps', 'application.id_apps')
+            ->join('perusahaan', 'application.id_perusahaan', 'perusahaan.id_perusahaan')
+
+            //Request Only
+            ->where('ticket.priority', $request->priority)
+            ->where('notification.id_user', $request->id_user)
+            //Request Only
+
+            ->where('notification.id_user', $request->id_user)
+            ->orderByDesc('id_notif')
+            ->paginate(10);
+            
+        }
+        elseif (empty($request['apps_name']) && empty($request['priority']) && @$request['dari'] && @$request['sampai']) {
+            $dari = $request->dari;
+            $sampai = $request->sampai;
+
+            $getList = DB::table('ticket')
+            ->join('notification', 'notification.id_ticket', '=', 'ticket.id_ticket')
+            ->join('application', 'ticket.id_apps', 'application.id_apps')
+            ->join('perusahaan', 'application.id_perusahaan', 'perusahaan.id_perusahaan')
+
+            //Request Only
+            ->whereDate('ticket.updated_at', '>=', $dari)
+            ->whereDate('ticket.updated_at', '<=', $sampai)
+            ->where('notification.id_user', $request->id_user)
+            //Request Only
+
+            ->where('notification.id_user', $request->id_user)
+            ->orderByDesc('id_notif')
+            ->paginate(10);
+            
+        }
+
+
+        elseif (@$request['apps_name'] && @$request['priority'] && empty($request['dari']) && empty($request['sampai'])) {
+
+            $getList = DB::table('ticket')
+            ->join('notification', 'notification.id_ticket', '=', 'ticket.id_ticket')
+            ->join('application', 'ticket.id_apps', 'application.id_apps')
+            ->join('perusahaan', 'application.id_perusahaan', 'perusahaan.id_perusahaan')
+
+            //Request Only
+            ->where('ticket.priority', $request->priority)
+            ->where('application.apps_name', $request->apps_name)
+            ->where('notification.id_user', $request->id_user)
+            //Request Only
+
+            ->where('notification.id_user', $request->id_user)
+            ->orderByDesc('id_notif')
+            ->paginate(10);
+            
+        }
+        elseif (@$request['apps_name'] && empty($request['priority']) && @$request['dari'] && @$request['sampai']) {
+            $dari = $request->dari;
+            $sampai = $request->sampai;
+
+            $getList = DB::table('ticket')
+            ->join('notification', 'notification.id_ticket', '=', 'ticket.id_ticket')
+            ->join('application', 'ticket.id_apps', 'application.id_apps')
+            ->join('perusahaan', 'application.id_perusahaan', 'perusahaan.id_perusahaan')
+
+            //Request Only
+            ->where('application.apps_name', $request->apps_name)
+            ->whereDate('ticket.updated_at', '>=', $dari)
+            ->whereDate('ticket.updated_at', '<=', $sampai)
+            ->where('id_user', $request->id_user)
+            //Request Only
+
+            ->where('notification.id_user', $request->id_user)
+            ->orderByDesc('id_notif')
+            ->paginate(10);
+            
+        }
+        elseif (empty($request['apps_name']) && @$request['priority'] && @$request['dari'] && @$request['sampai']) {
+            $dari = $request->dari;
+            $sampai = $request->sampai;
+
+            $getList = DB::table('ticket')
+            ->join('notification', 'notification.id_ticket', '=', 'ticket.id_ticket')
+            ->join('application', 'ticket.id_apps', 'application.id_apps')
+            ->join('perusahaan', 'application.id_perusahaan', 'perusahaan.id_perusahaan')
+
+            //Request Only
+            ->where('ticket.priority', $request->priority)
+            ->whereDate('ticket.updated_at', '>=', $dari)
+            ->whereDate('ticket.updated_at', '<=', $sampai)
+            ->where('id_user', $request->id_user)
+            //Request Only
+
+            ->where('notification.id_user', $request->id_user)
+            ->orderByDesc('id_notif')
+            ->paginate(10);
+            
+        }
+      
+       
+        elseif (@$request['apps_name'] && @$request['priority'] && @$request['dari'] && @$request['sampai']) {
+            $dari = $request->dari;
+            $sampai = $request->sampai;
+
+            $getList = DB::table('ticket')
+            ->join('notification', 'notification.id_ticket', '=', 'ticket.id_ticket')
+            ->join('application', 'ticket.id_apps', 'application.id_apps')
+            ->join('perusahaan', 'application.id_perusahaan', 'perusahaan.id_perusahaan')
+
+            //Request Only
+            ->where('ticket.priority', $request->priority)
+            ->where('application.apps_name', $request->apps_name)
+            ->whereDate('ticket.updated_at', '>=', $dari)
+            ->whereDate('ticket.updated_at', '<=', $sampai)
+            ->where('id_user', $request->id_user)
+            //Request Only
+
+            ->where('notification.id_user', $request->id_user)
+            ->orderByDesc('id_notif')
+            ->paginate(10);
+            
+        }
+
+
         $notifCount = $getList->total();
         $totalPage = $getList->lastPage();
         $data = $getList->flatten(1);
