@@ -12,104 +12,316 @@ use Illuminate\Support\Facades\DB;
 class TwkStaffController extends Controller
 {
     public function indexToDo(Request $request){
-        $todoData = DB::table('assignment')->select('perusahaan.nama_perusahaan', 'assignment.id_assignment', 'ticket.id_ticket', 'assignment.dead_line', 'application.apps_name', 'ticket.type', 'ticket.priority', 'ticket.subject', 'ticket.detail', 'ticket.status', 'assignment.created_at')
-        ->join('ticket', 'assignment.id_ticket', '=', 'ticket.id_ticket')
-        ->join('application', 'ticket.id_apps', '=', 'application.id_apps')
-        ->join('perusahaan', 'application.id_perusahaan', '=', 'perusahaan.id_perusahaan')
-        ->where('id_user', $request->id_user)
-        ->whereNOTIn('ticket.status', function($subquery){
-            $subquery->select('ticket.status')->where('ticket.status', "Done");
-        })->orderByDesc('assignment.id_assignment')->paginate(1);
-
-        if(request()->has('priority')){
-            $userDataBug = DB::table('ticket')
-                ->join('application', 'ticket.id_apps', '=', 'application.id_apps')
-                ->where('priority', request('priority'))
-                ->whereNOTIn('ticket.status', function($subquery){
-                    $subquery->select('ticket.status')->where('ticket.status', "Done");
-                })
-                ->paginate(2)
-                ->appends('priority', request('priority'));
+        if(empty($request['apps_name']) && empty($request['priority']) && empty($request['dari']) && empty($request['sampai'])){
+            $todoData = DB::table('assignment')
+            ->join('ticket', 'assignment.id_ticket', '=', 'ticket.id_ticket')
+            ->join('application', 'ticket.id_apps', '=', 'application.id_apps')
+            ->join('perusahaan', 'application.id_perusahaan', '=', 'perusahaan.id_perusahaan')
+            ->where('id_user', $request->id_user)
+            ->whereNOTIn('ticket.status', function($subquery){
+                $subquery->select('ticket.status')->where('ticket.status', "Done");
+            })->orderByDesc('assignment.id_assignment')->paginate(5);
         }
 
-        if(request()->has('apps_name')){
-            $userDataFeature = DB::table('application')
-                ->join('ticket', 'application.id_apps', '=', 'ticket.id_apps')
-                ->where('apps_name', request('apps_name'))
-                ->whereNOTIn('ticket.status', function($subquery){
-                    $subquery->select('ticket.status')->where('ticket.status', "Done");
-                })
-                ->paginate(2)
-                ->appends('apps_name', request('apps_name'));
+        //1kondisi
+        elseif(@$request['apps_name'] && empty($request['priority']) && empty($request['dari']) && empty($request['sampai'])){
+            $todoData = DB::table('assignment')
+            ->join('ticket', 'assignment.id_ticket', '=', 'ticket.id_ticket')
+            ->join('application', 'ticket.id_apps', '=', 'application.id_apps')
+            ->join('perusahaan', 'application.id_perusahaan', '=', 'perusahaan.id_perusahaan')
+            ->where('application.apps_name', $request->apps_name)
+            ->where('id_user', $request->id_user)
+            ->whereNOTIn('ticket.status', function($subquery){
+                $subquery->select('ticket.status')->where('ticket.status', "Done");
+            })->orderByDesc('assignment.id_assignment')->paginate(5);
+        }
+        elseif(empty($request['apps_name']) && @$request['priority'] && empty($request['dari']) && empty($request['sampai'])){
+            $todoData = DB::table('assignment')
+            ->join('ticket', 'assignment.id_ticket', '=', 'ticket.id_ticket')
+            ->join('application', 'ticket.id_apps', '=', 'application.id_apps')
+            ->join('perusahaan', 'application.id_perusahaan', '=', 'perusahaan.id_perusahaan')
+            ->where('ticket.priority', $request->priority)
+            ->where('id_user', $request->id_user)
+            ->whereNOTIn('ticket.status', function($subquery){
+                $subquery->select('ticket.status')->where('ticket.status', "Done");
+            })->orderByDesc('assignment.id_assignment')->paginate(5);
+        }
+        elseif(empty($request['apps_name']) && empty($request['priority']) && @$request['dari'] && @$request['sampai']){
+            $dari = $request->dari;
+            $sampai = $request->sampai;
+            $todoData = DB::table('assignment')
+            ->join('ticket', 'assignment.id_ticket', '=', 'ticket.id_ticket')
+            ->join('application', 'ticket.id_apps', '=', 'application.id_apps')
+            ->join('perusahaan', 'application.id_perusahaan', '=', 'perusahaan.id_perusahaan')
+            ->whereDate('assign_at', '>=', $dari)
+            ->whereDate('assign_at', '<=', $sampai)
+            ->where('id_user', $request->id_user)
+            ->whereNOTIn('ticket.status', function($subquery){
+                $subquery->select('ticket.status')->where('ticket.status', "Done");
+            })->orderByDesc('assignment.id_assignment')->paginate(5);
         }
 
-        if(request()->has('priority')){
-            if(request()->has('apps_name')){
-            $userDataFeature = DB::table('ticket')
-                ->join('application', 'ticket.id_apps', '=', 'application.id_apps')
-                ->where('apps_name', request('apps_name'))
-                ->where('priority', request('priority'))
-                ->whereNOTIn('ticket.status', function($subquery){
-                    $subquery->select('ticket.status')->where('ticket.status', "Done");
-                })
-                ->paginate(2);
-            }
+        //2kondisi
+        elseif(@$request['apps_name'] && @$request['priority'] && empty($request['dari']) && empty($request['sampai'])){
+            $todoData = DB::table('assignment')
+            ->join('ticket', 'assignment.id_ticket', '=', 'ticket.id_ticket')
+            ->join('application', 'ticket.id_apps', '=', 'application.id_apps')
+            ->join('perusahaan', 'application.id_perusahaan', '=', 'perusahaan.id_perusahaan')
+            ->where('ticket.priority', $request->priority)
+            ->where('application.apps_name', $request->apps_name)
+            ->where('id_user', $request->id_user)
+            ->whereNOTIn('ticket.status', function($subquery){
+                $subquery->select('ticket.status')->where('ticket.status', "Done");
+            })->orderByDesc('assignment.id_assignment')->paginate(5);
+        }
+        elseif(@$request['apps_name'] && empty($request['priority']) && @$request['dari'] && @$request['sampai']){
+            $dari = $request->dari;
+            $sampai = $request->sampai;
+            $todoData = DB::table('assignment')
+            ->join('ticket', 'assignment.id_ticket', '=', 'ticket.id_ticket')
+            ->join('application', 'ticket.id_apps', '=', 'application.id_apps')
+            ->join('perusahaan', 'application.id_perusahaan', '=', 'perusahaan.id_perusahaan')
+            ->where('application.apps_name', $request->apps_name)
+            ->where('id_user', $request->id_user)
+            ->whereDate('assign_at', '>=', $dari)
+            ->whereDate('assign_at', '<=', $sampai)
+            ->whereNOTIn('ticket.status', function($subquery){
+                $subquery->select('ticket.status')->where('ticket.status', "Done");
+            })->orderByDesc('assignment.id_assignment')->paginate(5);
+        }
+        elseif(empty($request['apps_name']) && @$request['priority'] && @$request['dari'] && @$request['sampai']){
+            $dari = $request->dari;
+            $sampai = $request->sampai;
+            $todoData = DB::table('assignment')
+            ->join('ticket', 'assignment.id_ticket', '=', 'ticket.id_ticket')
+            ->join('application', 'ticket.id_apps', '=', 'application.id_apps')
+            ->join('perusahaan', 'application.id_perusahaan', '=', 'perusahaan.id_perusahaan')
+            ->where('ticket.priority', $request->priority)
+            ->where('id_user', $request->id_user)
+            ->whereDate('assign_at', '>=', $dari)
+            ->whereDate('assign_at', '<=', $sampai)
+            ->whereNOTIn('ticket.status', function($subquery){
+                $subquery->select('ticket.status')->where('ticket.status', "Done");
+            })->orderByDesc('assignment.id_assignment')->paginate(5);
+        }
+        elseif(@$request['apps_name'] && @$request['priority'] && @$request['dari'] && @$request['sampai']){
+            $dari = $request->dari;
+            $sampai = $request->sampai;
+            $todoData = DB::table('assignment')
+            ->join('ticket', 'assignment.id_ticket', '=', 'ticket.id_ticket')
+            ->join('application', 'ticket.id_apps', '=', 'application.id_apps')
+            ->join('perusahaan', 'application.id_perusahaan', '=', 'perusahaan.id_perusahaan')
+            ->where('ticket.priority', $request->priority)
+            ->where('application.apps_name', $request->apps_name)
+            ->where('id_user', $request->id_user)
+            ->whereDate('assign_at', '>=', $dari)
+            ->whereDate('assign_at', '<=', $sampai)
+            ->whereNOTIn('ticket.status', function($subquery){
+                $subquery->select('ticket.status')->where('ticket.status', "Done");
+            })->orderByDesc('assignment.id_assignment')->paginate(5);
         }
 
         $totalPage = $todoData->lastPage();
         $data = $todoData->flatten(1);
         
-        return response()->json([
-            'staff_todo_page_total'=>$totalPage,
-            'todoData'=> $data
-        ]);
+
+        if(isset($data[0])) {
+            return response()->json([
+                'message' => "success",
+                'staff_todo_page_total' => $totalPage,
+                'todoData' => $data
+            ]);            
+        } else {
+            return response()->json([
+                'message' => 'No Data Available'
+            ]);
+        }       
     }
 
     public function indexHasDone(Request $request){
-        $hasDoneData = DB::table('assignment')
-        ->join('ticket', 'assignment.id_ticket', '=', 'ticket.id_ticket')
-        ->join('application', 'ticket.id_apps', '=', 'application.id_apps')
-        ->join('perusahaan', 'application.id_perusahaan', '=', 'perusahaan.id_perusahaan')
-        ->where('id_user', $request->id_user)
-        ->where('ticket.status', "Done")
-        ->orderByDesc('assignment.id_assignment')->paginate(2);
+        if(empty($request['apps_name']) && empty($request['priority']) && empty($request['dari']) && empty($request['sampai'])){
+             
+            $hasDoneData = DB::table('ticket')
+            ->join('assignment', 'ticket.id_ticket', '=', 'assignment.id_ticket')
+            ->join('application', 'ticket.id_apps', '=', 'application.id_apps')
+            ->join('perusahaan', 'application.id_perusahaan', '=', 'perusahaan.id_perusahaan')
 
-        if(request()->has('priority')){
-            $userDataBug = DB::table('ticket')
-                ->join('application', 'ticket.id_apps', '=', 'application.id_apps')
-                ->where('ticket.status', "Done")
-                ->where('priority', request('priority'))
-                ->paginate(2)
-                ->appends('priority', request('priority'));
+            //Request Only
+            ->where('id_user', $request->id_user)
+            //Request Only
+
+            ->where('ticket.status', "Done")
+            ->orderByDesc('assignment.id_assignment')->paginate(2);
+            
         }
 
-        if(request()->has('apps_name')){
-            $userDataFeature = DB::table('application')
-                ->join('ticket', 'application.id_apps', '=', 'ticket.id_apps')
-                ->where('ticket.status', "Done")
-                ->where('apps_name', request('apps_name'))
-                ->paginate(2)
-                ->appends('apps_name', request('apps_name'));
+
+        elseif (@$request['apps_name'] && empty($request['priority']) && empty($request['dari']) && empty($request['sampai'])) {
+
+            $hasDoneData = DB::table('ticket')
+            ->join('assignment', 'ticket.id_ticket', '=', 'assignment.id_ticket')
+            ->join('application', 'ticket.id_apps', '=', 'application.id_apps')
+            ->join('perusahaan', 'application.id_perusahaan', '=', 'perusahaan.id_perusahaan')
+
+             //Request Only
+             ->where('application.apps_name', $request->apps_name)
+             ->where('id_user', $request->id_user)
+             //Request Only
+
+            ->where('ticket.status', "Done")
+            ->orderByDesc('assignment.id_assignment')->paginate(2);
+
+
+            
+        }
+        elseif (empty($request['apps_name']) && @$request['priority'] && empty($request['dari']) && empty($request['sampai'])) {
+
+            $hasDoneData = DB::table('ticket')
+            ->join('assignment', 'ticket.id_ticket', '=', 'assignment.id_ticket')
+            ->join('application', 'ticket.id_apps', '=', 'application.id_apps')
+            ->join('perusahaan', 'application.id_perusahaan', '=', 'perusahaan.id_perusahaan')
+
+            //Request Only
+            ->where('ticket.priority', $request->priority)
+            ->where('id_user', $request->id_user)
+            //Request Only
+
+            ->where('ticket.status', "Done")
+            ->orderByDesc('assignment.id_assignment')->paginate(2);
+
+            
+        }
+        elseif (empty($request['apps_name']) && empty($request['priority']) && @$request['dari'] && @$request['sampai']) {
+            $dari = $request->dari;
+            $sampai = $request->sampai;
+            $hasDoneData = DB::table('ticket')
+            ->join('assignment', 'ticket.id_ticket', '=', 'assignment.id_ticket')
+            ->join('application', 'ticket.id_apps', '=', 'application.id_apps')
+            ->join('perusahaan', 'application.id_perusahaan', '=', 'perusahaan.id_perusahaan')
+
+            //Request Only
+            ->whereDate('updated_at', '>=', $dari)
+            ->whereDate('updated_at', '<=', $sampai)
+            ->where('id_user', $request->id_user)
+            //Request Only
+
+            ->where('ticket.status', "Done")
+            ->orderByDesc('assignment.id_assignment')->paginate(2);
+
         }
 
-        if(request()->has('priority')){
-            if(request()->has('apps_name')){
-            $userDataFeature = DB::table('ticket')
-                ->join('application', 'ticket.id_apps', '=', 'application.id_apps')
-                ->where('ticket.status', "Done")
-                ->where('apps_name', request('apps_name'))
-                ->where('priority', request('priority'))
-                ->paginate(2);
-            }
+
+        elseif (@$request['apps_name'] && @$request['priority'] && empty($request['dari']) && empty($request['sampai'])) {
+
+            $hasDoneData = DB::table('ticket')
+            ->join('assignment', 'ticket.id_ticket', '=', 'assignment.id_ticket')
+            ->join('application', 'ticket.id_apps', '=', 'application.id_apps')
+            ->join('perusahaan', 'application.id_perusahaan', '=', 'perusahaan.id_perusahaan')
+
+            //Request Only
+            ->where('ticket.priority', $request->priority)
+            ->where('application.apps_name', $request->apps_name)
+            ->where('id_user', $request->id_user)
+            //Request Only
+
+            ->where('ticket.status', "Done")
+            ->orderByDesc('assignment.id_assignment')->paginate(2);
+
+
+        }
+        elseif (@$request['apps_name'] && empty($request['priority']) && @$request['dari'] && @$request['sampai']) {
+            $dari = $request->dari;
+            $sampai = $request->sampai;
+            $hasDoneData = DB::table('ticket')
+            ->join('assignment', 'ticket.id_ticket', '=', 'assignment.id_ticket')
+            ->join('application', 'ticket.id_apps', '=', 'application.id_apps')
+            ->join('perusahaan', 'application.id_perusahaan', '=', 'perusahaan.id_perusahaan')
+
+            //Request Only
+            ->where('application.apps_name', $request->apps_name)
+            ->whereDate('updated_at', '>=', $dari)
+            ->whereDate('updated_at', '<=', $sampai)
+            ->where('id_user', $request->id_user)
+            //Request Only
+
+            ->where('ticket.status', "Done")
+            ->orderByDesc('assignment.id_assignment')->paginate(2);
+
+            
+        }
+        elseif (empty($request['apps_name']) && @$request['priority'] && @$request['dari'] && @$request['sampai']) {
+            $dari = $request->dari;
+            $sampai = $request->sampai;
+            $hasDoneData = DB::table('ticket')
+            ->join('assignment', 'ticket.id_ticket', '=', 'assignment.id_ticket')
+            ->join('application', 'ticket.id_apps', '=', 'application.id_apps')
+            ->join('perusahaan', 'application.id_perusahaan', '=', 'perusahaan.id_perusahaan')
+
+            //Request Only
+            ->where('ticket.priority', $request->priority)
+            ->whereDate('updated_at', '>=', $dari)
+            ->whereDate('updated_at', '<=', $sampai)
+            ->where('id_user', $request->id_user)
+            //Request Only
+
+            ->where('ticket.status', "Done")
+            ->orderByDesc('assignment.id_assignment')->paginate(2);
+
+            
+        }
+      
+       
+        elseif (@$request['apps_name'] && @$request['priority'] && @$request['dari'] && @$request['sampai']) {
+            $dari = $request->dari;
+            $sampai = $request->sampai;
+            $hasDoneData = DB::table('ticket')
+            ->join('assignment', 'ticket.id_ticket', '=', 'assignment.id_ticket')
+            ->join('application', 'ticket.id_apps', '=', 'application.id_apps')
+            ->join('perusahaan', 'application.id_perusahaan', '=', 'perusahaan.id_perusahaan')
+
+            //Request Only
+            ->where('ticket.priority', $request->priority)
+            ->where('application.apps_name', $request->apps_name)
+            ->whereDate('updated_at', '>=', $dari)
+            ->whereDate('updated_at', '<=', $sampai)
+            ->where('id_user', $request->id_user)
+            //Request Only
+
+            ->where('ticket.status', "Done")
+            ->orderByDesc('assignment.id_assignment')->paginate(2);
+
+            
         }
 
         $totalPage = $hasDoneData->lastPage();
         $data = $hasDoneData->flatten(1);
 
+        if(isset($data[0])) {
+            return response()->json([
+                'message' => "success",
+                'staff_done_page_total' => $totalPage,
+                'hasDone' => $data
+            ]);            
+        } 
+        else {
+            return response()->json([
+                'message' => 'No Data Available'
+            ]);
+        }       
+    }
+
+    public function getAssignedApps(Request $request){
+        $assignedApps = DB::table('assignment')->select('application.apps_name', 'application.id_apps')
+        ->join('users', 'assignment.id_user', '=', 'users.id')
+        ->join('ticket', 'assignment.id_ticket', '=', 'ticket.id_ticket')
+        ->join('application', 'ticket.id_apps', '=', 'application.id_apps')
+        ->where('users.id', $request->id_user)
+        ->groupBy('application.apps_name')->get();
+
         return response()->json([
-            'staff_done_page_total'=>$totalPage,
-            'hasDone'=> $data
-        ]);
+            "message" => "Success",
+            "userApp" => $assignedApps
+            ]);
     }
 
     public function markAsComplete(Request $request, $id_ticket){
@@ -165,7 +377,7 @@ class TwkStaffController extends Controller
         ->join('perusahaan', 'application.id_perusahaan', 'perusahaan.id_perusahaan')
         ->where('notification.id_user', $request->id_user)
         ->where('assignment.id_user', $request->id_user)
-        ->orderByDesc('id_notif')->paginate(1);
+        ->orderByDesc('id_notif')->paginate(5);
         $notifCount = $getList->total();
         $totalPage = $getList->lastPage();
         $data = $getList->flatten(1);
@@ -178,7 +390,6 @@ class TwkStaffController extends Controller
     }
 
     public function pushNotif($target_user, $fcm_token, $id_ticket, $from, $title, $message){
-
         $recipients = $fcm_token;
         $sendNotif = fcm()
         ->to($recipients)

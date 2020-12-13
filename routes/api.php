@@ -61,5 +61,6 @@ Route::group(['middleware' => 'api.role:twk-staff'], function () {
     Route::get('twkstaff/todo', 'TwkStaffController@indexToDo');
     Route::get('twkstaff/hasdone', 'TwkStaffController@indexHasDone');
     Route::get('twkstaff/listnotif', 'TwkStaffController@listNotif');
+    Route::get('twkstaff/getapp', 'TwkStaffController@getAssignedApps');
     Route::patch('twkstaff/markAsComplete/{id_ticket}', 'TwkStaffController@markAsComplete');
 });
