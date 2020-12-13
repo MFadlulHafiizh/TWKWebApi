@@ -13,72 +13,32 @@ class UserSeeder extends Seeder
     {
         DB::table('users')->insert([
             [
-                'id_perusahaan' => 1,
-                'name'=>'Reza aprilian',
-                'email'=>'rezaaprilian@gmail.com',
+                'id_perusahaan' => 3,
+                'name'=>'Hera Lestari',
+                'email'=>'hera@gmail.com',
                 'email_verified_at'=> now(),
-                'password'=> bcrypt("rezaaprilian"),
-                'role'=>'twk-staff',
+                'password'=> bcrypt("hera"),
+                'role' => 'client-staff',
                 'remember_token'=>Str::random(10),
                 'created_at'      => \Carbon\Carbon::now('Asia/Jakarta')
             ],
             [
-                'id_perusahaan' => 1,
-                'name'=>'Triyana',
-                'email'=>'triyana@gmail.com',
+                'id_perusahaan' => 3,
+                'name'=>'Rivan santosa',
+                'email'=>'rivan@gmail.com',
                 'email_verified_at'=> now(),
-                'password'=> bcrypt("triyana"),
-                'role'=>'twk-staff',
-                'remember_token'=>Str::random(10),
-                'created_at'      => \Carbon\Carbon::now('Asia/Jakarta')
-            ],
-            [
-                'id_perusahaan' => 1,
-                'name'=>'Hafiizh',
-                'email'=>'hafiizh@gmail.com',
-                'email_verified_at'=> now(),
-                'password'=> bcrypt("hafiizh"),
-                'role' => 'twk-staff',
-                'remember_token'=>Str::random(10),
-                'created_at'      => \Carbon\Carbon::now('Asia/Jakarta')
-            ],
-            [
-                'id_perusahaan' => 1,
-                'name'=>'Iqbal',
-                'email'=>'iqbal@gmail.com',
-                'email_verified_at'=> now(),
-                'password'=> bcrypt("iqbal"),
-                'role' => 'twk-staff',
+                'password'=> bcrypt("rivan"),
+                'role' => 'client-head',
                 'remember_token'=>Str::random(10),
                 'created_at'      => \Carbon\Carbon::now('Asia/Jakarta')
             ],
             [
                 'id_perusahaan' => 2,
-                'name'=>'twk head',
-                'email'=>'twkhead@gmail.com',
+                'name'=>'Rifqi Zulfa',
+                'email'=>'rifqi@gmail.com',
                 'email_verified_at'=> now(),
-                'password'=> bcrypt("twkhead"),
-                'role'=>'twk-head',
-                'remember_token'=>Str::random(10),
-                'created_at'      => \Carbon\Carbon::now('Asia/Jakarta')
-            ],
-            [
-                'id_perusahaan' => 1,
-                'name'=>'client staff',
-                'email'=>'clientstaff@gmail.com',
-                'email_verified_at'=> now(),
-                'password'=> bcrypt("clientstaff"),
+                'password'=> bcrypt("rifqi"),
                 'role'=>'client-staff',
-                'remember_token'=>Str::random(10),
-                'created_at'      => \Carbon\Carbon::now('Asia/Jakarta')
-            ],
-            [
-                'id_perusahaan' => 1,
-                'name'=>'twk staff',
-                'email'=>'twkstaff@gmail.com',
-                'email_verified_at'=> now(),
-                'password'=> bcrypt("twkstaff"),
-                'role' => 'twk-staff',
                 'remember_token'=>Str::random(10),
                 'created_at'      => \Carbon\Carbon::now('Asia/Jakarta')
             ],

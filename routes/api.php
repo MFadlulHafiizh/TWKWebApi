@@ -22,7 +22,7 @@ Route::post("login", "AuthController@login");
 Route::post("register", "AuthController@register");
 Route::get("notification", "UserDataController@getListNotif");
 Route::patch("notification/readat/{id_notif}", 'UserDataController@updateNotifReadAt');
-Route::post('testBase64Image/{id}', 'UserDataController@testBase64Image');
+Route::get('test', 'AdminController@test');
 
 Route::group(["middleware"=> "jwt.auth"], function(){
     Route::get("logout/{id}", "AuthController@logout");
@@ -30,17 +30,14 @@ Route::group(["middleware"=> "jwt.auth"], function(){
 });
 
 Route::get('pushnotif', 'UserDataController@pushNotifBug');
-Route::get('getfcm/', 'UserDataController@getFcmToken');
 
 Route::post('user/upload-image-base64/{id}', 'UserDataController@uploadImageDecoded');
 Route::post('user/upload-image/{id}', 'UserDataController@uploadImageFile');
 
-Route::get('user/assign-at', 'UserDataController@assignAt');
-
 Route::patch('user/agreement-act/{id_ticket}', ['middleware' => 'api.role:client-head', 'uses' => 'UserDataController@agreementAct']);
 
 Route::group(['middleware'=> 'api.role:client-head,client-staff'], function() {
-    Route::get('user/data-bug', 'UserDataController@filterData');
+    Route::get('user/data-bug', 'UserDataController@indexBug');
     Route::get('user/data-feature', 'UserDataController@indexFeature');
     Route::get('user/data-done', 'UserDataController@indexDone');
     Route::get('user/getapp', 'UserDataController@userApp');
@@ -49,12 +46,12 @@ Route::group(['middleware'=> 'api.role:client-head,client-staff'], function() {
 });
 
 Route::get('testurl', 'AdminController@assignSendNotif');
-
 Route::group(["middleware"=> "api.role:twk-head"], function(){
     Route::get('admin/data-bug', 'AdminController@indexBugAdmin');
     Route::get('admin/data-feature', 'AdminController@indexFeatureAdmin');
     Route::get('admin/data-done', 'AdminController@indexDoneAdmin');
     Route::get('admin/getStaff', 'AdminController@getTwkStaff');
+    Route::get('admin/getTicketApps', 'AdminController@getTicketApps');
     Route::patch('admin/make-agreement/{id_ticket}', 'AdminController@makeAgreement');
     Route::post('admin/statusChange', 'AdminController@changeStatus');
     Route::post('admin/assignment', 'AdminController@assignTask');
