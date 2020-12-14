@@ -22,7 +22,7 @@ class AdminController extends Controller
             ->where('ticket.type', 'Report')
             ->whereNOTIn('ticket.status', function($subquery){
                 $subquery->select('ticket.status')->where('ticket.status', "Done");
-            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(2);
+            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(10);
         }
 
         //1 Kondisi
@@ -34,7 +34,7 @@ class AdminController extends Controller
             ->where('ticket.type', 'Report')->where('application.apps_name', $request->apps_name)
             ->whereNOTIn('ticket.status', function($subquery){
                 $subquery->select('ticket.status')->where('ticket.status', "Done");
-            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(2);
+            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(10);
 
         }
         elseif(empty($request['apps_name']) && @$request['priority'] && empty($request['assigned']) && empty($request['dari']) && empty($request['sampai'])){
@@ -45,7 +45,7 @@ class AdminController extends Controller
             ->where('ticket.type', 'Report')->where('ticket.priority', $request->priority)
             ->whereNOTIn('ticket.status', function($subquery){
                 $subquery->select('ticket.status')->where('ticket.status', "Done");
-            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(2);
+            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(10);
         }
         elseif(empty($request['apps_name']) && empty($request['priority']) && @$request['assigned'] && empty($request['dari']) && empty($request['sampai'])){
             $adminDataBug = DB::table('ticket')->select('perusahaan.nama_perusahaan', 'ticket.id_ticket', 'application.apps_name', 'ticket.type', 'ticket.priority', 'ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at', 'assignment.assign_at')
@@ -55,7 +55,7 @@ class AdminController extends Controller
             ->where('ticket.type', 'Report')->where('ticket.status', $request->assigned)
             ->whereNOTIn('ticket.status', function($subquery){
                 $subquery->select('ticket.status')->where('ticket.status', "Done");
-            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(2);
+            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(10);
         }
         elseif(empty($request['apps_name']) && empty($request['priority']) && empty($request['assigned']) && @$request['dari'] && @$request['sampai']){
             $dari = $request->dari;
@@ -70,7 +70,7 @@ class AdminController extends Controller
             ->whereDate('created_at', '<=', $sampai)
             ->whereNOTIn('ticket.status', function($subquery){
                 $subquery->select('ticket.status')->where('ticket.status', "Done");
-            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(2);
+            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(10);
         }
 
 
@@ -85,7 +85,7 @@ class AdminController extends Controller
             ->where('ticket.priority', $request->priority)
             ->whereNOTIn('ticket.status', function($subquery){
                 $subquery->select('ticket.status')->where('ticket.status', "Done");
-            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(2);
+            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(10);
         }
         elseif(empty($request['apps_name']) && empty($request['priority']) && @$request['assigned'] && @$request['dari'] && @$request['sampai']){
             $dari = $request->dari;
@@ -100,7 +100,7 @@ class AdminController extends Controller
             ->whereDate('created_at', '<=', $sampai)
             ->whereNOTIn('ticket.status', function($subquery){
                 $subquery->select('ticket.status')->where('ticket.status', "Done");
-            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(2);
+            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(10);
         }
         elseif(@$request['apps_name'] && empty($request['priority']) && @$request['assigned'] && empty($request['dari']) && empty($request['sampai'])){
             $adminDataBug = DB::table('ticket')->select('perusahaan.nama_perusahaan', 'ticket.id_ticket', 'application.apps_name', 'ticket.type', 'ticket.priority', 'ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at', 'assignment.assign_at')
@@ -111,7 +111,7 @@ class AdminController extends Controller
             ->where('ticket.status', $request->assigned)
             ->whereNOTIn('ticket.status', function($subquery){
                 $subquery->select('ticket.status')->where('ticket.status', "Done");
-            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(2);
+            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(10);
         }
         elseif(empty($request['apps_name']) && @$request['priority'] && empty($request['assigned']) && @$request['dari'] && @$request['sampai']){
             $dari = $request->dari;
@@ -127,7 +127,7 @@ class AdminController extends Controller
             ->whereDate('created_at', '<=', $sampai)
             ->whereNOTIn('ticket.status', function($subquery){
                 $subquery->select('ticket.status')->where('ticket.status', "Done");
-            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(2);
+            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(10);
         }
         elseif(@$request['apps_name'] && empty($request['priority']) && empty($request['assigned']) && @$request['dari'] && @$request['sampai']){
             $dari = $request->dari;
@@ -143,7 +143,7 @@ class AdminController extends Controller
             ->whereDate('created_at', '<=', $sampai)
             ->whereNOTIn('ticket.status', function($subquery){
                 $subquery->select('ticket.status')->where('ticket.status', "Done");
-            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(2);
+            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(10);
         }
 
         elseif(empty($request['apps_name']) && @$request['priority'] && @$request['assigned'] && empty($request['dari']) && empty($request['sampai'])){
@@ -155,7 +155,7 @@ class AdminController extends Controller
             ->where('ticket.status', $request->assigned)
             ->whereNOTIn('ticket.status', function($subquery){
                 $subquery->select('ticket.status')->where('ticket.status', "Done");
-            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(2);
+            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(10);
         }
 
 
@@ -171,7 +171,7 @@ class AdminController extends Controller
             ->where('ticket.status', $request->assigned)
             ->whereNOTIn('ticket.status', function($subquery){
                 $subquery->select('ticket.status')->where('ticket.status', "Done");
-            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(2);
+            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(10);
         }
         elseif(empty($request['apps_name']) && @$request['priority'] && @$request['assigned'] && @$request['dari'] && @$request['sampai']){
             $dari = $request->dari;
@@ -187,7 +187,7 @@ class AdminController extends Controller
             ->whereDate('created_at', '<=', $sampai)
             ->whereNOTIn('ticket.status', function($subquery){
                 $subquery->select('ticket.status')->where('ticket.status', "Done");
-            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(2);
+            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(10);
         }
         elseif(@$request['apps_name'] && empty($request['priority']) && @$request['assigned'] && @$request['dari'] && @$request['sampai']){
             $dari = $request->dari;
@@ -203,7 +203,7 @@ class AdminController extends Controller
             ->whereDate('created_at', '<=', $sampai)
             ->whereNOTIn('ticket.status', function($subquery){
                 $subquery->select('ticket.status')->where('ticket.status', "Done");
-            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(2);
+            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(10);
         }
         elseif(@$request['apps_name'] && @$request['priority'] && empty($request['assigned']) && @$request['dari'] && @$request['sampai']){
             $dari = $request->dari;
@@ -219,7 +219,7 @@ class AdminController extends Controller
             ->whereDate('created_at', '<=', $sampai)
             ->whereNOTIn('ticket.status', function($subquery){
                 $subquery->select('ticket.status')->where('ticket.status', "Done");
-            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(2);
+            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(10);
         }
 
         //ada semua
@@ -238,7 +238,7 @@ class AdminController extends Controller
             ->whereDate('created_at', '<=', $sampai)
             ->whereNOTIn('ticket.status', function($subquery){
                 $subquery->select('ticket.status')->where('ticket.status', "Done");
-            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(2);
+            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(10);
         }
 
         $totalPage = $adminDataBug->lastPage();
@@ -266,7 +266,7 @@ class AdminController extends Controller
             ->where('ticket.type', 'Request')
             ->whereNOTIn('ticket.status', function($subquery){
                 $subquery->select('ticket.status')->where('ticket.status', "Done");
-            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(2);
+            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(10);
         }
 
         //1 Kondisi
@@ -278,7 +278,7 @@ class AdminController extends Controller
             ->where('ticket.type', 'Request')->where('application.apps_name', $request->apps_name)
             ->whereNOTIn('ticket.status', function($subquery){
                 $subquery->select('ticket.status')->where('ticket.status', "Done");
-            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(2);
+            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(10);
 
         }
         elseif(empty($request['apps_name']) && @$request['priority'] && empty($request['assigned']) && empty($request['dari']) && empty($request['sampai'])){
@@ -289,7 +289,7 @@ class AdminController extends Controller
             ->where('ticket.type', 'Request')->where('ticket.priority', $request->priority)
             ->whereNOTIn('ticket.status', function($subquery){
                 $subquery->select('ticket.status')->where('ticket.status', "Done");
-            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(2);
+            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(10);
         }
         elseif(empty($request['apps_name']) && empty($request['priority']) && @$request['assigned'] && empty($request['dari']) && empty($request['sampai'])){
             $adminDataFeature = DB::table('ticket')->select('perusahaan.nama_perusahaan', 'ticket.id_ticket', 'application.apps_name', 'ticket.priority', 'ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at', 'ticket.time_periodic', 'ticket.price', 'ticket.aproval_stat', 'assignment.assign_at')
@@ -299,7 +299,7 @@ class AdminController extends Controller
             ->where('ticket.type', 'Request')->where('ticket.status', $request->assigned)
             ->whereNOTIn('ticket.status', function($subquery){
                 $subquery->select('ticket.status')->where('ticket.status', "Done");
-            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(2);
+            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(10);
         }
         elseif(empty($request['apps_name']) && empty($request['priority']) && empty($request['assigned']) && @$request['dari'] && @$request['sampai']){
             $dari = $request->dari;
@@ -314,7 +314,7 @@ class AdminController extends Controller
             ->whereDate('created_at', '<=', $sampai)
             ->whereNOTIn('ticket.status', function($subquery){
                 $subquery->select('ticket.status')->where('ticket.status', "Done");
-            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(2);
+            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(10);
         }
 
 
@@ -329,7 +329,7 @@ class AdminController extends Controller
             ->where('ticket.priority', $request->priority)
             ->whereNOTIn('ticket.status', function($subquery){
                 $subquery->select('ticket.status')->where('ticket.status', "Done");
-            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(2);
+            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(10);
         }
         elseif(empty($request['apps_name']) && empty($request['priority']) && @$request['assigned'] && @$request['dari'] && @$request['sampai']){
             $dari = $request->dari;
@@ -344,7 +344,7 @@ class AdminController extends Controller
             ->whereDate('created_at', '<=', $sampai)
             ->whereNOTIn('ticket.status', function($subquery){
                 $subquery->select('ticket.status')->where('ticket.status', "Done");
-            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(2);
+            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(10);
         }
         elseif(@$request['apps_name'] && empty($request['priority']) && @$request['assigned'] && empty($request['dari']) && empty($request['sampai'])){
             $adminDataFeature = DB::table('ticket')->select('perusahaan.nama_perusahaan', 'ticket.id_ticket', 'application.apps_name', 'ticket.priority', 'ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at', 'ticket.time_periodic', 'ticket.price', 'ticket.aproval_stat', 'assignment.assign_at')
@@ -355,7 +355,7 @@ class AdminController extends Controller
             ->where('ticket.status', $request->assigned)
             ->whereNOTIn('ticket.status', function($subquery){
                 $subquery->select('ticket.status')->where('ticket.status', "Done");
-            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(2);
+            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(10);
         }
         elseif(empty($request['apps_name']) && @$request['priority'] && empty($request['assigned']) && @$request['dari'] && @$request['sampai']){
             $dari = $request->dari;
@@ -371,7 +371,7 @@ class AdminController extends Controller
             ->whereDate('created_at', '<=', $sampai)
             ->whereNOTIn('ticket.status', function($subquery){
                 $subquery->select('ticket.status')->where('ticket.status', "Done");
-            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(2);
+            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(10);
         }
         elseif(@$request['apps_name'] && empty($request['priority']) && empty($request['assigned']) && @$request['dari'] && @$request['sampai']){
             $dari = $request->dari;
@@ -387,7 +387,7 @@ class AdminController extends Controller
             ->whereDate('created_at', '<=', $sampai)
             ->whereNOTIn('ticket.status', function($subquery){
                 $subquery->select('ticket.status')->where('ticket.status', "Done");
-            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(2);
+            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(10);
         }
         elseif(empty($request['apps_name']) && @$request['priority'] && @$request['assigned'] && empty($request['dari']) && empty($request['sampai'])){
             $adminDataFeature = DB::table('ticket')->select('perusahaan.nama_perusahaan', 'ticket.id_ticket', 'application.apps_name', 'ticket.priority', 'ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at', 'ticket.time_periodic', 'ticket.price', 'ticket.aproval_stat', 'assignment.assign_at')
@@ -398,7 +398,7 @@ class AdminController extends Controller
             ->where('ticket.status', $request->assigned)
             ->whereNOTIn('ticket.status', function($subquery){
                 $subquery->select('ticket.status')->where('ticket.status', "Done");
-            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(2);
+            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(10);
         }
 
 
@@ -414,7 +414,7 @@ class AdminController extends Controller
             ->where('ticket.status', $request->assigned)
             ->whereNOTIn('ticket.status', function($subquery){
                 $subquery->select('ticket.status')->where('ticket.status', "Done");
-            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(2);
+            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(10);
         }
         elseif(empty($request['apps_name']) && @$request['priority'] && @$request['assigned'] && @$request['dari'] && @$request['sampai']){
             $dari = $request->dari;
@@ -430,7 +430,7 @@ class AdminController extends Controller
             ->whereDate('created_at', '<=', $sampai)
             ->whereNOTIn('ticket.status', function($subquery){
                 $subquery->select('ticket.status')->where('ticket.status', "Done");
-            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(2);
+            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(10);
         }
         elseif(@$request['apps_name'] && empty($request['priority']) && @$request['assigned'] && @$request['dari'] && @$request['sampai']){
             $dari = $request->dari;
@@ -446,7 +446,7 @@ class AdminController extends Controller
             ->whereDate('created_at', '<=', $sampai)
             ->whereNOTIn('ticket.status', function($subquery){
                 $subquery->select('ticket.status')->where('ticket.status', "Done");
-            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(2);
+            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(10);
         }
         elseif(@$request['apps_name'] && @$request['priority'] && empty($request['assigned']) && @$request['dari'] && @$request['sampai']){
             $dari = $request->dari;
@@ -462,7 +462,7 @@ class AdminController extends Controller
             ->whereDate('created_at', '<=', $sampai)
             ->whereNOTIn('ticket.status', function($subquery){
                 $subquery->select('ticket.status')->where('ticket.status', "Done");
-            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(2);
+            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(10);
         }
 
         //ada semua
@@ -481,7 +481,7 @@ class AdminController extends Controller
             ->whereDate('created_at', '<=', $sampai)
             ->whereNOTIn('ticket.status', function($subquery){
                 $subquery->select('ticket.status')->where('ticket.status', "Done");
-            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(2);
+            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(10);
         }
 
         $totalPage = $adminDataFeature->lastPage();
@@ -506,7 +506,7 @@ class AdminController extends Controller
             ->join('application','perusahaan.id_perusahaan','=','application.id_perusahaan')
             ->join('ticket','application.id_apps','=','ticket.id_apps')
             ->where('ticket.status', "Done")
-            ->orderByDesc('ticket.id_ticket')->paginate(2);
+            ->orderByDesc('ticket.id_ticket')->paginate(10);
         }
 
         //1 kondisi
@@ -516,7 +516,7 @@ class AdminController extends Controller
             ->join('ticket','application.id_apps','=','ticket.id_apps')
             ->where('application.apps_name', $request->apps_name)
             ->where('ticket.status', "Done")
-            ->orderByDesc('ticket.id_ticket')->paginate(2);
+            ->orderByDesc('ticket.id_ticket')->paginate(10);
         }
         elseif(empty($request['apps_name']) && @$request['priority'] && empty($request['dari']) && empty($request['sampai'])){
             $adminDataDone = DB::table('perusahaan')
@@ -524,7 +524,7 @@ class AdminController extends Controller
             ->join('ticket','application.id_apps','=','ticket.id_apps')
             ->where('ticket.priority', $request->priority)
             ->where('ticket.status', "Done")
-            ->orderByDesc('ticket.id_ticket')->paginate(2);
+            ->orderByDesc('ticket.id_ticket')->paginate(10);
         }
         elseif(empty($request['apps_name']) && empty($request['priority']) && @$request['dari'] && @$request['sampai']){
             $dari = $request->dari;
@@ -535,7 +535,7 @@ class AdminController extends Controller
             ->whereDate('updated_at', '>=', $dari)
             ->whereDate('updated_at', '<=', $sampai)
             ->where('ticket.status', "Done")
-            ->orderByDesc('ticket.id_ticket')->paginate(2);
+            ->orderByDesc('ticket.id_ticket')->paginate(10);
         }
 
         //2 kondisi
@@ -546,7 +546,7 @@ class AdminController extends Controller
             ->where('ticket.priority', $request->priority)
             ->where('application.apps_name', $request->apps_name)
             ->where('ticket.status', "Done")
-            ->orderByDesc('ticket.id_ticket')->paginate(2);
+            ->orderByDesc('ticket.id_ticket')->paginate(10);
         }
         elseif(@$request['apps_name'] && empty($request['priority']) && @$request['dari'] && @$request['sampai']){
             $dari = $request->dari;
@@ -558,7 +558,7 @@ class AdminController extends Controller
             ->whereDate('updated_at', '>=', $dari)
             ->whereDate('updated_at', '<=', $sampai)
             ->where('ticket.status', "Done")
-            ->orderByDesc('ticket.id_ticket')->paginate(2);
+            ->orderByDesc('ticket.id_ticket')->paginate(10);
         }
         elseif(empty($request['apps_name']) && @$request['priority'] && @$request['dari'] && @$request['sampai']){
             $dari = $request->dari;
@@ -570,7 +570,7 @@ class AdminController extends Controller
             ->whereDate('updated_at', '>=', $dari)
             ->whereDate('updated_at', '<=', $sampai)
             ->where('ticket.status', "Done")
-            ->orderByDesc('ticket.id_ticket')->paginate(2);
+            ->orderByDesc('ticket.id_ticket')->paginate(10);
         }
 
         elseif(@$request['apps_name'] && @$request['priority'] && @$request['dari'] && @$request['sampai']){
@@ -584,7 +584,7 @@ class AdminController extends Controller
             ->whereDate('updated_at', '>=', $dari)
             ->whereDate('updated_at', '<=', $sampai)
             ->where('ticket.status', "Done")
-            ->orderByDesc('ticket.id_ticket')->paginate(2);
+            ->orderByDesc('ticket.id_ticket')->paginate(10);
         }
 
 

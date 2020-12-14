@@ -20,7 +20,7 @@ class TwkStaffController extends Controller
             ->where('id_user', $request->id_user)
             ->whereNOTIn('ticket.status', function($subquery){
                 $subquery->select('ticket.status')->where('ticket.status', "Done");
-            })->groupBy('ticket.id_ticket')->orderByDesc('assignment.id_assignment')->paginate(5);
+            })->groupBy('ticket.id_ticket')->orderByDesc('assignment.id_assignment')->paginate(10);
         }
 
         //1kondisi
@@ -33,7 +33,7 @@ class TwkStaffController extends Controller
             ->where('id_user', $request->id_user)
             ->whereNOTIn('ticket.status', function($subquery){
                 $subquery->select('ticket.status')->where('ticket.status', "Done");
-            })->groupBy('ticket.id_ticket')->orderByDesc('assignment.id_assignment')->paginate(5);
+            })->groupBy('ticket.id_ticket')->orderByDesc('assignment.id_assignment')->paginate(10);
         }
         elseif(empty($request['apps_name']) && @$request['priority'] && empty($request['dari']) && empty($request['sampai'])){
             $todoData = DB::table('assignment')
@@ -44,7 +44,7 @@ class TwkStaffController extends Controller
             ->where('id_user', $request->id_user)
             ->whereNOTIn('ticket.status', function($subquery){
                 $subquery->select('ticket.status')->where('ticket.status', "Done");
-            })->groupBy('ticket.id_ticket')->orderByDesc('assignment.id_assignment')->paginate(5);
+            })->groupBy('ticket.id_ticket')->orderByDesc('assignment.id_assignment')->paginate(10);
         }
         elseif(empty($request['apps_name']) && empty($request['priority']) && @$request['dari'] && @$request['sampai']){
             $dari = $request->dari;
@@ -58,7 +58,7 @@ class TwkStaffController extends Controller
             ->where('id_user', $request->id_user)
             ->whereNOTIn('ticket.status', function($subquery){
                 $subquery->select('ticket.status')->where('ticket.status', "Done");
-            })->groupBy('ticket.id_ticket')->orderByDesc('assignment.id_assignment')->paginate(5);
+            })->groupBy('ticket.id_ticket')->orderByDesc('assignment.id_assignment')->paginate(10);
         }
 
         //2kondisi
@@ -72,7 +72,7 @@ class TwkStaffController extends Controller
             ->where('id_user', $request->id_user)
             ->whereNOTIn('ticket.status', function($subquery){
                 $subquery->select('ticket.status')->where('ticket.status', "Done");
-            })->groupBy('ticket.id_ticket')->orderByDesc('assignment.id_assignment')->paginate(5);
+            })->groupBy('ticket.id_ticket')->orderByDesc('assignment.id_assignment')->paginate(10);
         }
         elseif(@$request['apps_name'] && empty($request['priority']) && @$request['dari'] && @$request['sampai']){
             $dari = $request->dari;
@@ -87,7 +87,7 @@ class TwkStaffController extends Controller
             ->whereDate('assign_at', '<=', $sampai)
             ->whereNOTIn('ticket.status', function($subquery){
                 $subquery->select('ticket.status')->where('ticket.status', "Done");
-            })->groupBy('ticket.id_ticket')->orderByDesc('assignment.id_assignment')->paginate(5);
+            })->groupBy('ticket.id_ticket')->orderByDesc('assignment.id_assignment')->paginate(10);
         }
         elseif(empty($request['apps_name']) && @$request['priority'] && @$request['dari'] && @$request['sampai']){
             $dari = $request->dari;
@@ -102,7 +102,7 @@ class TwkStaffController extends Controller
             ->whereDate('assign_at', '<=', $sampai)
             ->whereNOTIn('ticket.status', function($subquery){
                 $subquery->select('ticket.status')->where('ticket.status', "Done");
-            })->groupBy('ticket.id_ticket')->orderByDesc('assignment.id_assignment')->paginate(5);
+            })->groupBy('ticket.id_ticket')->orderByDesc('assignment.id_assignment')->paginate(10);
         }
         elseif(@$request['apps_name'] && @$request['priority'] && @$request['dari'] && @$request['sampai']){
             $dari = $request->dari;
@@ -118,7 +118,7 @@ class TwkStaffController extends Controller
             ->whereDate('assign_at', '<=', $sampai)
             ->whereNOTIn('ticket.status', function($subquery){
                 $subquery->select('ticket.status')->where('ticket.status', "Done");
-            })->groupBy('ticket.id_ticket')->orderByDesc('assignment.id_assignment')->paginate(5);
+            })->groupBy('ticket.id_ticket')->orderByDesc('assignment.id_assignment')->paginate(10);
         }
 
         $totalPage = $todoData->lastPage();
@@ -151,7 +151,7 @@ class TwkStaffController extends Controller
             //Request Only
             ->groupBy('ticket.id_ticket')
             ->where('ticket.status', "Done")
-            ->orderByDesc('assignment.id_assignment')->paginate(2);
+            ->orderByDesc('assignment.id_assignment')->paginate(10);
             
         }
 
@@ -169,7 +169,7 @@ class TwkStaffController extends Controller
              //Request Only
              ->groupBy('ticket.id_ticket')
             ->where('ticket.status', "Done")
-            ->orderByDesc('assignment.id_assignment')->paginate(2);
+            ->orderByDesc('assignment.id_assignment')->paginate(10);
 
 
             
@@ -187,7 +187,7 @@ class TwkStaffController extends Controller
             //Request Only
             ->groupBy('ticket.id_ticket')
             ->where('ticket.status', "Done")
-            ->orderByDesc('assignment.id_assignment')->paginate(2);
+            ->orderByDesc('assignment.id_assignment')->paginate(10);
 
             
         }
@@ -206,7 +206,7 @@ class TwkStaffController extends Controller
             //Request Only
             ->groupBy('ticket.id_ticket')
             ->where('ticket.status', "Done")
-            ->orderByDesc('assignment.id_assignment')->paginate(2);
+            ->orderByDesc('assignment.id_assignment')->paginate(10);
 
         }
         elseif (@$request['apps_name'] && @$request['priority'] && empty($request['dari']) && empty($request['sampai'])) {
@@ -223,7 +223,7 @@ class TwkStaffController extends Controller
             //Request Only
             ->groupBy('ticket.id_ticket')
             ->where('ticket.status', "Done")
-            ->orderByDesc('assignment.id_assignment')->paginate(2);
+            ->orderByDesc('assignment.id_assignment')->paginate(10);
 
 
         }
@@ -243,7 +243,7 @@ class TwkStaffController extends Controller
             //Request Only
             ->groupBy('ticket.id_ticket')
             ->where('ticket.status', "Done")
-            ->orderByDesc('assignment.id_assignment')->paginate(2);
+            ->orderByDesc('assignment.id_assignment')->paginate(10);
 
             
         }
@@ -263,7 +263,7 @@ class TwkStaffController extends Controller
             //Request Only
             ->groupBy('ticket.id_ticket')
             ->where('ticket.status', "Done")
-            ->orderByDesc('assignment.id_assignment')->paginate(2);
+            ->orderByDesc('assignment.id_assignment')->paginate(10);
 
             
         }
@@ -286,7 +286,7 @@ class TwkStaffController extends Controller
             //Request Only
             ->groupBy('ticket.id_ticket')
             ->where('ticket.status', "Done")
-            ->orderByDesc('assignment.id_assignment')->paginate(2);
+            ->orderByDesc('assignment.id_assignment')->paginate(10);
 
             
         }
@@ -376,7 +376,7 @@ class TwkStaffController extends Controller
             //Request Only
             ->groupBy('ticket.id_ticket')
             ->orderByDesc('id_notif')
-            ->paginate(5);
+            ->paginate(10);
         }
 
         elseif (@$request['apps_name'] && empty($request['priority']) && empty($request['dari']) && empty($request['sampai'])) {
@@ -394,7 +394,7 @@ class TwkStaffController extends Controller
             //Request Only
             ->groupBy('ticket.id_ticket')
             ->orderByDesc('id_notif')
-            ->paginate(5);
+            ->paginate(10);
 
 
             
@@ -414,7 +414,7 @@ class TwkStaffController extends Controller
             //Request Only
             ->groupBy('ticket.id_ticket')
             ->orderByDesc('id_notif')
-            ->paginate(5);
+            ->paginate(10);
 
 
             
@@ -437,7 +437,7 @@ class TwkStaffController extends Controller
             //Request Only
             ->groupBy('ticket.id_ticket')
             ->orderByDesc('id_notif')
-            ->paginate(5);
+            ->paginate(10);
 
 
         }
@@ -459,7 +459,7 @@ class TwkStaffController extends Controller
             //Request Only
             ->groupBy('ticket.id_ticket')
             ->orderByDesc('id_notif')
-            ->paginate(5);
+            ->paginate(10);
 
 
 
@@ -483,7 +483,7 @@ class TwkStaffController extends Controller
             //Request Only
             ->groupBy('ticket.id_ticket')
             ->orderByDesc('id_notif')
-            ->paginate(5);
+            ->paginate(10);
 
 
             
@@ -507,7 +507,7 @@ class TwkStaffController extends Controller
             //Request Only
             ->groupBy('ticket.id_ticket')
             ->orderByDesc('id_notif')
-            ->paginate(5);
+            ->paginate(10);
 
             
         }
@@ -533,7 +533,7 @@ class TwkStaffController extends Controller
             //Request Only
             ->groupBy('ticket.id_ticket')
             ->orderByDesc('id_notif')
-            ->paginate(5);
+            ->paginate(10);
     
         }
 

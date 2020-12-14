@@ -25,7 +25,7 @@ class UserDataController extends Controller
             ->where('perusahaan.id_perusahaan', $request->id_perusahaan)->where('ticket.type', 'Report')        
             ->whereNOTIn('ticket.status', function($subquery){
                 $subquery->select('ticket.status')->where('ticket.status', "Done");
-            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(2);
+            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(10);
         }
         
         elseif(@$request['apps_name'] && @$request['priority']) {
@@ -38,7 +38,7 @@ class UserDataController extends Controller
             ->where('application.apps_name', $request->apps_name)->where('ticket.priority', $request->priority)
             ->whereNOTIn('ticket.status', function($subquery){
                 $subquery->select('ticket.status')->where('ticket.status', "Done");
-            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(2);
+            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(10);
         }
 
         elseif (@$request['apps_name'] && empty($request['priority'])) {
@@ -51,7 +51,7 @@ class UserDataController extends Controller
             ->where('application.apps_name', $request->apps_name)
             ->whereNOTIn('ticket.status', function($subquery){
                 $subquery->select('ticket.status')->where('ticket.status', "Done");
-            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(2);
+            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(10);
         }
 
         elseif(empty($request['apps_name']) && @$request['priority']) {
@@ -64,7 +64,7 @@ class UserDataController extends Controller
             ->where('ticket.priority', $request->priority)
             ->whereNOTIn('ticket.status', function($subquery){
                 $subquery->select('ticket.status')->where('ticket.status', "Done");
-            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(2);         
+            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(10);         
         }        
 
         $totalPage = $getData->lastPage();
@@ -96,7 +96,7 @@ class UserDataController extends Controller
             ->where('perusahaan.id_perusahaan', $request->id_perusahaan)->where('ticket.type', 'Request')        
             ->whereNOTIn('ticket.status', function($subquery){
                 $subquery->select('ticket.status')->where('ticket.status', "Done");
-            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(2);
+            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(10);
         }
         
         elseif(@$request['apps_name'] && @$request['priority']) {
@@ -109,7 +109,7 @@ class UserDataController extends Controller
             ->where('ticket.priority', $request->priority)
             ->whereNOTIn('ticket.status', function($subquery){
                 $subquery->select('ticket.status')->where('ticket.status', "Done");
-            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(2);
+            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(10);
         }
 
         elseif (@$request['apps_name'] && empty($request['priority'])) {
@@ -121,7 +121,7 @@ class UserDataController extends Controller
             ->where('application.apps_name', $request->apps_name)
             ->whereNOTIn('ticket.status', function($subquery){
                 $subquery->select('ticket.status')->where('ticket.status', "Done");
-            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(2);
+            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(10);
         }
 
         elseif(empty($request['apps_name']) && @$request['priority']) {
@@ -133,7 +133,7 @@ class UserDataController extends Controller
             ->where('ticket.priority', $request->priority)
             ->whereNOTIn('ticket.status', function($subquery){
                 $subquery->select('ticket.status')->where('ticket.status', "Done");
-            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(2);         
+            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(10);         
         }
 
         $totalPage = $userDataFeature->lastPage();
@@ -164,7 +164,7 @@ class UserDataController extends Controller
             ->leftJoin('assignment', 'ticket.id_ticket', '=', 'assignment.id_ticket')   
             ->where('perusahaan.id_perusahaan', $request->id_perusahaan)
             ->where('ticket.status', "Done")
-            ->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(2);
+            ->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(10);
         }
         
         elseif(@$request['apps_name'] && @$request['priority']) {
@@ -176,7 +176,7 @@ class UserDataController extends Controller
             ->where('ticket.status', "Done")
             ->where('application.apps_name', $request->apps_name)
             ->where('ticket.priority', $request->priority)
-            ->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(2);
+            ->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(10);
         }
 
         elseif (@$request['apps_name'] && empty($request['priority'])) {
@@ -187,7 +187,7 @@ class UserDataController extends Controller
             ->where('perusahaan.id_perusahaan', $request->id_perusahaan)
             ->where('ticket.status', "Done")
             ->where('application.apps_name', $request->apps_name)
-            ->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(2);
+            ->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(10);
         }
 
         elseif(empty($request['apps_name']) && @$request['priority']) {
@@ -198,7 +198,7 @@ class UserDataController extends Controller
             ->where('perusahaan.id_perusahaan', $request->id_perusahaan)
             ->where('ticket.status', "Done")
             ->where('ticket.priority', $request->priority)
-            ->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(2);         
+            ->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(10);         
         }
 
         $totalPage = $userDataDone->lastPage();
@@ -375,46 +375,6 @@ class UserDataController extends Controller
         }
         return response()->json($uploadedImageResponse, 201);
         
-    }
-
-    public function uploadImageFile(Request $request, $id){
-
-        $users = User::firstWhere('id', $id);
-
-        $validator = Validator::make($request->all(), [
-            'photo' => 'required|image:jpeg,png,jpg|max:2048'
-        ],
-            [
-                'photo.required'   => 'photo Kosong !, Silahkan Masukkan photo !',
-            ]
-        );
-        
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Silahkan Isi Bidang Yang Kosong',
-                'data'    => $validator->errors()
-            ], 401);
-        }
-         $uploadFolder = 'usersImage';
-         $photo = $request->file('photo');
-         $image_uploaded_path = $photo->store($uploadFolder, 'public');
-         $uploadedImageResponse = array(
-            "id_user" => $id,
-            "image_name" => basename($image_uploaded_path),
-            "image_url" => url("storage/".$image_uploaded_path),
-            "mime" => $photo->getClientMimeType()
-         );
-
-         $photo_url = $uploadedImageResponse['image_url'];
-
-         if($users){
-            $images = User::find($id);
-            $images->update([
-                'photo' => $photo_url,
-            ]);
-        }
-        return response()->json($uploadedImageResponse, 201);
     }
 
     public function getListNotif(Request $request){
