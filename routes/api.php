@@ -56,11 +56,11 @@ Route::group(["middleware"=> "api.role:twk-head"], function(){
     Route::post('admin/statusChange', 'AdminController@changeStatus');
     Route::post('admin/assignment', 'AdminController@assignTask');
 });
-Route::get('twkstaff/hasdone', 'TwkStaffController@indexHasDone');
+Route::get('twkstaff/listnotif', 'TwkStaffController@listNotif');
 Route::group(['middleware' => 'api.role:twk-staff'], function () {
     Route::get('twkstaff/todo', 'TwkStaffController@indexToDo');
+    Route::get('twkstaff/hasdone', 'TwkStaffController@indexHasDone');
     
-    Route::get('twkstaff/listnotif', 'TwkStaffController@listNotif');
     Route::get('twkstaff/getapp', 'TwkStaffController@getAssignedApps');
     Route::patch('twkstaff/markAsComplete/{id_ticket}', 'TwkStaffController@markAsComplete');
 });
