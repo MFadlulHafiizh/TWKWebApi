@@ -15,158 +15,171 @@ class AdminController extends Controller
 
     public function indexBugAdmin(Request $request){
         if(empty($request['apps_name']) && empty($request['priority']) && empty($request['assigned']) && empty($request['dari']) && empty($request['sampai'])) {
-            $adminDataBug = DB::table('ticket')
+            $adminDataBug = DB::table('ticket')->select('perusahaan.nama_perusahaan', 'ticket.id_ticket', 'application.apps_name', 'ticket.type', 'ticket.priority', 'ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at', 'assignment.assign_at')
+            ->leftJoin('assignment', 'ticket.id_ticket', '=', 'assignment.id_ticket')
             ->join('application', 'ticket.id_apps', '=', 'application.id_apps')
             ->join('perusahaan', 'application.id_perusahaan', '=', 'perusahaan.id_perusahaan')
             ->where('ticket.type', 'Report')
             ->whereNOTIn('ticket.status', function($subquery){
                 $subquery->select('ticket.status')->where('ticket.status', "Done");
-            })->orderByDesc('ticket.id_ticket')->paginate(2);
+            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(2);
         }
 
         //1 Kondisi
         elseif(@$request['apps_name'] && empty($request['priority']) && empty($request['assigned']) && empty($request['dari']) && empty($request['sampai'])){
-            $adminDataBug = DB::table('ticket')
+            $adminDataBug = DB::table('ticket')->select('perusahaan.nama_perusahaan', 'ticket.id_ticket', 'application.apps_name', 'ticket.type', 'ticket.priority', 'ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at', 'assignment.assign_at')
             ->join('application', 'ticket.id_apps', '=', 'application.id_apps')
             ->join('perusahaan', 'application.id_perusahaan', '=', 'perusahaan.id_perusahaan')
+            ->leftJoin('assignment', 'ticket.id_ticket', '=', 'assignment.id_ticket')
             ->where('ticket.type', 'Report')->where('application.apps_name', $request->apps_name)
             ->whereNOTIn('ticket.status', function($subquery){
                 $subquery->select('ticket.status')->where('ticket.status', "Done");
-            })->orderByDesc('ticket.id_ticket')->paginate(2);
+            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(2);
 
         }
         elseif(empty($request['apps_name']) && @$request['priority'] && empty($request['assigned']) && empty($request['dari']) && empty($request['sampai'])){
-            $adminDataBug = DB::table('ticket')
+            $adminDataBug = DB::table('ticket')->select('perusahaan.nama_perusahaan', 'ticket.id_ticket', 'application.apps_name', 'ticket.type', 'ticket.priority', 'ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at', 'assignment.assign_at')
             ->join('application', 'ticket.id_apps', '=', 'application.id_apps')
             ->join('perusahaan', 'application.id_perusahaan', '=', 'perusahaan.id_perusahaan')
+            ->leftJoin('assignment', 'ticket.id_ticket', '=', 'assignment.id_ticket')
             ->where('ticket.type', 'Report')->where('ticket.priority', $request->priority)
             ->whereNOTIn('ticket.status', function($subquery){
                 $subquery->select('ticket.status')->where('ticket.status', "Done");
-            })->orderByDesc('ticket.id_ticket')->paginate(2);
+            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(2);
         }
         elseif(empty($request['apps_name']) && empty($request['priority']) && @$request['assigned'] && empty($request['dari']) && empty($request['sampai'])){
-            $adminDataBug = DB::table('ticket')
+            $adminDataBug = DB::table('ticket')->select('perusahaan.nama_perusahaan', 'ticket.id_ticket', 'application.apps_name', 'ticket.type', 'ticket.priority', 'ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at', 'assignment.assign_at')
             ->join('application', 'ticket.id_apps', '=', 'application.id_apps')
             ->join('perusahaan', 'application.id_perusahaan', '=', 'perusahaan.id_perusahaan')
+            ->leftJoin('assignment', 'ticket.id_ticket', '=', 'assignment.id_ticket')
             ->where('ticket.type', 'Report')->where('ticket.status', $request->assigned)
             ->whereNOTIn('ticket.status', function($subquery){
                 $subquery->select('ticket.status')->where('ticket.status', "Done");
-            })->orderByDesc('ticket.id_ticket')->paginate(2);
+            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(2);
         }
         elseif(empty($request['apps_name']) && empty($request['priority']) && empty($request['assigned']) && @$request['dari'] && @$request['sampai']){
             $dari = $request->dari;
             $sampai = $request->sampai;
     
-            $adminDataBug = DB::table('ticket')
+            $adminDataBug = DB::table('ticket')->select('perusahaan.nama_perusahaan', 'ticket.id_ticket', 'application.apps_name', 'ticket.type', 'ticket.priority', 'ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at', 'assignment.assign_at')
             ->join('application', 'ticket.id_apps', '=', 'application.id_apps')
             ->join('perusahaan', 'application.id_perusahaan', '=', 'perusahaan.id_perusahaan')
+            ->leftJoin('assignment', 'ticket.id_ticket', '=', 'assignment.id_ticket')
             ->where('ticket.type', 'Report')
             ->whereDate('created_at', '>=', $dari)
             ->whereDate('created_at', '<=', $sampai)
             ->whereNOTIn('ticket.status', function($subquery){
                 $subquery->select('ticket.status')->where('ticket.status', "Done");
-            })->orderByDesc('ticket.id_ticket')->paginate(2);
+            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(2);
         }
 
 
         //2 kondisi
         elseif(@$request['apps_name'] && @$request['priority'] && empty($request['assigned']) && empty($request['dari']) && empty($request['sampai'])){
-            $adminDataBug = DB::table('ticket')
+            $adminDataBug = DB::table('ticket')->select('perusahaan.nama_perusahaan', 'ticket.id_ticket', 'application.apps_name', 'ticket.type', 'ticket.priority', 'ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at', 'assignment.assign_at')
             ->join('application', 'ticket.id_apps', '=', 'application.id_apps')
             ->join('perusahaan', 'application.id_perusahaan', '=', 'perusahaan.id_perusahaan')
+            ->leftJoin('assignment', 'ticket.id_ticket', '=', 'assignment.id_ticket')
             ->where('ticket.type', 'Report')
             ->where('application.apps_name', $request->apps_name)
             ->where('ticket.priority', $request->priority)
             ->whereNOTIn('ticket.status', function($subquery){
                 $subquery->select('ticket.status')->where('ticket.status', "Done");
-            })->orderByDesc('ticket.id_ticket')->paginate(2);
+            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(2);
         }
         elseif(empty($request['apps_name']) && empty($request['priority']) && @$request['assigned'] && @$request['dari'] && @$request['sampai']){
             $dari = $request->dari;
             $sampai = $request->sampai;
-            $adminDataBug = DB::table('ticket')
+            $adminDataBug = DB::table('ticket')->select('perusahaan.nama_perusahaan', 'ticket.id_ticket', 'application.apps_name', 'ticket.type', 'ticket.priority', 'ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at', 'assignment.assign_at')
             ->join('application', 'ticket.id_apps', '=', 'application.id_apps')
             ->join('perusahaan', 'application.id_perusahaan', '=', 'perusahaan.id_perusahaan')
+            ->leftJoin('assignment', 'ticket.id_ticket', '=', 'assignment.id_ticket')
             ->where('ticket.type', 'Report')
             ->where('ticket.status', $request->assigned)
             ->whereDate('created_at', '>=', $dari)
             ->whereDate('created_at', '<=', $sampai)
             ->whereNOTIn('ticket.status', function($subquery){
                 $subquery->select('ticket.status')->where('ticket.status', "Done");
-            })->orderByDesc('ticket.id_ticket')->paginate(2);
+            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(2);
         }
         elseif(@$request['apps_name'] && empty($request['priority']) && @$request['assigned'] && empty($request['dari']) && empty($request['sampai'])){
-            $adminDataBug = DB::table('ticket')
+            $adminDataBug = DB::table('ticket')->select('perusahaan.nama_perusahaan', 'ticket.id_ticket', 'application.apps_name', 'ticket.type', 'ticket.priority', 'ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at', 'assignment.assign_at')
             ->join('application', 'ticket.id_apps', '=', 'application.id_apps')
             ->join('perusahaan', 'application.id_perusahaan', '=', 'perusahaan.id_perusahaan')
+            ->leftJoin('assignment', 'ticket.id_ticket', '=', 'assignment.id_ticket')
             ->where('ticket.type', 'Report')->where('application.apps_name', $request->apps_name)
             ->where('ticket.status', $request->assigned)
             ->whereNOTIn('ticket.status', function($subquery){
                 $subquery->select('ticket.status')->where('ticket.status', "Done");
-            })->orderByDesc('ticket.id_ticket')->paginate(2);
+            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(2);
         }
         elseif(empty($request['apps_name']) && @$request['priority'] && empty($request['assigned']) && @$request['dari'] && @$request['sampai']){
             $dari = $request->dari;
             $sampai = $request->sampai;
     
-            $adminDataBug = DB::table('ticket')
+            $adminDataBug = DB::table('ticket')->select('perusahaan.nama_perusahaan', 'ticket.id_ticket', 'application.apps_name', 'ticket.type', 'ticket.priority', 'ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at', 'assignment.assign_at')
             ->join('application', 'ticket.id_apps', '=', 'application.id_apps')
             ->join('perusahaan', 'application.id_perusahaan', '=', 'perusahaan.id_perusahaan')
+            ->leftJoin('assignment', 'ticket.id_ticket', '=', 'assignment.id_ticket')
             ->where('ticket.type', 'Report')
             ->where('ticket.priority', $request->priority)
             ->whereDate('created_at', '>=', $dari)
             ->whereDate('created_at', '<=', $sampai)
             ->whereNOTIn('ticket.status', function($subquery){
                 $subquery->select('ticket.status')->where('ticket.status', "Done");
-            })->orderByDesc('ticket.id_ticket')->paginate(2);
+            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(2);
         }
         elseif(@$request['apps_name'] && empty($request['priority']) && empty($request['assigned']) && @$request['dari'] && @$request['sampai']){
             $dari = $request->dari;
             $sampai = $request->sampai;
     
-            $adminDataBug = DB::table('ticket')
+            $adminDataBug = DB::table('ticket')->select('perusahaan.nama_perusahaan', 'ticket.id_ticket', 'application.apps_name', 'ticket.type', 'ticket.priority', 'ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at', 'assignment.assign_at')
             ->join('application', 'ticket.id_apps', '=', 'application.id_apps')
             ->join('perusahaan', 'application.id_perusahaan', '=', 'perusahaan.id_perusahaan')
+            ->leftJoin('assignment', 'ticket.id_ticket', '=', 'assignment.id_ticket')
             ->where('ticket.type', 'Report')
             ->where('application.apps_name', $request->apps_name)
             ->whereDate('created_at', '>=', $dari)
             ->whereDate('created_at', '<=', $sampai)
             ->whereNOTIn('ticket.status', function($subquery){
                 $subquery->select('ticket.status')->where('ticket.status', "Done");
-            })->orderByDesc('ticket.id_ticket')->paginate(2);
+            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(2);
         }
 
         elseif(empty($request['apps_name']) && @$request['priority'] && @$request['assigned'] && empty($request['dari']) && empty($request['sampai'])){
-            $adminDataBug = DB::table('ticket')
+            $adminDataBug = DB::table('ticket')->select('perusahaan.nama_perusahaan', 'ticket.id_ticket', 'application.apps_name', 'ticket.type', 'ticket.priority', 'ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at', 'assignment.assign_at')
             ->join('application', 'ticket.id_apps', '=', 'application.id_apps')
             ->join('perusahaan', 'application.id_perusahaan', '=', 'perusahaan.id_perusahaan')
+            ->leftJoin('assignment', 'ticket.id_ticket', '=', 'assignment.id_ticket')
             ->where('ticket.type', 'Report')->where('ticket.priority', $request->priority)
             ->where('ticket.status', $request->assigned)
             ->whereNOTIn('ticket.status', function($subquery){
                 $subquery->select('ticket.status')->where('ticket.status', "Done");
-            })->orderByDesc('ticket.id_ticket')->paginate(2);
+            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(2);
         }
 
 
         //3 kondisi
         elseif(@$request['apps_name'] && @$request['priority'] && @$request['assigned'] && empty($request['dari']) && empty($request['sampai'])){
-            $adminDataBug = DB::table('ticket')
+            $adminDataBug = DB::table('ticket')->select('perusahaan.nama_perusahaan', 'ticket.id_ticket', 'application.apps_name', 'ticket.type', 'ticket.priority', 'ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at', 'assignment.assign_at')
             ->join('application', 'ticket.id_apps', '=', 'application.id_apps')
             ->join('perusahaan', 'application.id_perusahaan', '=', 'perusahaan.id_perusahaan')
+            ->leftJoin('assignment', 'ticket.id_ticket', '=', 'assignment.id_ticket')
             ->where('ticket.type', 'Report')
             ->where('application.apps_name', $request->apps_name)
             ->where('ticket.priority', $request->priority)
             ->where('ticket.status', $request->assigned)
             ->whereNOTIn('ticket.status', function($subquery){
                 $subquery->select('ticket.status')->where('ticket.status', "Done");
-            })->orderByDesc('ticket.id_ticket')->paginate(2);
+            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(2);
         }
         elseif(empty($request['apps_name']) && @$request['priority'] && @$request['assigned'] && @$request['dari'] && @$request['sampai']){
             $dari = $request->dari;
             $sampai = $request->sampai;
-            $adminDataBug = DB::table('ticket')
+            $adminDataBug = DB::table('ticket')->select('perusahaan.nama_perusahaan', 'ticket.id_ticket', 'application.apps_name', 'ticket.type', 'ticket.priority', 'ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at', 'assignment.assign_at')
             ->join('application', 'ticket.id_apps', '=', 'application.id_apps')
             ->join('perusahaan', 'application.id_perusahaan', '=', 'perusahaan.id_perusahaan')
+            ->leftJoin('assignment', 'ticket.id_ticket', '=', 'assignment.id_ticket')
             ->where('ticket.type', 'Report')
             ->where('ticket.priority', $request->priority)
             ->where('ticket.status', $request->assigned)
@@ -174,14 +187,15 @@ class AdminController extends Controller
             ->whereDate('created_at', '<=', $sampai)
             ->whereNOTIn('ticket.status', function($subquery){
                 $subquery->select('ticket.status')->where('ticket.status', "Done");
-            })->orderByDesc('ticket.id_ticket')->paginate(2);
+            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(2);
         }
         elseif(@$request['apps_name'] && empty($request['priority']) && @$request['assigned'] && @$request['dari'] && @$request['sampai']){
             $dari = $request->dari;
             $sampai = $request->sampai;
-            $adminDataBug = DB::table('ticket')
+            $adminDataBug = DB::table('ticket')->select('perusahaan.nama_perusahaan', 'ticket.id_ticket', 'application.apps_name', 'ticket.type', 'ticket.priority', 'ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at', 'assignment.assign_at')
             ->join('application', 'ticket.id_apps', '=', 'application.id_apps')
             ->join('perusahaan', 'application.id_perusahaan', '=', 'perusahaan.id_perusahaan')
+            ->leftJoin('assignment', 'ticket.id_ticket', '=', 'assignment.id_ticket')
             ->where('ticket.type', 'Report')
             ->where('application.apps_name', $request->apps_name)
             ->where('ticket.status', $request->assigned)
@@ -189,14 +203,15 @@ class AdminController extends Controller
             ->whereDate('created_at', '<=', $sampai)
             ->whereNOTIn('ticket.status', function($subquery){
                 $subquery->select('ticket.status')->where('ticket.status', "Done");
-            })->orderByDesc('ticket.id_ticket')->paginate(2);
+            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(2);
         }
         elseif(@$request['apps_name'] && @$request['priority'] && empty($request['assigned']) && @$request['dari'] && @$request['sampai']){
             $dari = $request->dari;
             $sampai = $request->sampai;
-            $adminDataBug = DB::table('ticket')
+            $adminDataBug = DB::table('ticket')->select('perusahaan.nama_perusahaan', 'ticket.id_ticket', 'application.apps_name', 'ticket.type', 'ticket.priority', 'ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at', 'assignment.assign_at')
             ->join('application', 'ticket.id_apps', '=', 'application.id_apps')
             ->join('perusahaan', 'application.id_perusahaan', '=', 'perusahaan.id_perusahaan')
+            ->leftJoin('assignment', 'ticket.id_ticket', '=', 'assignment.id_ticket')
             ->where('ticket.type', 'Report')
             ->where('ticket.priority', $request->priority)
             ->where('application.apps_name', $request->apps_name)
@@ -204,16 +219,17 @@ class AdminController extends Controller
             ->whereDate('created_at', '<=', $sampai)
             ->whereNOTIn('ticket.status', function($subquery){
                 $subquery->select('ticket.status')->where('ticket.status', "Done");
-            })->orderByDesc('ticket.id_ticket')->paginate(2);
+            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(2);
         }
 
         //ada semua
         elseif(@$request['apps_name'] && @$request['priority'] && @$request['assigned'] && @$request['dari'] && @$request['sampai']){
             $dari = $request->dari;
             $sampai = $request->sampai;
-            $adminDataBug = DB::table('ticket')
+            $adminDataBug = DB::table('ticket')->select('perusahaan.nama_perusahaan', 'ticket.id_ticket', 'application.apps_name', 'ticket.type', 'ticket.priority', 'ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at', 'assignment.assign_at')
             ->join('application', 'ticket.id_apps', '=', 'application.id_apps')
             ->join('perusahaan', 'application.id_perusahaan', '=', 'perusahaan.id_perusahaan')
+            ->leftJoin('assignment', 'ticket.id_ticket', '=', 'assignment.id_ticket')
             ->where('ticket.type', 'Report')
             ->where('ticket.priority', $request->priority)
             ->where('application.apps_name', $request->apps_name)
@@ -222,7 +238,7 @@ class AdminController extends Controller
             ->whereDate('created_at', '<=', $sampai)
             ->whereNOTIn('ticket.status', function($subquery){
                 $subquery->select('ticket.status')->where('ticket.status', "Done");
-            })->orderByDesc('ticket.id_ticket')->paginate(2);
+            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(2);
         }
 
         $totalPage = $adminDataBug->lastPage();
@@ -243,157 +259,170 @@ class AdminController extends Controller
 
     public function indexFeatureAdmin(Request $request){
         if(empty($request['apps_name']) && empty($request['priority']) && empty($request['assigned']) && empty($request['dari']) && empty($request['sampai'])) {
-            $adminDataFeature = DB::table('ticket')
+            $adminDataFeature = DB::table('ticket')->select('perusahaan.nama_perusahaan', 'ticket.id_ticket', 'application.apps_name', 'ticket.priority', 'ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at', 'ticket.time_periodic', 'ticket.price', 'ticket.aproval_stat', 'assignment.assign_at')
             ->join('application', 'ticket.id_apps', '=', 'application.id_apps')
             ->join('perusahaan', 'application.id_perusahaan', '=', 'perusahaan.id_perusahaan')
+            ->leftJoin('assignment', 'ticket.id_ticket', '=', 'assignment.id_ticket')
             ->where('ticket.type', 'Request')
             ->whereNOTIn('ticket.status', function($subquery){
                 $subquery->select('ticket.status')->where('ticket.status', "Done");
-            })->orderByDesc('ticket.id_ticket')->paginate(2);
+            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(2);
         }
 
         //1 Kondisi
         elseif(@$request['apps_name'] && empty($request['priority']) && empty($request['assigned']) && empty($request['dari']) && empty($request['sampai'])){
-            $adminDataFeature = DB::table('ticket')
+            $adminDataFeature = DB::table('ticket')->select('perusahaan.nama_perusahaan', 'ticket.id_ticket', 'application.apps_name', 'ticket.priority', 'ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at', 'ticket.time_periodic', 'ticket.price', 'ticket.aproval_stat', 'assignment.assign_at')
             ->join('application', 'ticket.id_apps', '=', 'application.id_apps')
             ->join('perusahaan', 'application.id_perusahaan', '=', 'perusahaan.id_perusahaan')
+            ->leftJoin('assignment', 'ticket.id_ticket', '=', 'assignment.id_ticket')
             ->where('ticket.type', 'Request')->where('application.apps_name', $request->apps_name)
             ->whereNOTIn('ticket.status', function($subquery){
                 $subquery->select('ticket.status')->where('ticket.status', "Done");
-            })->orderByDesc('ticket.id_ticket')->paginate(2);
+            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(2);
 
         }
         elseif(empty($request['apps_name']) && @$request['priority'] && empty($request['assigned']) && empty($request['dari']) && empty($request['sampai'])){
-            $adminDataFeature = DB::table('ticket')
+            $adminDataFeature = DB::table('ticket')->select('perusahaan.nama_perusahaan', 'ticket.id_ticket', 'application.apps_name', 'ticket.priority', 'ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at', 'ticket.time_periodic', 'ticket.price', 'ticket.aproval_stat', 'assignment.assign_at')
             ->join('application', 'ticket.id_apps', '=', 'application.id_apps')
             ->join('perusahaan', 'application.id_perusahaan', '=', 'perusahaan.id_perusahaan')
+            ->leftJoin('assignment', 'ticket.id_ticket', '=', 'assignment.id_ticket')
             ->where('ticket.type', 'Request')->where('ticket.priority', $request->priority)
             ->whereNOTIn('ticket.status', function($subquery){
                 $subquery->select('ticket.status')->where('ticket.status', "Done");
-            })->orderByDesc('ticket.id_ticket')->paginate(2);
+            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(2);
         }
         elseif(empty($request['apps_name']) && empty($request['priority']) && @$request['assigned'] && empty($request['dari']) && empty($request['sampai'])){
-            $adminDataFeature = DB::table('ticket')
+            $adminDataFeature = DB::table('ticket')->select('perusahaan.nama_perusahaan', 'ticket.id_ticket', 'application.apps_name', 'ticket.priority', 'ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at', 'ticket.time_periodic', 'ticket.price', 'ticket.aproval_stat', 'assignment.assign_at')
             ->join('application', 'ticket.id_apps', '=', 'application.id_apps')
             ->join('perusahaan', 'application.id_perusahaan', '=', 'perusahaan.id_perusahaan')
+            ->leftJoin('assignment', 'ticket.id_ticket', '=', 'assignment.id_ticket')
             ->where('ticket.type', 'Request')->where('ticket.status', $request->assigned)
             ->whereNOTIn('ticket.status', function($subquery){
                 $subquery->select('ticket.status')->where('ticket.status', "Done");
-            })->orderByDesc('ticket.id_ticket')->paginate(2);
+            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(2);
         }
         elseif(empty($request['apps_name']) && empty($request['priority']) && empty($request['assigned']) && @$request['dari'] && @$request['sampai']){
             $dari = $request->dari;
             $sampai = $request->sampai;
     
-            $adminDataFeature = DB::table('ticket')
+            $adminDataFeature = DB::table('ticket')->select('perusahaan.nama_perusahaan', 'ticket.id_ticket', 'application.apps_name', 'ticket.priority', 'ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at', 'ticket.time_periodic', 'ticket.price', 'ticket.aproval_stat', 'assignment.assign_at')
             ->join('application', 'ticket.id_apps', '=', 'application.id_apps')
             ->join('perusahaan', 'application.id_perusahaan', '=', 'perusahaan.id_perusahaan')
+            ->leftJoin('assignment', 'ticket.id_ticket', '=', 'assignment.id_ticket')
             ->where('ticket.type', 'Request')
             ->whereDate('created_at', '>=', $dari)
             ->whereDate('created_at', '<=', $sampai)
             ->whereNOTIn('ticket.status', function($subquery){
                 $subquery->select('ticket.status')->where('ticket.status', "Done");
-            })->orderByDesc('ticket.id_ticket')->paginate(2);
+            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(2);
         }
 
 
         //2 kondisi
         elseif(@$request['apps_name'] && @$request['priority'] && empty($request['assigned']) && empty($request['dari']) && empty($request['sampai'])){
-            $adminDataFeature = DB::table('ticket')
+            $adminDataFeature = DB::table('ticket')->select('perusahaan.nama_perusahaan', 'ticket.id_ticket', 'application.apps_name', 'ticket.priority', 'ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at', 'ticket.time_periodic', 'ticket.price', 'ticket.aproval_stat', 'assignment.assign_at')
             ->join('application', 'ticket.id_apps', '=', 'application.id_apps')
             ->join('perusahaan', 'application.id_perusahaan', '=', 'perusahaan.id_perusahaan')
+            ->leftJoin('assignment', 'ticket.id_ticket', '=', 'assignment.id_ticket')
             ->where('ticket.type', 'Request')
             ->where('application.apps_name', $request->apps_name)
             ->where('ticket.priority', $request->priority)
             ->whereNOTIn('ticket.status', function($subquery){
                 $subquery->select('ticket.status')->where('ticket.status', "Done");
-            })->orderByDesc('ticket.id_ticket')->paginate(2);
+            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(2);
         }
         elseif(empty($request['apps_name']) && empty($request['priority']) && @$request['assigned'] && @$request['dari'] && @$request['sampai']){
             $dari = $request->dari;
             $sampai = $request->sampai;
-            $adminDataFeature = DB::table('ticket')
+            $adminDataFeature = DB::table('ticket')->select('perusahaan.nama_perusahaan', 'ticket.id_ticket', 'application.apps_name', 'ticket.priority', 'ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at', 'ticket.time_periodic', 'ticket.price', 'ticket.aproval_stat', 'assignment.assign_at')
             ->join('application', 'ticket.id_apps', '=', 'application.id_apps')
             ->join('perusahaan', 'application.id_perusahaan', '=', 'perusahaan.id_perusahaan')
+            ->leftJoin('assignment', 'ticket.id_ticket', '=', 'assignment.id_ticket')
             ->where('ticket.type', 'Request')
             ->where('ticket.status', $request->assigned)
             ->whereDate('created_at', '>=', $dari)
             ->whereDate('created_at', '<=', $sampai)
             ->whereNOTIn('ticket.status', function($subquery){
                 $subquery->select('ticket.status')->where('ticket.status', "Done");
-            })->orderByDesc('ticket.id_ticket')->paginate(2);
+            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(2);
         }
         elseif(@$request['apps_name'] && empty($request['priority']) && @$request['assigned'] && empty($request['dari']) && empty($request['sampai'])){
-            $adminDataFeature = DB::table('ticket')
+            $adminDataFeature = DB::table('ticket')->select('perusahaan.nama_perusahaan', 'ticket.id_ticket', 'application.apps_name', 'ticket.priority', 'ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at', 'ticket.time_periodic', 'ticket.price', 'ticket.aproval_stat', 'assignment.assign_at')
             ->join('application', 'ticket.id_apps', '=', 'application.id_apps')
             ->join('perusahaan', 'application.id_perusahaan', '=', 'perusahaan.id_perusahaan')
+            ->leftJoin('assignment', 'ticket.id_ticket', '=', 'assignment.id_ticket')
             ->where('ticket.type', 'Request')->where('application.apps_name', $request->apps_name)
             ->where('ticket.status', $request->assigned)
             ->whereNOTIn('ticket.status', function($subquery){
                 $subquery->select('ticket.status')->where('ticket.status', "Done");
-            })->orderByDesc('ticket.id_ticket')->paginate(2);
+            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(2);
         }
         elseif(empty($request['apps_name']) && @$request['priority'] && empty($request['assigned']) && @$request['dari'] && @$request['sampai']){
             $dari = $request->dari;
             $sampai = $request->sampai;
     
-            $adminDataFeature = DB::table('ticket')
+            $adminDataFeature = DB::table('ticket')->select('perusahaan.nama_perusahaan', 'ticket.id_ticket', 'application.apps_name', 'ticket.priority', 'ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at', 'ticket.time_periodic', 'ticket.price', 'ticket.aproval_stat', 'assignment.assign_at')
             ->join('application', 'ticket.id_apps', '=', 'application.id_apps')
             ->join('perusahaan', 'application.id_perusahaan', '=', 'perusahaan.id_perusahaan')
+            ->leftJoin('assignment', 'ticket.id_ticket', '=', 'assignment.id_ticket')
             ->where('ticket.type', 'Request')
             ->where('ticket.priority', $request->priority)
             ->whereDate('created_at', '>=', $dari)
             ->whereDate('created_at', '<=', $sampai)
             ->whereNOTIn('ticket.status', function($subquery){
                 $subquery->select('ticket.status')->where('ticket.status', "Done");
-            })->orderByDesc('ticket.id_ticket')->paginate(2);
+            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(2);
         }
         elseif(@$request['apps_name'] && empty($request['priority']) && empty($request['assigned']) && @$request['dari'] && @$request['sampai']){
             $dari = $request->dari;
             $sampai = $request->sampai;
     
-            $adminDataFeature = DB::table('ticket')
+            $adminDataFeature = DB::table('ticket')->select('perusahaan.nama_perusahaan', 'ticket.id_ticket', 'application.apps_name', 'ticket.priority', 'ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at', 'ticket.time_periodic', 'ticket.price', 'ticket.aproval_stat', 'assignment.assign_at')
             ->join('application', 'ticket.id_apps', '=', 'application.id_apps')
             ->join('perusahaan', 'application.id_perusahaan', '=', 'perusahaan.id_perusahaan')
+            ->leftJoin('assignment', 'ticket.id_ticket', '=', 'assignment.id_ticket')
             ->where('ticket.type', 'Request')
             ->where('application.apps_name', $request->apps_name)
             ->whereDate('created_at', '>=', $dari)
             ->whereDate('created_at', '<=', $sampai)
             ->whereNOTIn('ticket.status', function($subquery){
                 $subquery->select('ticket.status')->where('ticket.status', "Done");
-            })->orderByDesc('ticket.id_ticket')->paginate(2);
+            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(2);
         }
         elseif(empty($request['apps_name']) && @$request['priority'] && @$request['assigned'] && empty($request['dari']) && empty($request['sampai'])){
-            $adminDataFeature = DB::table('ticket')
+            $adminDataFeature = DB::table('ticket')->select('perusahaan.nama_perusahaan', 'ticket.id_ticket', 'application.apps_name', 'ticket.priority', 'ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at', 'ticket.time_periodic', 'ticket.price', 'ticket.aproval_stat', 'assignment.assign_at')
             ->join('application', 'ticket.id_apps', '=', 'application.id_apps')
             ->join('perusahaan', 'application.id_perusahaan', '=', 'perusahaan.id_perusahaan')
+            ->leftJoin('assignment', 'ticket.id_ticket', '=', 'assignment.id_ticket')
             ->where('ticket.type', 'Request')->where('ticket.priority', $request->priority)
             ->where('ticket.status', $request->assigned)
             ->whereNOTIn('ticket.status', function($subquery){
                 $subquery->select('ticket.status')->where('ticket.status', "Done");
-            })->orderByDesc('ticket.id_ticket')->paginate(2);
+            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(2);
         }
 
 
         //3 kondisi
         elseif(@$request['apps_name'] && @$request['priority'] && @$request['assigned'] && empty($request['dari']) && empty($request['sampai'])){
-            $adminDataFeature = DB::table('ticket')
+            $adminDataFeature = DB::table('ticket')->select('perusahaan.nama_perusahaan', 'ticket.id_ticket', 'application.apps_name', 'ticket.priority', 'ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at', 'ticket.time_periodic', 'ticket.price', 'ticket.aproval_stat', 'assignment.assign_at')
             ->join('application', 'ticket.id_apps', '=', 'application.id_apps')
             ->join('perusahaan', 'application.id_perusahaan', '=', 'perusahaan.id_perusahaan')
+            ->leftJoin('assignment', 'ticket.id_ticket', '=', 'assignment.id_ticket')
             ->where('ticket.type', 'Request')
             ->where('application.apps_name', $request->apps_name)
             ->where('ticket.priority', $request->priority)
             ->where('ticket.status', $request->assigned)
             ->whereNOTIn('ticket.status', function($subquery){
                 $subquery->select('ticket.status')->where('ticket.status', "Done");
-            })->orderByDesc('ticket.id_ticket')->paginate(2);
+            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(2);
         }
         elseif(empty($request['apps_name']) && @$request['priority'] && @$request['assigned'] && @$request['dari'] && @$request['sampai']){
             $dari = $request->dari;
             $sampai = $request->sampai;
-            $adminDataFeature = DB::table('ticket')
+            $adminDataFeature = DB::table('ticket')->select('perusahaan.nama_perusahaan', 'ticket.id_ticket', 'application.apps_name', 'ticket.priority', 'ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at', 'ticket.time_periodic', 'ticket.price', 'ticket.aproval_stat', 'assignment.assign_at')
             ->join('application', 'ticket.id_apps', '=', 'application.id_apps')
             ->join('perusahaan', 'application.id_perusahaan', '=', 'perusahaan.id_perusahaan')
+            ->leftJoin('assignment', 'ticket.id_ticket', '=', 'assignment.id_ticket')
             ->where('ticket.type', 'Request')
             ->where('ticket.priority', $request->priority)
             ->where('ticket.status', $request->assigned)
@@ -401,14 +430,15 @@ class AdminController extends Controller
             ->whereDate('created_at', '<=', $sampai)
             ->whereNOTIn('ticket.status', function($subquery){
                 $subquery->select('ticket.status')->where('ticket.status', "Done");
-            })->orderByDesc('ticket.id_ticket')->paginate(2);
+            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(2);
         }
         elseif(@$request['apps_name'] && empty($request['priority']) && @$request['assigned'] && @$request['dari'] && @$request['sampai']){
             $dari = $request->dari;
             $sampai = $request->sampai;
-            $adminDataFeature = DB::table('ticket')
+            $adminDataFeature = DB::table('ticket')->select('perusahaan.nama_perusahaan', 'ticket.id_ticket', 'application.apps_name', 'ticket.priority', 'ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at', 'ticket.time_periodic', 'ticket.price', 'ticket.aproval_stat', 'assignment.assign_at')
             ->join('application', 'ticket.id_apps', '=', 'application.id_apps')
             ->join('perusahaan', 'application.id_perusahaan', '=', 'perusahaan.id_perusahaan')
+            ->leftJoin('assignment', 'ticket.id_ticket', '=', 'assignment.id_ticket')
             ->where('ticket.type', 'Request')
             ->where('application.apps_name', $request->apps_name)
             ->where('ticket.status', $request->assigned)
@@ -416,14 +446,15 @@ class AdminController extends Controller
             ->whereDate('created_at', '<=', $sampai)
             ->whereNOTIn('ticket.status', function($subquery){
                 $subquery->select('ticket.status')->where('ticket.status', "Done");
-            })->orderByDesc('ticket.id_ticket')->paginate(2);
+            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(2);
         }
         elseif(@$request['apps_name'] && @$request['priority'] && empty($request['assigned']) && @$request['dari'] && @$request['sampai']){
             $dari = $request->dari;
             $sampai = $request->sampai;
-            $adminDataFeature = DB::table('ticket')
+            $adminDataFeature = DB::table('ticket')->select('perusahaan.nama_perusahaan', 'ticket.id_ticket', 'application.apps_name', 'ticket.priority', 'ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at', 'ticket.time_periodic', 'ticket.price', 'ticket.aproval_stat', 'assignment.assign_at')
             ->join('application', 'ticket.id_apps', '=', 'application.id_apps')
             ->join('perusahaan', 'application.id_perusahaan', '=', 'perusahaan.id_perusahaan')
+            ->leftJoin('assignment', 'ticket.id_ticket', '=', 'assignment.id_ticket')
             ->where('ticket.type', 'Request')
             ->where('ticket.priority', $request->priority)
             ->where('application.apps_name', $request->apps_name)
@@ -431,16 +462,17 @@ class AdminController extends Controller
             ->whereDate('created_at', '<=', $sampai)
             ->whereNOTIn('ticket.status', function($subquery){
                 $subquery->select('ticket.status')->where('ticket.status', "Done");
-            })->orderByDesc('ticket.id_ticket')->paginate(2);
+            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(2);
         }
 
         //ada semua
         elseif(@$request['apps_name'] && @$request['priority'] && @$request['assigned'] && @$request['dari'] && @$request['sampai']){
             $dari = $request->dari;
             $sampai = $request->sampai;
-            $adminDataFeature = DB::table('ticket')
+            $adminDataFeature = DB::table('ticket')->select('perusahaan.nama_perusahaan', 'ticket.id_ticket', 'application.apps_name', 'ticket.priority', 'ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at', 'ticket.time_periodic', 'ticket.price', 'ticket.aproval_stat', 'assignment.assign_at')
             ->join('application', 'ticket.id_apps', '=', 'application.id_apps')
             ->join('perusahaan', 'application.id_perusahaan', '=', 'perusahaan.id_perusahaan')
+            ->leftJoin('assignment', 'ticket.id_ticket', '=', 'assignment.id_ticket')
             ->where('ticket.type', 'Request')
             ->where('ticket.priority', $request->priority)
             ->where('application.apps_name', $request->apps_name)
@@ -449,7 +481,7 @@ class AdminController extends Controller
             ->whereDate('created_at', '<=', $sampai)
             ->whereNOTIn('ticket.status', function($subquery){
                 $subquery->select('ticket.status')->where('ticket.status', "Done");
-            })->orderByDesc('ticket.id_ticket')->paginate(2);
+            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(2);
         }
 
         $totalPage = $adminDataFeature->lastPage();

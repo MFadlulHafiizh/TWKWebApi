@@ -17,50 +17,54 @@ class UserDataController extends Controller
 {
     public function indexBug(Request $request) {
         if(empty($request['apps_name']) && empty($request['priority'])) {
-            $getData = DB::table('perusahaan')
-            
+            $getData = DB::table('perusahaan')->select('perusahaan.nama_perusahaan', 'ticket.id_ticket', 'application.apps_name', 'ticket.type', 'ticket.priority', 'ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at', 'assignment.assign_at')
+    
             ->join('application','perusahaan.id_perusahaan','=','application.id_perusahaan')
-            ->join('ticket','application.id_apps','=','ticket.id_apps')        
+            ->join('ticket','application.id_apps','=','ticket.id_apps')   
+            ->leftJoin('assignment', 'ticket.id_ticket', '=', 'assignment.id_ticket')     
             ->where('perusahaan.id_perusahaan', $request->id_perusahaan)->where('ticket.type', 'Report')        
             ->whereNOTIn('ticket.status', function($subquery){
                 $subquery->select('ticket.status')->where('ticket.status', "Done");
-            })->orderByDesc('ticket.id_ticket')->paginate(2);
+            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(2);
         }
         
         elseif(@$request['apps_name'] && @$request['priority']) {
-            $getData = DB::table('perusahaan')
+            $getData = DB::table('perusahaan')->select('perusahaan.nama_perusahaan', 'ticket.id_ticket', 'application.apps_name', 'ticket.type', 'ticket.priority', 'ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at', 'assignment.assign_at')
             
             ->join('application','perusahaan.id_perusahaan','=','application.id_perusahaan')
-            ->join('ticket','application.id_apps','=','ticket.id_apps')        
+            ->join('ticket','application.id_apps','=','ticket.id_apps')
+            ->leftJoin('assignment', 'ticket.id_ticket', '=', 'assignment.id_ticket')        
             ->where('perusahaan.id_perusahaan', $request->id_perusahaan)->where('ticket.type', 'Report')        
             ->where('application.apps_name', $request->apps_name)->where('ticket.priority', $request->priority)
             ->whereNOTIn('ticket.status', function($subquery){
                 $subquery->select('ticket.status')->where('ticket.status', "Done");
-            })->orderByDesc('ticket.id_ticket')->paginate(2);
+            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(2);
         }
 
         elseif (@$request['apps_name'] && empty($request['priority'])) {
-            $getData = DB::table('perusahaan')
+            $getData = DB::table('perusahaan')->select('perusahaan.nama_perusahaan', 'ticket.id_ticket', 'application.apps_name', 'ticket.type', 'ticket.priority', 'ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at', 'assignment.assign_at')
             
             ->join('application','perusahaan.id_perusahaan','=','application.id_perusahaan')
-            ->join('ticket','application.id_apps','=','ticket.id_apps')        
+            ->join('ticket','application.id_apps','=','ticket.id_apps')
+            ->leftJoin('assignment', 'ticket.id_ticket', '=', 'assignment.id_ticket')        
             ->where('perusahaan.id_perusahaan', $request->id_perusahaan)->where('ticket.type', 'Report')        
             ->where('application.apps_name', $request->apps_name)
             ->whereNOTIn('ticket.status', function($subquery){
                 $subquery->select('ticket.status')->where('ticket.status', "Done");
-            })->orderByDesc('ticket.id_ticket')->paginate(2);
+            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(2);
         }
 
         elseif(empty($request['apps_name']) && @$request['priority']) {
-            $getData = DB::table('perusahaan')
+            $getData = DB::table('perusahaan')->select('perusahaan.nama_perusahaan', 'ticket.id_ticket', 'application.apps_name', 'ticket.type', 'ticket.priority', 'ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at', 'assignment.assign_at')
             
             ->join('application','perusahaan.id_perusahaan','=','application.id_perusahaan')
-            ->join('ticket','application.id_apps','=','ticket.id_apps')        
+            ->join('ticket','application.id_apps','=','ticket.id_apps')
+            ->leftJoin('assignment', 'ticket.id_ticket', '=', 'assignment.id_ticket')        
             ->where('perusahaan.id_perusahaan', $request->id_perusahaan)->where('ticket.type', 'Report')        
             ->where('ticket.priority', $request->priority)
             ->whereNOTIn('ticket.status', function($subquery){
                 $subquery->select('ticket.status')->where('ticket.status', "Done");
-            })->orderByDesc('ticket.id_ticket')->paginate(2);         
+            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(2);         
         }        
 
         $totalPage = $getData->lastPage();
@@ -85,47 +89,51 @@ class UserDataController extends Controller
 
     public function indexFeature(Request $request){
         if(empty($request['apps_name']) && empty($request['priority'])) {
-            $userDataFeature = DB::table('perusahaan')
+            $userDataFeature = DB::table('perusahaan')->select('perusahaan.nama_perusahaan', 'ticket.id_ticket', 'application.apps_name', 'ticket.priority', 'ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at', 'ticket.time_periodic', 'ticket.price', 'ticket.aproval_stat', 'assignment.assign_at')
             ->join('application','perusahaan.id_perusahaan','=','application.id_perusahaan')
-            ->join('ticket','application.id_apps','=','ticket.id_apps')        
+            ->join('ticket','application.id_apps','=','ticket.id_apps')
+            ->leftJoin('assignment', 'ticket.id_ticket', '=', 'assignment.id_ticket')        
             ->where('perusahaan.id_perusahaan', $request->id_perusahaan)->where('ticket.type', 'Request')        
             ->whereNOTIn('ticket.status', function($subquery){
                 $subquery->select('ticket.status')->where('ticket.status', "Done");
-            })->orderByDesc('ticket.id_ticket')->paginate(2);
+            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(2);
         }
         
         elseif(@$request['apps_name'] && @$request['priority']) {
-            $userDataFeature = DB::table('perusahaan')
+            $userDataFeature = DB::table('perusahaan')->select('perusahaan.nama_perusahaan', 'ticket.id_ticket', 'application.apps_name', 'ticket.priority', 'ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at', 'ticket.time_periodic', 'ticket.price', 'ticket.aproval_stat', 'assignment.assign_at')
             ->join('application','perusahaan.id_perusahaan','=','application.id_perusahaan')
-            ->join('ticket','application.id_apps','=','ticket.id_apps')        
+            ->join('ticket','application.id_apps','=','ticket.id_apps')
+            ->leftJoin('assignment', 'ticket.id_ticket', '=', 'assignment.id_ticket')        
             ->where('perusahaan.id_perusahaan', $request->id_perusahaan)->where('ticket.type', 'Request')        
             ->where('application.apps_name', $request->apps_name)
             ->where('ticket.priority', $request->priority)
             ->whereNOTIn('ticket.status', function($subquery){
                 $subquery->select('ticket.status')->where('ticket.status', "Done");
-            })->orderByDesc('ticket.id_ticket')->paginate(2);
+            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(2);
         }
 
         elseif (@$request['apps_name'] && empty($request['priority'])) {
-            $userDataFeature = DB::table('perusahaan')
+            $userDataFeature = DB::table('perusahaan')->select('perusahaan.nama_perusahaan', 'ticket.id_ticket', 'application.apps_name', 'ticket.priority', 'ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at', 'ticket.time_periodic', 'ticket.price', 'ticket.aproval_stat', 'assignment.assign_at')
             ->join('application','perusahaan.id_perusahaan','=','application.id_perusahaan')
-            ->join('ticket','application.id_apps','=','ticket.id_apps')        
+            ->join('ticket','application.id_apps','=','ticket.id_apps')
+            ->leftJoin('assignment', 'ticket.id_ticket', '=', 'assignment.id_ticket')        
             ->where('perusahaan.id_perusahaan', $request->id_perusahaan)->where('ticket.type', 'Request')        
             ->where('application.apps_name', $request->apps_name)
             ->whereNOTIn('ticket.status', function($subquery){
                 $subquery->select('ticket.status')->where('ticket.status', "Done");
-            })->orderByDesc('ticket.id_ticket')->paginate(2);
+            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(2);
         }
 
         elseif(empty($request['apps_name']) && @$request['priority']) {
-            $userDataFeature = DB::table('perusahaan')
+            $userDataFeature = DB::table('perusahaan')->select('perusahaan.nama_perusahaan', 'ticket.id_ticket', 'application.apps_name', 'ticket.priority', 'ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at', 'ticket.time_periodic', 'ticket.price', 'ticket.aproval_stat', 'assignment.assign_at')
             ->join('application','perusahaan.id_perusahaan','=','application.id_perusahaan')
-            ->join('ticket','application.id_apps','=','ticket.id_apps')        
+            ->join('ticket','application.id_apps','=','ticket.id_apps')
+            ->leftJoin('assignment', 'ticket.id_ticket', '=', 'assignment.id_ticket')        
             ->where('perusahaan.id_perusahaan', $request->id_perusahaan)->where('ticket.type', 'Request')        
             ->where('ticket.priority', $request->priority)
             ->whereNOTIn('ticket.status', function($subquery){
                 $subquery->select('ticket.status')->where('ticket.status', "Done");
-            })->orderByDesc('ticket.id_ticket')->paginate(2);         
+            })->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(2);         
         }
 
         $totalPage = $userDataFeature->lastPage();
@@ -150,43 +158,47 @@ class UserDataController extends Controller
     
     public function indexDone(Request $request){
         if(empty($request['apps_name']) && empty($request['priority'])) {
-            $userDataDone = DB::table('perusahaan')
+            $userDataDone = DB::table('perusahaan')->select('perusahaan.nama_perusahaan', 'ticket.id_ticket', 'application.apps_name', 'ticket.priority', 'ticket.type', 'ticket.updated_at','ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at', 'ticket.time_periodic', 'ticket.price', 'ticket.aproval_stat', 'assignment.assign_at')
             ->join('application','perusahaan.id_perusahaan','=','application.id_perusahaan')
-            ->join('ticket','application.id_apps','=','ticket.id_apps')        
+            ->join('ticket','application.id_apps','=','ticket.id_apps')      
+            ->leftJoin('assignment', 'ticket.id_ticket', '=', 'assignment.id_ticket')   
             ->where('perusahaan.id_perusahaan', $request->id_perusahaan)
             ->where('ticket.status', "Done")
-            ->orderByDesc('ticket.id_ticket')->paginate(2);
+            ->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(2);
         }
         
         elseif(@$request['apps_name'] && @$request['priority']) {
-            $userDataDone = DB::table('perusahaan')
+            $userDataDone = DB::table('perusahaan')->select('perusahaan.nama_perusahaan', 'ticket.id_ticket', 'application.apps_name', 'ticket.priority', 'ticket.type', 'ticket.updated_at','ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at', 'ticket.time_periodic', 'ticket.price', 'ticket.aproval_stat', 'assignment.assign_at')
             ->join('application','perusahaan.id_perusahaan','=','application.id_perusahaan')
-            ->join('ticket','application.id_apps','=','ticket.id_apps')        
+            ->join('ticket','application.id_apps','=','ticket.id_apps')   
+            ->leftJoin('assignment', 'ticket.id_ticket', '=', 'assignment.id_ticket')      
             ->where('perusahaan.id_perusahaan', $request->id_perusahaan)
             ->where('ticket.status', "Done")
             ->where('application.apps_name', $request->apps_name)
             ->where('ticket.priority', $request->priority)
-            ->orderByDesc('ticket.id_ticket')->paginate(2);
+            ->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(2);
         }
 
         elseif (@$request['apps_name'] && empty($request['priority'])) {
-            $userDataDone = DB::table('perusahaan')
+            $userDataDone = DB::table('perusahaan')->select('perusahaan.nama_perusahaan', 'ticket.id_ticket', 'application.apps_name', 'ticket.priority', 'ticket.type', 'ticket.updated_at','ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at', 'ticket.time_periodic', 'ticket.price', 'ticket.aproval_stat', 'assignment.assign_at')
             ->join('application','perusahaan.id_perusahaan','=','application.id_perusahaan')
-            ->join('ticket','application.id_apps','=','ticket.id_apps')        
+            ->join('ticket','application.id_apps','=','ticket.id_apps')   
+            ->leftJoin('assignment', 'ticket.id_ticket', '=', 'assignment.id_ticket')        
             ->where('perusahaan.id_perusahaan', $request->id_perusahaan)
             ->where('ticket.status', "Done")
             ->where('application.apps_name', $request->apps_name)
-            ->orderByDesc('ticket.id_ticket')->paginate(2);
+            ->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(2);
         }
 
         elseif(empty($request['apps_name']) && @$request['priority']) {
-            $userDataDone = DB::table('perusahaan')
+            $userDataDone = DB::table('perusahaan')->select('perusahaan.nama_perusahaan', 'ticket.id_ticket', 'application.apps_name', 'ticket.priority', 'ticket.type', 'ticket.updated_at','ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at', 'ticket.time_periodic', 'ticket.price', 'ticket.aproval_stat', 'assignment.assign_at')
             ->join('application','perusahaan.id_perusahaan','=','application.id_perusahaan')
-            ->join('ticket','application.id_apps','=','ticket.id_apps')        
+            ->join('ticket','application.id_apps','=','ticket.id_apps') 
+            ->leftJoin('assignment', 'ticket.id_ticket', '=', 'assignment.id_ticket')          
             ->where('perusahaan.id_perusahaan', $request->id_perusahaan)
             ->where('ticket.status', "Done")
             ->where('ticket.priority', $request->priority)
-            ->orderByDesc('ticket.id_ticket')->paginate(2);         
+            ->groupBy('ticket.id_ticket')->orderByDesc('ticket.id_ticket')->paginate(2);         
         }
 
         $totalPage = $userDataDone->lastPage();
@@ -408,15 +420,15 @@ class UserDataController extends Controller
     public function getListNotif(Request $request){
         if(empty($request['apps_name']) && empty($request['priority']) && empty($request['dari']) && empty($request['sampai'])){
 
-            $getList = DB::table('ticket')
+            $getList = DB::table('ticket')->select('notification.id_notif', 'notification.read_at','perusahaan.nama_perusahaan', 'ticket.id_ticket', 'application.apps_name', 'ticket.priority', 'ticket.type', 'ticket.updated_at','ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at', 'ticket.time_periodic', 'ticket.price', 'ticket.aproval_stat', 'assignment.assign_at')
+                ->leftJoin('assignment', 'ticket.id_ticket', '=', 'assignment.id_ticket')
                 ->join('notification', 'notification.id_ticket', '=', 'ticket.id_ticket')
                 ->join('application', 'ticket.id_apps', 'application.id_apps')
                 ->join('perusahaan', 'application.id_perusahaan', 'perusahaan.id_perusahaan')
-                
                 //Request Only
                 ->where('notification.id_user', $request->id_user)
                 //Request Only
-
+                ->groupBy('ticket.id_ticket')
                 ->orderByDesc('id_notif')
                 ->paginate(10);
         }
@@ -424,7 +436,8 @@ class UserDataController extends Controller
 
         elseif (@$request['apps_name'] && empty($request['priority']) && empty($request['dari']) && empty($request['sampai'])) {
 
-            $getList = DB::table('ticket')
+            $getList = DB::table('ticket')->select('notification.id_notif', 'notification.read_at','perusahaan.nama_perusahaan', 'ticket.id_ticket', 'application.apps_name', 'ticket.priority', 'ticket.type', 'ticket.updated_at','ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at', 'ticket.time_periodic', 'ticket.price', 'ticket.aproval_stat', 'assignment.assign_at')
+            ->leftJoin('assignment', 'ticket.id_ticket', '=', 'assignment.id_ticket')
             ->join('notification', 'notification.id_ticket', '=', 'ticket.id_ticket')
             ->join('application', 'ticket.id_apps', 'application.id_apps')
             ->join('perusahaan', 'application.id_perusahaan', 'perusahaan.id_perusahaan')
@@ -434,13 +447,15 @@ class UserDataController extends Controller
             ->where('notification.id_user', $request->id_user)
             //Request Only
 
+            ->groupBy('ticket.id_ticket')
             ->orderByDesc('id_notif')
             ->paginate(10);
             
         }
         elseif (empty($request['apps_name']) && @$request['priority'] && empty($request['dari']) && empty($request['sampai'])) {
             
-            $getList = DB::table('ticket')
+            $getList = DB::table('ticket')->select('notification.id_notif', 'notification.read_at','perusahaan.nama_perusahaan', 'ticket.id_ticket', 'application.apps_name', 'ticket.priority', 'ticket.type', 'ticket.updated_at','ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at', 'ticket.time_periodic', 'ticket.price', 'ticket.aproval_stat', 'assignment.assign_at')
+            ->leftJoin('assignment', 'ticket.id_ticket', '=', 'assignment.id_ticket')
             ->join('notification', 'notification.id_ticket', '=', 'ticket.id_ticket')
             ->join('application', 'ticket.id_apps', 'application.id_apps')
             ->join('perusahaan', 'application.id_perusahaan', 'perusahaan.id_perusahaan')
@@ -451,6 +466,7 @@ class UserDataController extends Controller
             //Request Only
 
             ->where('notification.id_user', $request->id_user)
+            ->groupBy('ticket.id_ticket')
             ->orderByDesc('id_notif')
             ->paginate(10);
             
@@ -459,7 +475,8 @@ class UserDataController extends Controller
             $dari = $request->dari;
             $sampai = $request->sampai;
 
-            $getList = DB::table('ticket')
+            $getList = DB::table('ticket')->select('notification.id_notif', 'notification.read_at','perusahaan.nama_perusahaan', 'ticket.id_ticket', 'application.apps_name', 'ticket.priority', 'ticket.type', 'ticket.updated_at','ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at', 'ticket.time_periodic', 'ticket.price', 'ticket.aproval_stat', 'assignment.assign_at')
+            ->leftJoin('assignment', 'ticket.id_ticket', '=', 'assignment.id_ticket')
             ->join('notification', 'notification.id_ticket', '=', 'ticket.id_ticket')
             ->join('application', 'ticket.id_apps', 'application.id_apps')
             ->join('perusahaan', 'application.id_perusahaan', 'perusahaan.id_perusahaan')
@@ -471,6 +488,7 @@ class UserDataController extends Controller
             //Request Only
 
             ->where('notification.id_user', $request->id_user)
+            ->groupBy('ticket.id_ticket')
             ->orderByDesc('id_notif')
             ->paginate(10);
             
@@ -479,7 +497,8 @@ class UserDataController extends Controller
 
         elseif (@$request['apps_name'] && @$request['priority'] && empty($request['dari']) && empty($request['sampai'])) {
 
-            $getList = DB::table('ticket')
+            $getList = DB::table('ticket')->select('notification.id_notif', 'notification.read_at','perusahaan.nama_perusahaan', 'ticket.id_ticket', 'application.apps_name', 'ticket.priority', 'ticket.type', 'ticket.updated_at','ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at', 'ticket.time_periodic', 'ticket.price', 'ticket.aproval_stat', 'assignment.assign_at')
+            ->leftJoin('assignment', 'ticket.id_ticket', '=', 'assignment.id_ticket')
             ->join('notification', 'notification.id_ticket', '=', 'ticket.id_ticket')
             ->join('application', 'ticket.id_apps', 'application.id_apps')
             ->join('perusahaan', 'application.id_perusahaan', 'perusahaan.id_perusahaan')
@@ -491,6 +510,7 @@ class UserDataController extends Controller
             //Request Only
 
             ->where('notification.id_user', $request->id_user)
+            ->groupBy('ticket.id_ticket')
             ->orderByDesc('id_notif')
             ->paginate(10);
             
@@ -499,7 +519,8 @@ class UserDataController extends Controller
             $dari = $request->dari;
             $sampai = $request->sampai;
 
-            $getList = DB::table('ticket')
+            $getList = DB::table('ticket')->select('notification.id_notif', 'notification.read_at','perusahaan.nama_perusahaan', 'ticket.id_ticket', 'application.apps_name', 'ticket.priority', 'ticket.type', 'ticket.updated_at','ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at', 'ticket.time_periodic', 'ticket.price', 'ticket.aproval_stat', 'assignment.assign_at')
+            ->leftJoin('assignment', 'ticket.id_ticket', '=', 'assignment.id_ticket')
             ->join('notification', 'notification.id_ticket', '=', 'ticket.id_ticket')
             ->join('application', 'ticket.id_apps', 'application.id_apps')
             ->join('perusahaan', 'application.id_perusahaan', 'perusahaan.id_perusahaan')
@@ -512,6 +533,7 @@ class UserDataController extends Controller
             //Request Only
 
             ->where('notification.id_user', $request->id_user)
+            ->groupBy('ticket.id_ticket')
             ->orderByDesc('id_notif')
             ->paginate(10);
             
@@ -520,7 +542,8 @@ class UserDataController extends Controller
             $dari = $request->dari;
             $sampai = $request->sampai;
 
-            $getList = DB::table('ticket')
+            $getList = DB::table('ticket')->select('notification.id_notif', 'notification.read_at','perusahaan.nama_perusahaan', 'ticket.id_ticket', 'application.apps_name', 'ticket.priority', 'ticket.type', 'ticket.updated_at','ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at', 'ticket.time_periodic', 'ticket.price', 'ticket.aproval_stat', 'assignment.assign_at')
+            ->leftJoin('assignment', 'ticket.id_ticket', '=', 'assignment.id_ticket')
             ->join('notification', 'notification.id_ticket', '=', 'ticket.id_ticket')
             ->join('application', 'ticket.id_apps', 'application.id_apps')
             ->join('perusahaan', 'application.id_perusahaan', 'perusahaan.id_perusahaan')
@@ -533,6 +556,7 @@ class UserDataController extends Controller
             //Request Only
 
             ->where('notification.id_user', $request->id_user)
+            ->groupBy('ticket.id_ticket')
             ->orderByDesc('id_notif')
             ->paginate(10);
             
@@ -543,7 +567,8 @@ class UserDataController extends Controller
             $dari = $request->dari;
             $sampai = $request->sampai;
 
-            $getList = DB::table('ticket')
+            $getList = DB::table('ticket')->select('notification.id_notif', 'notification.read_at','perusahaan.nama_perusahaan', 'ticket.id_ticket', 'application.apps_name', 'ticket.priority', 'ticket.type', 'ticket.updated_at','ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.created_at', 'ticket.time_periodic', 'ticket.price', 'ticket.aproval_stat', 'assignment.assign_at')
+            ->leftJoin('assignment', 'ticket.id_ticket', '=', 'assignment.id_ticket')
             ->join('notification', 'notification.id_ticket', '=', 'ticket.id_ticket')
             ->join('application', 'ticket.id_apps', 'application.id_apps')
             ->join('perusahaan', 'application.id_perusahaan', 'perusahaan.id_perusahaan')
@@ -557,6 +582,7 @@ class UserDataController extends Controller
             //Request Only
 
             ->where('notification.id_user', $request->id_user)
+            ->groupBy('ticket.id_ticket')
             ->orderByDesc('id_notif')
             ->paginate(10);
             
@@ -567,11 +593,18 @@ class UserDataController extends Controller
         $totalPage = $getList->lastPage();
         $data = $getList->flatten(1);
 
-        return response()->json([
-            'notifCount' => $notifCount,
-            'last_page_notif' => $totalPage,
-            'notifData' => $data
-        ]);
+        if(isset($data[0])) {
+            return response()->json([
+                'message'         => 'success',
+                'notifCount' => $notifCount,
+                'done_page_total' => $totalPage,
+                'notifData' => $data
+            ]);            
+        } else {
+            return response()->json([
+                'message' => 'No Data Available'
+            ]);
+        }
     }
 
     public function updateNotifReadAt(Request $request, $id_notif){

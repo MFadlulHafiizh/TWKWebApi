@@ -349,29 +349,29 @@ class TwkStaffController extends Controller
         ]);
 
         
-        // if($ticket){
-        //     $update = Ticket::find($id_ticket);
-        //     $update->update([
-        //         'status' => 'Done'
-        //     ]);
-        //     return response()->json([
-        //         'message'       => 'Succees.',
-        //         'statusUpdate'  => $update,
-        //         'notif'         => $this->pushNotif()
-        // ], 200);
-        // }else{
-        //     return response([
-        //         'success' => false,
-        //         'message' => 'Failed.',
-        //     ], 404);
-        // }
+        if($ticket){
+            $update = Ticket::find($id_ticket);
+            $update->update([
+                'status' => 'Done'
+            ]);
+            return response()->json([
+                'message'       => 'Succees.',
+                'statusUpdate'  => $update,
+                'notif'         => $this->pushNotif()
+        ], 200);
+        }else{
+            return response([
+                'success' => false,
+                'message' => 'Failed.',
+            ], 404);
+        }
     }
 
     public function listNotif(Request $request){
         if(empty($request['apps_name']) && empty($request['priority']) && empty($request['dari']) && empty($request['sampai'])){
 
-            $getList = DB::table('ticket')->select('notification.id_notif','perusahaan.nama_perusahaan', 'assignment.id_assignment', 'ticket.id_ticket', 'assignment.dead_line', 'application.apps_name', 'ticket.type', 'ticket.priority', 'ticket.subject', 'ticket.detail', 'ticket.status', 'notification.created_at')
-            ->join('assignment', 'ticket.id_ticket', '=', 'assignment.id_ticket')
+            $getList = DB::table('ticket')->select('notification.id_notif','perusahaan.nama_perusahaan', 'assignment.id_assignment', 'ticket.id_ticket', 'assignment.dead_line', 'application.apps_name', 'ticket.type', 'ticket.priority', 'ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.updated_at', 'assignment.assign_at')
+            ->leftJoin('assignment', 'ticket.id_ticket', '=', 'assignment.id_ticket')
             ->join('notification', 'notification.id_ticket', '=', 'ticket.id_ticket')
             ->join('application', 'ticket.id_apps', 'application.id_apps')
             ->join('perusahaan', 'application.id_perusahaan', 'perusahaan.id_perusahaan')
@@ -380,15 +380,15 @@ class TwkStaffController extends Controller
             ->where('notification.id_user', $request->id_user)
             ->where('assignment.id_user', $request->id_user)
             //Request Only
-
+            ->groupBy('ticket.id_ticket')
             ->orderByDesc('id_notif')
             ->paginate(5);
         }
 
         elseif (@$request['apps_name'] && empty($request['priority']) && empty($request['dari']) && empty($request['sampai'])) {
 
-            $getList = DB::table('ticket')->select('notification.id_notif','perusahaan.nama_perusahaan', 'assignment.id_assignment', 'ticket.id_ticket', 'assignment.dead_line', 'application.apps_name', 'ticket.type', 'ticket.priority', 'ticket.subject', 'ticket.detail', 'ticket.status', 'notification.created_at')
-            ->join('assignment', 'ticket.id_ticket', '=', 'assignment.id_ticket')
+            $getList = DB::table('ticket')->select('notification.id_notif','perusahaan.nama_perusahaan', 'assignment.id_assignment', 'ticket.id_ticket', 'assignment.dead_line', 'application.apps_name', 'ticket.type', 'ticket.priority', 'ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.updated_at', 'assignment.assign_at')
+            ->leftJoin('assignment', 'ticket.id_ticket', '=', 'assignment.id_ticket')
             ->join('notification', 'notification.id_ticket', '=', 'ticket.id_ticket')
             ->join('application', 'ticket.id_apps', 'application.id_apps')
             ->join('perusahaan', 'application.id_perusahaan', 'perusahaan.id_perusahaan')
@@ -398,7 +398,7 @@ class TwkStaffController extends Controller
             ->where('notification.id_user', $request->id_user)
             ->where('assignment.id_user', $request->id_user)
             //Request Only
-
+            ->groupBy('ticket.id_ticket')
             ->orderByDesc('id_notif')
             ->paginate(5);
 
@@ -407,8 +407,8 @@ class TwkStaffController extends Controller
         }
         elseif (empty($request['apps_name']) && @$request['priority'] && empty($request['dari']) && empty($request['sampai'])) {
 
-            $getList = DB::table('ticket')->select('notification.id_notif','perusahaan.nama_perusahaan', 'assignment.id_assignment', 'ticket.id_ticket', 'assignment.dead_line', 'application.apps_name', 'ticket.type', 'ticket.priority', 'ticket.subject', 'ticket.detail', 'ticket.status', 'notification.created_at')
-            ->join('assignment', 'ticket.id_ticket', '=', 'assignment.id_ticket')
+            $getList = DB::table('ticket')->select('notification.id_notif','perusahaan.nama_perusahaan', 'assignment.id_assignment', 'ticket.id_ticket', 'assignment.dead_line', 'application.apps_name', 'ticket.type', 'ticket.priority', 'ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.updated_at', 'assignment.assign_at')
+            ->leftJoin('assignment', 'ticket.id_ticket', '=', 'assignment.id_ticket')
             ->join('notification', 'notification.id_ticket', '=', 'ticket.id_ticket')
             ->join('application', 'ticket.id_apps', 'application.id_apps')
             ->join('perusahaan', 'application.id_perusahaan', 'perusahaan.id_perusahaan')
@@ -418,7 +418,7 @@ class TwkStaffController extends Controller
             ->where('notification.id_user', $request->id_user)
             ->where('assignment.id_user', $request->id_user)
             //Request Only
-
+            ->groupBy('ticket.id_ticket')
             ->orderByDesc('id_notif')
             ->paginate(5);
 
@@ -429,8 +429,8 @@ class TwkStaffController extends Controller
             $dari = $request->dari;
             $sampai = $request->sampai;
 
-            $getList = DB::table('ticket')->select('notification.id_notif','perusahaan.nama_perusahaan', 'assignment.id_assignment', 'ticket.id_ticket', 'assignment.dead_line', 'application.apps_name', 'ticket.type', 'ticket.priority', 'ticket.subject', 'ticket.detail', 'ticket.status', 'notification.created_at')
-            ->join('assignment', 'ticket.id_ticket', '=', 'assignment.id_ticket')
+            $getList = DB::table('ticket')->select('notification.id_notif','perusahaan.nama_perusahaan', 'assignment.id_assignment', 'ticket.id_ticket', 'assignment.dead_line', 'application.apps_name', 'ticket.type', 'ticket.priority', 'ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.updated_at', 'assignment.assign_at')
+            ->leftJoin('assignment', 'ticket.id_ticket', '=', 'assignment.id_ticket')
             ->join('notification', 'notification.id_ticket', '=', 'ticket.id_ticket')
             ->join('application', 'ticket.id_apps', 'application.id_apps')
             ->join('perusahaan', 'application.id_perusahaan', 'perusahaan.id_perusahaan')
@@ -441,7 +441,7 @@ class TwkStaffController extends Controller
             ->where('notification.id_user', $request->id_user)
             ->where('assignment.id_user', $request->id_user)
             //Request Only
-
+            ->groupBy('ticket.id_ticket')
             ->orderByDesc('id_notif')
             ->paginate(5);
 
@@ -451,8 +451,8 @@ class TwkStaffController extends Controller
 
         elseif (@$request['apps_name'] && @$request['priority'] && empty($request['dari']) && empty($request['sampai'])) {
 
-            $getList = DB::table('ticket')->select('notification.id_notif','perusahaan.nama_perusahaan', 'assignment.id_assignment', 'ticket.id_ticket', 'assignment.dead_line', 'application.apps_name', 'ticket.type', 'ticket.priority', 'ticket.subject', 'ticket.detail', 'ticket.status', 'notification.created_at')
-            ->join('assignment', 'ticket.id_ticket', '=', 'assignment.id_ticket')
+            $getList = DB::table('ticket')->select('notification.id_notif','perusahaan.nama_perusahaan', 'assignment.id_assignment', 'ticket.id_ticket', 'assignment.dead_line', 'application.apps_name', 'ticket.type', 'ticket.priority', 'ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.updated_at', 'assignment.assign_at')
+            ->leftJoin('assignment', 'ticket.id_ticket', '=', 'assignment.id_ticket')
             ->join('notification', 'notification.id_ticket', '=', 'ticket.id_ticket')
             ->join('application', 'ticket.id_apps', 'application.id_apps')
             ->join('perusahaan', 'application.id_perusahaan', 'perusahaan.id_perusahaan')
@@ -463,7 +463,7 @@ class TwkStaffController extends Controller
             ->where('notification.id_user', $request->id_user)
             ->where('assignment.id_user', $request->id_user)
             //Request Only
-
+            ->groupBy('ticket.id_ticket')
             ->orderByDesc('id_notif')
             ->paginate(5);
 
@@ -474,8 +474,8 @@ class TwkStaffController extends Controller
             $dari = $request->dari;
             $sampai = $request->sampai;
 
-            $getList = DB::table('ticket')->select('notification.id_notif','perusahaan.nama_perusahaan', 'assignment.id_assignment', 'ticket.id_ticket', 'assignment.dead_line', 'application.apps_name', 'ticket.type', 'ticket.priority', 'ticket.subject', 'ticket.detail', 'ticket.status', 'notification.created_at')
-            ->join('assignment', 'ticket.id_ticket', '=', 'assignment.id_ticket')
+            $getList = DB::table('ticket')->select('notification.id_notif','perusahaan.nama_perusahaan', 'assignment.id_assignment', 'ticket.id_ticket', 'assignment.dead_line', 'application.apps_name', 'ticket.type', 'ticket.priority', 'ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.updated_at', 'assignment.assign_at')
+            ->leftJoin('assignment', 'ticket.id_ticket', '=', 'assignment.id_ticket')
             ->join('notification', 'notification.id_ticket', '=', 'ticket.id_ticket')
             ->join('application', 'ticket.id_apps', 'application.id_apps')
             ->join('perusahaan', 'application.id_perusahaan', 'perusahaan.id_perusahaan')
@@ -487,7 +487,7 @@ class TwkStaffController extends Controller
             ->where('notification.id_user', $request->id_user)
             ->where('assignment.id_user', $request->id_user)
             //Request Only
-
+            ->groupBy('ticket.id_ticket')
             ->orderByDesc('id_notif')
             ->paginate(5);
 
@@ -498,8 +498,8 @@ class TwkStaffController extends Controller
             $dari = $request->dari;
             $sampai = $request->sampai;
 
-            $getList = DB::table('ticket')->select('notification.id_notif','perusahaan.nama_perusahaan', 'assignment.id_assignment', 'ticket.id_ticket', 'assignment.dead_line', 'application.apps_name', 'ticket.type', 'ticket.priority', 'ticket.subject', 'ticket.detail', 'ticket.status', 'notification.created_at')
-            ->join('assignment', 'ticket.id_ticket', '=', 'assignment.id_ticket')
+            $getList = DB::table('ticket')->select('notification.id_notif','perusahaan.nama_perusahaan', 'assignment.id_assignment', 'ticket.id_ticket', 'assignment.dead_line', 'application.apps_name', 'ticket.type', 'ticket.priority', 'ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.updated_at', 'assignment.assign_at')
+            ->leftJoin('assignment', 'ticket.id_ticket', '=', 'assignment.id_ticket')
             ->join('notification', 'notification.id_ticket', '=', 'ticket.id_ticket')
             ->join('application', 'ticket.id_apps', 'application.id_apps')
             ->join('perusahaan', 'application.id_perusahaan', 'perusahaan.id_perusahaan')
@@ -511,7 +511,7 @@ class TwkStaffController extends Controller
             ->where('notification.id_user', $request->id_user)
             ->where('assignment.id_user', $request->id_user)
             //Request Only
-
+            ->groupBy('ticket.id_ticket')
             ->orderByDesc('id_notif')
             ->paginate(5);
 
@@ -523,8 +523,8 @@ class TwkStaffController extends Controller
             $dari = $request->dari;
             $sampai = $request->sampai;
             
-            $getList = DB::table('ticket')->select('notification.id_notif','perusahaan.nama_perusahaan', 'assignment.id_assignment', 'ticket.id_ticket', 'assignment.dead_line', 'application.apps_name', 'ticket.type', 'ticket.priority', 'ticket.subject', 'ticket.detail', 'ticket.status', 'notification.created_at')
-            ->join('assignment', 'ticket.id_ticket', '=', 'assignment.id_ticket')
+            $getList = DB::table('ticket')->select('notification.id_notif','perusahaan.nama_perusahaan', 'assignment.id_assignment', 'ticket.id_ticket', 'assignment.dead_line', 'application.apps_name', 'ticket.type', 'ticket.priority', 'ticket.subject', 'ticket.detail', 'ticket.status', 'ticket.updated_at', 'assignment.assign_at')
+            ->leftJoin('assignment', 'ticket.id_ticket', '=', 'assignment.id_ticket')
             ->join('notification', 'notification.id_ticket', '=', 'ticket.id_ticket')
             ->join('application', 'ticket.id_apps', 'application.id_apps')
             ->join('perusahaan', 'application.id_perusahaan', 'perusahaan.id_perusahaan')
@@ -537,7 +537,7 @@ class TwkStaffController extends Controller
             ->where('notification.id_user', $request->id_user)
             ->where('assignment.id_user', $request->id_user)
             //Request Only
-
+            ->groupBy('ticket.id_ticket')
             ->orderByDesc('id_notif')
             ->paginate(5);
     
